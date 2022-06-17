@@ -20,7 +20,7 @@ export default class Obstracle extends Background {
     visible = false;
     isBackground = false;
     onCollisionCourse = false;
-    canBeOnTop = false;
+    canJumpOn = false;
     damage = 0;
     height = 50;
     width = 50;
@@ -71,7 +71,7 @@ export default class Obstracle extends Background {
         this.height = 150;
         this.width = 150;
         this.damage = 0.25;
-        this.canBeOnTop = this.onCollisionCourse;
+        this.canJumpOn = this.onCollisionCourse;
     }
 
     setCactusProperties () {

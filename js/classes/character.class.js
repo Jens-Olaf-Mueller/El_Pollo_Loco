@@ -8,26 +8,14 @@ import { playSound, loadArray } from "../library.js";
 import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 
 export default class Character extends Mobile {
-    constructor (environment) {
-        super().loadImage('./img/Pepe/idle/IDLE/0.png');
-        this.environment = environment;
-        this.keyboard = environment.keyboard;
-        this.groundY = environment.groundY;
-        this.Y = environment.groundY;
-        this.initialize();           
-        this.applyGravity();
-        this.animate();
-    };
-
     name = 'Pepe';
     environment; // reference to the world
     X = 50;
     Y = 150;
+    groundY = 0;
     height = 300;
     width = 150;
-    top = this.Y + 100;
-    right = this.X + this.width;
-    groundY = 0;    
+
     energy = 100;
     jumpPower = 11;
     sharpness = 40;
@@ -45,6 +33,18 @@ export default class Character extends Mobile {
     arrSleeping;
     arrDying;
 
+    constructor (environment) {
+        super().loadImage('./img/Pepe/idle/IDLE/0.png');
+        this.environment = environment;
+        this.keyboard = environment.keyboard;
+        this.groundY = environment.groundY;
+        this.Y = environment.groundY;
+        // this.bottom = this.Y + this.height;
+        this.initialize();           
+        this.applyGravity();
+        this.animate();
+    };
+
     initialize () {
         this.arrWalking = loadArray ('./img/Pepe/walk/wlk',5);
         this.loadImageCache (this.arrWalking, this.name + '_wlk');
@@ -54,6 +54,7 @@ export default class Character extends Mobile {
         this.loadImageCache (this.arrHurt, this.name + '_hrt');
         this.arrDying = loadArray ('./img/Pepe/killed/die',7);
         this.loadImageCache (this.arrDying, this.name + '_die');
+        console.log(this.name + 'Bottom: ' + this.bottom() + '| Right: ' + this.right())
     }
 
     animate () {
@@ -73,8 +74,9 @@ export default class Character extends Mobile {
             }
 
             if (this.keyboard.UP && !this.isAboveGround()) {
-                this.jump(this.jumpPower);
-                this.jumpPower -= 0.1;
+                let power = this.jumpPower < 15 ? this.jumpPower : 15;
+                this.jump(power);
+                this.jumpPower -= this.environment.lvlNumber/10;
                 if (this.jumpPower < 0) this.jumpPower = 0;
                 updateStatus(this);
             }
@@ -93,5 +95,21 @@ export default class Character extends Mobile {
                 this.playAnimation (this.arrWalking);     
             }
         }, 6000 / FPS);
+    }
+
+    top () {
+        return this.Y;
+    }
+
+    left () {
+        return this.X;
+    }
+
+    bottom () {
+        return this.Y + this.height;
+    }
+
+    right () {
+        return this.X + this.width;
     }
 }

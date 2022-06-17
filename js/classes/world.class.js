@@ -5,21 +5,9 @@ import Level from './level.class.js';
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 import { gameSettings, updateStatus } from "../game.js";
 
-export default class World {
-    constructor (canvas, keyboard) {
-        this.cnv = canvas; // assigning the global canvas to a local variable
-        this.ctx = canvas.getContext('2d');        
-        this.keyboard = keyboard;
-        this.debugMode = gameSettings.debugMode;
-        this.Pepe = new Character(this);
-        this.initLevel (this.lvlNumber);
-        this.draw();
-        this.checkCollision();           
-    }
-
-    debugMode = false;
-
+export default class World {   
     // DECLARATIONS
+    debugMode = false;
     Pepe;  
     level;
     lvlNumber = 1;
@@ -39,11 +27,22 @@ export default class World {
     arrClouds;
     arrItems;
 
+    constructor (canvas, keyboard) {
+        this.cnv = canvas; // assigning the global canvas to a local variable
+        this.ctx = canvas.getContext('2d');        
+        this.keyboard = keyboard;
+        this.debugMode = gameSettings.debugMode;
+        this.lvlNumber = gameSettings.lastLevel;
+        this.Pepe = new Character(this);        
+        this.initLevel (this.lvlNumber);
+        this.draw();
+        this.checkCollision();           
+    }
+
     initLevel (levelNo) {
         this.level = new Level(levelNo);
         this.eastEnd = this.level.eastEnd;
         this.westEnd = this.level.westEnd;  
-
         this.arrBackgrounds = this.level.Backgrounds;
         this.arrForegrounds = this.level.Foregrounds;
         this.arrObstracles = this.level.Obstracles;
@@ -126,14 +125,16 @@ export default class World {
 
             // collision with foot...
             this.level.Food.forEach((food) => {
-                if (this.Pepe.isColliding(food) && this.keyboard.SPACE) {
+                if (this.Pepe.isColliding(food) && this.keyboard.SPACE && this.Pepe.coins > 0) {
                     this.Pepe.energy += parseInt(food.energy);
                     this.Pepe.accuracy += parseInt(food.accuracy);
                     this.Pepe.jumpPower += parseInt(food.jumpPower);                    
                     if (this.Pepe.jumpPower > 15) this.Pepe.jumpPower = 15;
                     this.Pepe.sharpness += parseInt(food.sharpness);
+                    this.Pepe.coins -= 1;
+                    if(this.Pepe.coins < 0) this.Pepe.coins = 0;
                     food.enabled(false);
-                    // updateStatus (this.Pepe);
+                    updateStatus (this.Pepe);
                 }
             });
             
@@ -141,7 +142,7 @@ export default class World {
             this.level.Items.forEach((item) => {
                 if (this.Pepe.isColliding(item) && item.visible && this.keyboard.SPACE) {
                     if (item.name.includes('coin')) {
-                        this.Pepe.coins++;
+                        this.Pepe.coins += parseInt(item.value);
                         item.enabled(false);
                     } else if (item.name.includes('bottle')) {
                         this.Pepe.bottles++;
@@ -154,13 +155,22 @@ export default class World {
             // collision with obstracles
             this.level.Obstracles.forEach((barrier) => {
                 if (this.Pepe.isColliding(barrier) && barrier.onCollisionCourse && barrier.damage > 0) {
-                    console.log(barrier.name + ' kollidiert: ' + barrier.onCollisionCourse + barrier.damage );
+                    console.log(barrier.name + ' kollidiert: ' + barrier.onCollisionCourse + barrier.damage );                    
                     // can we jump on the obstracle?
-                    if (this.Pepe.isAboveGround() && barrier.canBeOnTop) {
-                        this.Pepe.Y -= barrier.height;
-                    } else {
-                        this.Pepe.hit(barrier.damage);
-                    }                     
+                    if (barrier.canJumpOn) {
+                        console.log('Pepe bottom: ' + this.Pepe.bottom());
+                        console.log(barrier.name + 'Y: ' + barrier.Y)
+
+                        if (this.Pepe.isAboveGround(barrier.Y)) {
+                            debugger
+                            this.Pepe.Y -= barrier.height;
+                        } else {
+                            // this.Pepe.energy -=barrier.damage;
+                            // this.Pepe.hit(barrier.damage);
+                        } 
+                    }
+
+                                        
                 }
 
             });

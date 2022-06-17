@@ -85,14 +85,19 @@ export default class Mobile {
      */
     displayFrame (ctx) {
         // if (this instanceof Character || this instanceof Chicken ) {
-        if (!this.name == undefined) {
+        if (this.name) {
+            let offsetY = this.name.includes('Pepe') ? 100 : 0;
             if (this.name.includes('Pepe') || this.name.includes('Frida')) {
                 ctx.beginPath();
                 ctx.lineWidth = '3';
                 ctx.setLineDash([5, 5]);
                 ctx.strokeStyle = 'navy';
-                ctx.rect(this.X, this.Y, this.width, this.height);
+                ctx.rect(this.X, this.Y + offsetY, this.width, this.height - offsetY);
                 ctx.stroke();
+
+                ctx.font = "16px Arial";
+                ctx.fillStyle = 'navy';
+                ctx.fillText(`X: ${parseInt(this.X)} Y: ${this.Y}`,this.X-16, this.Y-10 + offsetY);
             }
         }        
         // }
@@ -119,6 +124,9 @@ export default class Mobile {
      * @returns true | false
      */
     isAboveGround (height = 0) {
+        // 1. Alle Elemente holen, die bei deiner X-Koordinate liegen
+        // 2. Höhe von erstem Objekt nehmen, sonst height = 0
+        // if (this.Y != this.groundY) debugger
         return this.Y < (this.groundY - height);
     }
         

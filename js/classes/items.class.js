@@ -4,15 +4,6 @@ import { random } from '../library.js';
 import Background from './background.class.js';
 
 export default class Item  extends Background {
-    constructor (imgPath, name, end) { 
-        super().loadImage(imgPath);       
-        this.name = name;
-        this.value = name.replace(/[^0-9]/g,''); // filters a number from string: 'food4' => 4
-        this.eastEnd = end || CANVAS_WIDTH;  
-        this.westEnd = -end || -CANVAS_WIDTH; 
-        this.initialize();
-    }
-
     name = '';
     image;
     visible = true;
@@ -23,19 +14,31 @@ export default class Item  extends Background {
     Y = 0;
     eastEnd;
     westEnd;
+
+    constructor (imgPath, name, end) { 
+        super().loadImage(imgPath);       
+        this.name = name;
+        this.value = name.replace(/[^0-9]/g,''); // filters a number from string: 'food4' => 4
+        this.eastEnd = end || CANVAS_WIDTH;  
+        this.westEnd = -end || -CANVAS_WIDTH; 
+        this.initialize();
+    }
     
     initialize() {
-        this.X = random (1, this.eastEnd) - CANVAS_WIDTH / 2; 
-        this.X = Math.random() < 0.5 ? this.X * -1 : this.X;
+        this.X = random (1, this.eastEnd - CANVAS_WIDTH); 
+        this.X = Math.random() < 0.5 ? -this.X : this.X;
+
+        // console.log(this.name + 'X: ' + this.X )
 
         if (this.name.includes('bottle')) {
             this.height = 70;
             this.width = 70;
             this.Y = 370;
-        } else  if (this.name.includes('coin')) {
+        } else if (this.name.includes('coin')) {
             this.height = 30;
             this.width = 30;
             this.Y = 250;
+            this.value++;
         // } else if (this.name.includes('chest')) {
 
         // } else if (this.name.includes('key')) {
@@ -59,7 +62,6 @@ export default class Item  extends Background {
         } else  {
             this.enabled(false);
         }
-
     }
 
     enabled (state) {

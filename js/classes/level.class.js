@@ -35,7 +35,9 @@ export default class Level {
         this.initClouds();
         this.initFood();
         this.initItems();
-        // console.log('LeveL: '+this.levelNo,this)    
+        
+        console.log('LeveL: ', this.levelNo,this) 
+        // debugger
     }
 
     initBackgrounds() {
@@ -57,17 +59,17 @@ export default class Level {
     */
     initObstracles () {
         // load the plants
-        this.addObstracles(11, 'cactus', 'Plants');
-        this.addObstracles(4, 'grass', 'Plants');
-        this.addObstracles(2, 'tree', 'Plants');
+        this.Obstracles = this.add(11, Obstracle, 'cactus', 'Obstracles/Plants');
+        this.Obstracles.push(...this.add(4, Obstracle, 'grass', 'Obstracles/Plants'));        
+        this.Obstracles.push(...this.add(2, Obstracle, 'tree', 'Obstracles/Plants'));
         // load the stones
-        this.addObstracles(11, 'stone', 'Stones');
-        this.addObstracles(7, 'stone_big', 'Stones');
+        this.Obstracles.push(...this.add(11, Obstracle, 'stone', 'Obstracles/Stones'));
+        this.Obstracles.push(...this.add(7, Obstracle, 'stone_big', 'Obstracles/Stones'));
         // load the animals
-        this.addObstracles(6, 'spider', 'Animals/Spiders');
-        this.addObstracles(6, 'scorpion', 'Animals/Spiders');
-        this.addObstracles(14, 'snake', 'Animals/Snakes');
-        this.addObstracles(3, 'bees', 'Animals/Bugs');
+        this.Obstracles.push(...this.add(6, Obstracle, 'spider', 'Obstracles/Animals/Spiders'));
+        this.Obstracles.push(...this.add(6, Obstracle, 'scorpion', 'Obstracles/Animals/Spiders'));
+        this.Obstracles.push(...this.add(14, Obstracle, 'snake', 'Obstracles/Animals/Snakes'));
+        this.Obstracles.push(...this.add(3, Obstracle, 'bees', 'Obstracles/Animals/Bugs'));
 
         for (let i = 0; i < this.Obstracles.length; i++) {
             const item = this.Obstracles[i];
@@ -79,59 +81,37 @@ export default class Level {
         }
     }
 
-    addObstracles (count, key, subfolder) {
-        let path = subfolder ? `./img/Obstracles/${subfolder}` : `./img/Obstracles`;
-        for (let i = 0; i < count; i++) {
-            const name = key + i;
-            this.Obstracles.push(new Obstracle(`${path}/${name}.png`, name, this.eastEnd));
-        }
-    }
-
     initItems () {
          //load the items
-        this.addItem(3, 'bottle', 'Bottles');
-        this.addItem(3, 'coin', 'Coins');
-        this.addItem(2, 'key', 'Chest');
-        this.addItem(4, 'chest', 'Chest');
-        this.addItem(1, 'bullet', 'Guns');
-        this.addItem(1, 'beehive', 'Misc');
-        this.addItem(2, 'jar', 'Misc');
-        this.addItem(4, 'misc', 'Misc');
-        this.addItem(4, 'shop', 'Misc');
-        this.addItem(4, 'seedbag', 'Seeds');
-    }
-
-    addItem (count, key, subfolder) {
-        let path = subfolder ? `./img/Items/${subfolder}` : `./img/Items` ;
-        for (let i = 0; i < count; i++) {
-            const name = key +i;
-            this.Items.push(new Item(`${path}/${name}.png`, name, this.eastEnd));
+        for (let i = 0; i < this.levelNo * 2; i++) {
+            this.Items.push(...this.add (3, Item, 'bottle', 'Items/Bottles'));
+            this.Items.push(...this.add (3, Item, 'coin', 'Items/Coins'));
         }
+        this.Items.push(...this.add (2, Item, 'key', 'Items/Chest'));
+        this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));         
+        this.Items.push(...this.add (1, Item, 'bullet', 'Items/Guns'));
+        this.Items.push(...this.add (1, Item, 'beehive', 'Items/Misc'));
+        this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
+        this.Items.push(...this.add (5, Item, 'misc', 'Items/Misc'));
+        this.Items.push(...this.add (4, Item, 'shop', 'Items/Misc'));
+        this.Items.push(...this.add (4, Item, 'seedbag', 'Items/Seeds'));
     }
 
     initFood () {
-        // load the food
-        for (let i = 0; i < 17; i++) {
-            const name = `food${i}`;
-            // const path = `./img/Food/${name}.png`;
-            // console.log(path )
-            this.Food.push(new Food(`./img/Food/${name}.png`,name, this.eastEnd));
+        this.Food = this.add(17, Food, 'food', 'Food');
+        this.Food.push(...this.add(17, Food, 'chili', 'Food/Chili'));
+        this.Food.push(...this.add(10, Food, 'drink', 'Food/Drinks'));
+        this.Food.push(...this.add(6, Food, 'medicine', 'Food/Medicine'));
+    }
+
+    add (count, classType, key, subfolder) {
+        let arr = [],
+            path = subfolder ? `./img/${subfolder}` : `./img` ;
+        for (let i = 0; i < count; i++) {
+            const name = key + i;
+            arr.push(new classType(`${path}/${name}.png`, name, this.eastEnd));
         }
-        // load the chili
-        for (let i = 0; i < 17; i++) {
-            const name = `chili${i}`;
-            this.Food.push(new Food(`./img/Food/Chili/${name}.png`,name ,this.eastEnd));
-        }
-        // load the drinks
-        for (let i = 0; i < 10; i++) {
-            const name = `drink${i}`;
-            this.Food.push(new Food(`./img/Food/Drinks/${name}.png`,name ,this.eastEnd));
-        }
-        // load the medicine
-        for (let i = 0; i < 6; i++) {
-            const name = `medicine${i}`;
-            this.Food.push(new Food(`./img/Food/Medicine/${name}.png`,name ,this.eastEnd));
-        }
+        return arr;
     }
 
     initEnemies() {

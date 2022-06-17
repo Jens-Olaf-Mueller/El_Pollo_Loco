@@ -22,7 +22,7 @@ let world,
     statusbar = $('divStatusbar'),
     canvas = $('canvas'),
     songs = ['Chicken Song.mp3','Santa Esmeralda.mp3']; 
-let arrEnergyIcons, arrJumpIcons, arrAccuracyIcons, arrSharpIcons;
+let arrEnergyIcons, arrJumpIcons, arrAccuracyIcons, arrSharpIcons, arrAudio;
 
 const energyIcon = $('imgEnergy'),
     jumpIcon = $('imgJump'),
@@ -31,18 +31,23 @@ const energyIcon = $('imgEnergy'),
     coinIcon = $('divCoin'),
     bottleIcon = $('divBottle');
 
+const storageKey = 'Settings_El_Pollo_Loco';
+
 export let gameSettings = {
     musicEnabled: false,
     soundEnabled: false,
     debugMode: false,
     showIntro: true,
     showHelpOnStart: true,
-    lastLevel: 1
+    lastLevel: 1,
+    lastSong: 'Santa Esmeralda.mp3'
 }
 
 setEventListeners();
+loadSettings();
 
-function startGame() {       
+function startGame() { 
+    loadSounds();      
     settings.classList.add('hidden');
     $('divCanvas').classList.remove('hidden');
     $('divNavbar').classList.remove('hidden');
@@ -131,6 +136,8 @@ export function updateStatus (pepe) {
         bottleIcon.classList.toggle('hidden', (pepe.bottles <= 0));
         $('#divBottle >label').innerText = pepe.bottles;
     }
+
+    $('imgLevel').src = `./img/Status/Level/${world.lvlNumber}.png`;
 }
 
 function loadStatusIcons () {
@@ -144,4 +151,30 @@ function loadStatusIcons () {
 }
 
 
+
+function loadSounds () {
+    arrAudio = [];
+    for (let i = 0; i < songs.length; i++) {
+        const audio = new Audio('./sound/' + songs[i]), objAudio = {};
+        objAudio[`song${i}`] = audio;
+        arrAudio.push(objAudio);        
+    }
+
+    // console.log(arrAudio);
+    // now loading the sounds...
+}
+
+function loadSettings() {   
+    // Super schnelle Alternative:
+    // let fromStorage = localStorage.getItem('key') || 'default-settings'; 
+    let ls = localStorage.getItem(storageKey);
+    if (ls) gameSettings = JSON.parse(ls);
+
+    let arrCheckboxes = Array.from($('[data-settings'));  
+    debugger
+    
+
+    // und Werte im Formular setzen:
+    // displaySettings ();
+}
 

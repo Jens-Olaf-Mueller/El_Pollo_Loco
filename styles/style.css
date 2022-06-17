@@ -20,6 +20,7 @@ body {
     align-items: center;
     background-image: url('../img/Intro_Outro/start_screen/screen1.png');
     background-position: center;
+    overflow: hidden;
 }
 
 canvas {
@@ -42,8 +43,6 @@ canvas {
 .hidden {
     display: none !important;
 }
-
-
 
 .flx-row1 {
     display: flex;
@@ -143,6 +142,17 @@ canvas {
     margin-left: 0.5rem;    
 }
 
+#imgLevel {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 1.5rem;
+    background: lightblue;
+    border: 3px double navy;
+    border-radius: 100%;
+    padding: 0.15rem;
+}
+
 .status-icon span {
     left: 2rem;    
 }
@@ -151,7 +161,7 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1rem;
+    padding: 0 0.5rem;
     width: 100%;
 }
 
@@ -163,7 +173,7 @@ canvas {
 .mobile-navbar img {
     width: 2rem;
     height: 2rem;
-    margin: 0.5rem;
+    margin: 0.25rem;
     cursor: pointer;
 }
 
@@ -197,9 +207,22 @@ canvas {
     ...
 } */
 
+@media screen and (max-width: 300px) and (orientation: landscape) { 
+    canvas, .canvas {
+        width: 100vw; 
+        height: 100vh;
+        overflow: hidden;
+    }
+    .mobile-navbar {
+        position: absolute;
+        bottom: 0rem;
+        left: 0;
+        display: flex;
+        z-index: 101;
+    }
+}
 
-
-@media only screen and (min-width: 300px) and (orientation:portrait) {
+@media only screen and (min-width: 300px) and (orientation: portrait) {
     html {
         height: 100vw;
         transform: rotate(-90deg);
@@ -208,9 +231,20 @@ canvas {
         align-items: flex-end;
     }
 
-    /* .mobile-navbar {
+    canvas, .canvas {
+        /* height and width are switched due to landscape mode !!! */
+        width: 100vh; 
+        height: 100vw;
+        overflow: hidden;
+    }
+
+    .mobile-navbar {
+        position: absolute;
+        bottom: 0rem;
+        left: 0;
         display: flex;
-    } */
+        z-index: 101;
+    }
 
     .settings {
         margin-top: unset;
@@ -237,6 +271,3 @@ canvas {
         height: 1.25rem;
     }
 }
-
-
-

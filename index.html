@@ -37,21 +37,26 @@
             <div id="divBottle" class="hidden">
                 <img id="imgBottle" class="status-icon" src="./img/Items/Bottles/bottle_icon.png">
                 <label id="lblBottles">0</label>
-            </div>         
+            </div>
+                     
         </div>
+        <img id="imgLevel" class="status-icon" src="./img/Status/Level/1.png">
+
         <canvas id="canvas" width="720px" height="480px"> </canvas>
+
+        <div id="divNavbar" class="mobile-navbar hidden">
+            <div class="nav-edge">
+                <img id="imgLeft" src="./img/Status/Mobile/arrow-left.png">
+                <img id="imgUp" src="./img/Status/Mobile/arrow-up.png">            
+            </div>
+            <div class="nav-edge">            
+                <img id="imgAction" src="./img/Status/Mobile/take.png"> 
+                <img id="imgRight" src="./img/Status/Mobile/arrow-right.png">
+            </div>
+        </div>
     </div>  
     
-    <div id="divNavbar" class="mobile-navbar hidden">
-        <div class="nav-edge">
-            <img id="imgLeft" src="./img/Status/Mobile/arrow-left.png">
-            <img id="imgUp" src="./img/Status/Mobile/arrow-up.png">            
-        </div>
-        <div class="nav-edge">            
-            <img id="imgAction" src="./img/Status/Mobile/take.png"> 
-            <img id="imgRight" src="./img/Status/Mobile/arrow-right.png">
-        </div>
-    </div>
+
 
     <div id="divSettings" class="settings">
         <div class="settings-top flx-row1">
@@ -80,7 +85,7 @@
             </div>
             <div class="flx-col">
                 <div class="flx-row1 center">RIGHT: <button type="button" class="btn-keyboard">&#8594</button></div>
-                <div class="flx-row1 center">THROW: <button type="button" class="btn-keyboard">SPACE</button></div>
+                <div class="flx-row1 center">TAKE / USE: <button type="button" class="btn-keyboard">SPACE</button></div>
                 <div class="flx-row1 center">QUIT: <button type="button" class="btn-keyboard">Q</button></div>
             </div>
         </div>
