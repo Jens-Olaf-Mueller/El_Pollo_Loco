@@ -39,7 +39,7 @@ export let gameSettings = {
     debugMode: false,
     showIntro: true,
     showHelpOnStart: true,
-    lastLevel: 1,
+    lastLevel: 3,
     lastSong: 'Santa Esmeralda.mp3'
 }
 
@@ -78,6 +78,13 @@ function setEventListeners () {
         checkbox.addEventListener('change', (event) => {
             updateSettings(event);
         })
+    });
+
+    $('imgEnergy').addEventListener('dblclick', (e) => {
+        console.log('Status Pepe: ', 'Energy: ' + world.Pepe.energy);
+        console.log('Jump-Power: ' + world.Pepe.jumpPower);
+        console.log('Accuracy: ' + world.Pepe.accuracy);
+        console.log('Sharpness: ' + world.Pepe.sharpness);
     });
 }
 
@@ -137,7 +144,7 @@ export function updateStatus (pepe) {
         $('#divBottle >label').innerText = pepe.bottles;
     }
 
-    $('imgLevel').src = `./img/Status/Level/${world.lvlNumber}.png`;
+    $('imgLevel').src = `./img/Status/Level/${world.levelNo}.png`;
 }
 
 function loadStatusIcons () {
@@ -171,10 +178,9 @@ function loadSettings() {
     if (ls) gameSettings = JSON.parse(ls);
 
     let arrCheckboxes = Array.from($('[data-settings'));  
-    debugger
-    
+    // debugger
+
 
     // und Werte im Formular setzen:
     // displaySettings ();
 }
-

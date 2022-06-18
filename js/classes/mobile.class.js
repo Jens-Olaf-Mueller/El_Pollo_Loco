@@ -1,4 +1,5 @@
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
+import World from './world.class.js';
 
 // import Character from './character.class.js'; 
 // import Chicken from './chicken.class.js';
@@ -17,6 +18,7 @@ export default class Mobile {
     speedY = 0;             // gravity acceleration
     acceleration = 0.5;
     lastHit = 0;
+    diedAt = undefined;
 
     loadImage(path) {
         this.image = new Image();
@@ -86,8 +88,9 @@ export default class Mobile {
     displayFrame (ctx) {
         // if (this instanceof Character || this instanceof Chicken ) {
         if (this.name) {
-            let offsetY = this.name.includes('Pepe') ? 100 : 0;
-            if (this.name.includes('Pepe') || this.name.includes('Frida')) {
+            let isPepe = this.name.includes('Pepe'),
+                offsetY = isPepe ? 100 : 0;
+            if (isPepe || this.name.includes('Frida')) {
                 ctx.beginPath();
                 ctx.lineWidth = '3';
                 ctx.setLineDash([5, 5]);
@@ -97,7 +100,12 @@ export default class Mobile {
 
                 ctx.font = "16px Arial";
                 ctx.fillStyle = 'navy';
-                ctx.fillText(`X: ${parseInt(this.X)} Y: ${this.Y}`,this.X-16, this.Y-10 + offsetY);
+                if (this.isMirrored) this.environment.flipImage(this, true);
+                ctx.fillText(`X: ${parseInt(this.X)} Y: ${parseInt(this.Y)}`,this.X-32, this.Y-10 + offsetY);
+                if (isPepe) {
+                    ctx.fillText(`Bottom: ${parseInt(this.bottom())} Right: ${parseInt(this.right())}`,this.right()-100, this.bottom()+20);
+                }                
+                if (this.isMirrored) this.environment.flipImage(this, false);
             }
         }        
         // }
@@ -140,7 +148,12 @@ export default class Mobile {
     }
 
     isDead () {
-        return this.energy == 0;
+        if (this.energy > 0) {
+            return false;
+        }
+        this.diedAt = new Date().getTime();
+        return true;
+        // return this.energy == 0;
     }
 
     isHurt () {
@@ -168,10 +181,27 @@ export default class Mobile {
         if (this.imgIndex >= arrImages.length) this.imgIndex = 0;
         let key = this.name + '_' + subkey + this.imgIndex;        
         this.image = this.imageCache[key];
+        
         // for debugging only !!
         if (this.image == undefined) {
             console.warn(`Image "${key}" von ${this.name} undefined!`, this);
             debugger;
         }
+    }
+
+    top () {
+        return this.Y;
+    }
+
+    left () {
+        return this.X;
+    }
+
+    bottom () {
+        return this.Y + this.height;
+    }
+
+    right () {
+        return this.X + this.width;
     }
 }

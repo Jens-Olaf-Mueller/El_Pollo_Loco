@@ -60,11 +60,11 @@ export default class Chicken extends Mobile {
         clearInterval(this.intervalID);
         clearInterval(this.moveID);
         this.damage = 0;
-        this.speed = 0;        
+        this.speed = 0;
+        this.height = 70;
+        this.width = 70;        
         let key = this.name + '_die0';             
         this.image.src = this.imageCache[key].src;
-        // console.log(this.name + ' killed!', this, 'Interval#' + this.intervalID)
-        // debugger
     }
 
     

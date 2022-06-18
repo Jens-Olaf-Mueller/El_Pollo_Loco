@@ -4,18 +4,8 @@ import { random } from '../library.js';
 import Background from './background.class.js';
 
 export default class Obstracle extends Background {
-    constructor (imgPath, name, end) { 
-        super().loadImage(imgPath);
-        // console.log('Image: ' + this.image.src )
-        this.name = name;
-        this.value = name.replace(/[^0-9]/g,'') || 0; // returns only a number from string!
-        // this.damage = this.value;
-        this.eastEnd = end || CANVAS_WIDTH;  
-        this.westEnd = -end || -CANVAS_WIDTH;   
-        this.initialize();
-    };   
-
     name = '';
+    level;
     value = 0;
     visible = false;
     isBackground = false;
@@ -29,13 +19,23 @@ export default class Obstracle extends Background {
     X = Infinity;
     Y = Infinity;
 
+    constructor (imgPath, name, level) { 
+        super().loadImage(imgPath);
+        this.name = name;
+        this.value = parseInt(name.replace(/[^0-9]/g,'')) || 0; // returns only a number from string!
+        this.level = level;
+        this.eastEnd = level.eastEnd || CANVAS_WIDTH;  
+        this.westEnd = -this.eastEnd || -CANVAS_WIDTH;   
+        this.initialize();
+    };   
+
     initialize () {
         this.visible = random(0, 100) > 50 ? true : false;
         if (this.visible) {
-            let bgSize = random(1, 30);
+            let bgSize = random(1, 30), west = Math.random() > 0.5;
             this.height += bgSize;
-            this.X = random (1, this.eastEnd) - CANVAS_WIDTH / 2; 
-            this.X = Math.random() < 0.5 ? this.X * -1 : this.X;
+            this.X = random (350, this.eastEnd - CANVAS_WIDTH * 0.8); 
+            this.X = west ? -this.X : this.X;
             this.Y = 430 - Math.random() * this.height;
             let bgRange = this.Y + this.height;
             this.onCollisionCourse = bgRange >= 430 && bgRange <= 460;

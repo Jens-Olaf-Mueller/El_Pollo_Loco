@@ -1,56 +1,63 @@
 
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
+import { random } from '../library.js';
 import Background from './background.class.js';
-
-export default class Food extends Background {
 // import Item from './items.class.js';
-// export default class Food extends Item {
-    constructor(imgPath, name, end) {
-        super().loadImage(imgPath);
-        this.name = name; 
-        this.value = name.replace(/[^0-9]/g,'') || 0; // returns only a number from string!
-        this.eastEnd = end || CANVAS_WIDTH;
-        this.westEnd = -end || -CANVAS_WIDTH;     
-        this.initialize();
-    }
-
+export default class Food extends Background {
     name = '';
+    type = '';
+    level;
     value = 0;
+    price = 2;
     visible = false;
     energy = 0;
     sharpness = 0;
     accuracy = 0;
     jumpPower = 0;
-    height = 0;
-    width = 0;
+    height = 50;
+    width = 50;
     eastEnd;
     westEnd;
-    X = -7200;
-    Y = 350;
+    X = Infinity;
+    Y = 350;  
+
+    constructor(imgPath, name, level) {
+        super().loadImage(imgPath);
+        this.name = name; 
+        this.value = parseInt(name.replace(/[^0-9]/g,'')) || 0; // returns only a number from string!
+        this.type = name.replace(/[0-9]/g, '');
+        this.level = level;
+        this.eastEnd = level.eastEnd || CANVAS_WIDTH;
+        this.westEnd = -this.eastEnd || -CANVAS_WIDTH;     
+        this.enabled(true); // calls this.initialize();
+    }
 
     initialize () {
-        let chance = Math.random(),
-            rndX = Math.random();
+        // funzt nicht, wenn level aus Parent-Klasse stammt...?
+        // console.log('LevelNo von ' + this.name + ' = ' + this.level.levelNo); 
+        let range = 100 - this.level.levelNo * 10, rnd = random(1, 100);
+        this.visible = (rnd <= range);
 
-        this.visible = chance > 0.75 ? true : false;
         if (this.visible) {
-            this.X = rndX > 0.5 ? rndX * this.eastEnd : rndX * this.westEnd + CANVAS_WIDTH / 2; 
-            this.height = 50;// + bgSize;
-            this.width = 50; 
+            this.X = random (150, this.eastEnd - CANVAS_WIDTH * 0.8);
+            // apply a 50:50 chance to place it in east or west
+            this.X = Math.random() < 0.5 ? -this.X : this.X; 
 
             // now tuning the food!
-            if (this.name.includes('chili')) {
+            if (this.type == 'chili') {
                 this.sharpness = (this.value - 2) * 5;
                 this.Y -= 250;            
-            } else if (this.name.includes('food')) {
+            } else if (this.type == 'food') {
                 this.jumpPower = this.value / 3;
                 this.energy = this.value;                
-            } else if (this.name.includes('drink')) {
+            } else if (this.type == 'drink') {
                 this.accuracy = (this.value - 2) * 5;
                 this.energy = this.value / 2;
-            }  else if (this.name.includes('medicine')) {
-                this.Y -= 150;
-                this.energy = (parseInt(this.value) + 5) * 10;
+                this.price = this.value + 1;
+            }  else if (this.type == 'medicine') {
+                this.Y -= 160;
+                this.energy = (this.value + 5) * 10;
+                this.price = 4;
             }
         }
     }
@@ -58,6 +65,7 @@ export default class Food extends Background {
     enabled (state) {
         if (state == false) {
             this.visible = false;
+            this.value = 0;
             this.energy = 0;
             this.sharpness = 0;
             this.accuracy = 0;

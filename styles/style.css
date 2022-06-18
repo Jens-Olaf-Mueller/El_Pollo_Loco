@@ -27,17 +27,17 @@ canvas {
     background-color: black;
 }
 
-.progress {
-    /* position: absolute;
+/* .progress {
+    position: absolute;
     top: 0.5rem;
-    left: 5.5rem; */
+    left: 5.5rem; 
     height: 0.75rem;
     width: 8rem;
     border: 2px solid var(--ctrl-color);
     border-radius: 16px;
     background-color: #f6e58d;
     color: sienna;
-} 
+} */
 
 /* common classes */
 .hidden {
@@ -147,7 +147,7 @@ canvas {
     top: 0.5rem;
     right: 0.5rem;
     width: 1.5rem;
-    background: lightblue;
+    background: rgb(255, 215, 13);
     border: 3px double navy;
     border-radius: 100%;
     padding: 0.15rem;

@@ -10,7 +10,7 @@ export default class World {
     debugMode = false;
     Pepe;  
     level;
-    lvlNumber = 1;
+    levelNo = 1;
     keyboard;
     cnv;
     ctx; 
@@ -32,9 +32,9 @@ export default class World {
         this.ctx = canvas.getContext('2d');        
         this.keyboard = keyboard;
         this.debugMode = gameSettings.debugMode;
-        this.lvlNumber = gameSettings.lastLevel;
+        this.levelNo = gameSettings.lastLevel;
         this.Pepe = new Character(this);        
-        this.initLevel (this.lvlNumber);
+        this.initLevel (this.levelNo);
         this.draw();
         this.checkCollision();           
     }
@@ -50,7 +50,7 @@ export default class World {
         this.arrEnemies = this.level.Enemies;
         this.arrFood = this.level.Food;
         this.arrItems= this.level.Items;
-        console.log('World: ', this )
+        console.log('World created... ', this )
     }
 
     /**
@@ -72,7 +72,7 @@ export default class World {
         this.plot (this.arrForegrounds);
         this.plot (this.arrClouds); 
         this.plot (this.arrFood);
-        this.plot (this.arrItems);
+        // this.plot (this.arrItems);
         
         this.ctx.translate(-this.camera_X, 0); // move the camera scope by 100px back to right after drawing the context
         let Me = this;
@@ -125,16 +125,8 @@ export default class World {
 
             // collision with foot...
             this.level.Food.forEach((food) => {
-                if (this.Pepe.isColliding(food) && this.keyboard.SPACE && this.Pepe.coins > 0) {
-                    this.Pepe.energy += parseInt(food.energy);
-                    this.Pepe.accuracy += parseInt(food.accuracy);
-                    this.Pepe.jumpPower += parseInt(food.jumpPower);                    
-                    if (this.Pepe.jumpPower > 15) this.Pepe.jumpPower = 15;
-                    this.Pepe.sharpness += parseInt(food.sharpness);
-                    this.Pepe.coins -= 1;
-                    if(this.Pepe.coins < 0) this.Pepe.coins = 0;
-                    food.enabled(false);
-                    updateStatus (this.Pepe);
+                if (this.Pepe.isColliding(food) && this.keyboard.SPACE) {
+                    this.Pepe.updateProperties(food);
                 }
             });
             
@@ -148,7 +140,6 @@ export default class World {
                         this.Pepe.bottles++;
                         item.enabled(false);
                     }    
-                    // updateStatus (this.Pepe);
                 }
             });
 
@@ -158,8 +149,8 @@ export default class World {
                     console.log(barrier.name + ' kollidiert: ' + barrier.onCollisionCourse + barrier.damage );                    
                     // can we jump on the obstracle?
                     if (barrier.canJumpOn) {
-                        console.log('Pepe bottom: ' + this.Pepe.bottom());
-                        console.log(barrier.name + 'Y: ' + barrier.Y)
+                        // console.log('Pepe bottom: ' + this.Pepe.bottom());
+                        // console.log(barrier.name + 'Y: ' + barrier.Y)
 
                         if (this.Pepe.isAboveGround(barrier.Y)) {
                             debugger

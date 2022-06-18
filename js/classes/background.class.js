@@ -6,12 +6,14 @@ import Mobile from './mobile.class.js';
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 
 export default class Background extends Mobile {
-    constructor (imgPath, end) {
-        super().loadImage(imgPath);
-        this.X = end || 0;
-        this.Y = CANVAS_HEIGHT - this.height;
-    }
-
+    level;
     width = CANVAS_WIDTH;   // = 720
     height = CANVAS_HEIGHT; // = 480
+
+    constructor (imgPath, pX, level) {
+        super().loadImage(imgPath);
+        this.level = level;
+        this.X = pX || 0;
+        this.Y = CANVAS_HEIGHT - this.height;
+    }
 }

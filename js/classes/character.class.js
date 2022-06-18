@@ -17,6 +17,7 @@ export default class Character extends Mobile {
     width = 150;
 
     energy = 100;
+    score = 0;
     jumpPower = 11;
     sharpness = 40;
     accuracy = 50;
@@ -39,7 +40,6 @@ export default class Character extends Mobile {
         this.keyboard = environment.keyboard;
         this.groundY = environment.groundY;
         this.Y = environment.groundY;
-        // this.bottom = this.Y + this.height;
         this.initialize();           
         this.applyGravity();
         this.animate();
@@ -52,9 +52,8 @@ export default class Character extends Mobile {
         this.loadImageCache (this.arrJumping, this.name + '_jmp');
         this.arrHurt = loadArray ('./img/Pepe/hurt/hurt',3);
         this.loadImageCache (this.arrHurt, this.name + '_hrt');
-        this.arrDying = loadArray ('./img/Pepe/killed/die',7);
+        this.arrDying = loadArray ('./img/Pepe/killed/die',30);
         this.loadImageCache (this.arrDying, this.name + '_die');
-        console.log(this.name + 'Bottom: ' + this.bottom() + '| Right: ' + this.right())
     }
 
     animate () {
@@ -64,19 +63,17 @@ export default class Character extends Mobile {
                 this.X += step;
                 this.isMirrored = false;
                 // playSound('walking1.mp3');
-                // console.log('Pepe >>, X = ' + this.X);
             }
 
             if (this.keyboard.LEFT && this.X > this.environment.westEnd + this.cameraOffset + 10) {
                 this.X -= step;
                 this.isMirrored = true;
-                // console.log('Pepe <<, X = ' + this.X);
             }
 
             if (this.keyboard.UP && !this.isAboveGround()) {
                 let power = this.jumpPower < 15 ? this.jumpPower : 15;
                 this.jump(power);
-                this.jumpPower -= this.environment.lvlNumber/10;
+                this.jumpPower -= this.environment.levelNo/10;
                 if (this.jumpPower < 0) this.jumpPower = 0;
                 updateStatus(this);
             }
@@ -87,29 +84,29 @@ export default class Character extends Mobile {
         setInterval(() => {
             if (this.isHurt()) {
                 this.playAnimation (this.arrHurt,'hrt');
-            } else if (this.isDead()) {
-                this.playAnimation (this.arrDying,'die');
             } else if (this.isAboveGround() || this.speedY > 0) {
                 this.playAnimation (this.arrJumping,'jmp');
             } else if (this.keyboard.RIGHT || this.keyboard.LEFT) {
                 this.playAnimation (this.arrWalking);     
+            }else if (this.isDead()) {
+                this.playAnimation (this.arrDying,'die');
+            } else {
+
             }
         }, 6000 / FPS);
     }
 
-    top () {
-        return this.Y;
-    }
-
-    left () {
-        return this.X;
-    }
-
-    bottom () {
-        return this.Y + this.height;
-    }
-
-    right () {
-        return this.X + this.width;
+    updateProperties (srcObject) {
+        if (this.coins > 0 && srcObject.visible) {
+            // still enough money?
+            if (this.coins - srcObject.price >= 0) {
+                this.energy += parseInt(srcObject.energy);
+                this.accuracy += parseInt(srcObject.accuracy);
+                this.jumpPower += parseInt(srcObject.jumpPower);            
+                this.sharpness += parseInt(srcObject.sharpness);            
+                this.coins -= srcObject.price;
+                srcObject.enabled(false);
+            }    
+        }
     }
 }
