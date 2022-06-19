@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El Pollo Loco</title>
-    <link rel="icon" type="image/x-icon" href="./img/Chicken/adult/step0.png">
+    <link rel="icon" type="image/x-icon" href="./img/Chicken/adult/wlk0.png">
     <link href="https://fonts.cdnfonts.com/css/red-hot-chili" rel="stylesheet">
 
     <link rel="stylesheet" href="./styles/style.css">
@@ -27,20 +27,25 @@
                 <img id="imgBullet" class="status-icon" src="./img/Status/Bullets/bullet1.png">
                 <label id="lblBullets">0</label>
             </div>
-            <div id="divCoin">
+            <div id="divCoin" class="status-icon-text">
                 <img id="imgCoin" class="status-icon" src="./img/Items/Coins/coin0.png">
                 <label id="lblCoins">0</label>
             </div>
-            <div id="divBottle">
+            <div id="divBottle" class="status-icon-text">
                 <img id="imgBottle" class="status-icon" src="./img/Items/Bottles/bottle_icon.png">
                 <label id="lblBottles">0</label>
             </div>
                      
         </div>
+
+        <div id="divScore" class="status-icon">Score: 1000</div>
+
         <img id="imgLevel" class="status-icon" src="./img/Status/Level/1.png">
 
         <canvas id="canvas" width="720px" height="480px"> </canvas>
-
+        <!-------------------------------------------->
+        <!--     M O B I L E  N A V - B A R         -->
+        <!-------------------------------------------->
         <div id="divNavbar" class="mobile-navbar hidden">
             <div class="nav-edge">
                 <img id="imgLeft" src="./img/Status/Mobile/arrow-left.png">
@@ -53,8 +58,9 @@
         </div>
     </div>  
     
-
-
+    <!-------------------------------------------->
+    <!--            S E T T I N G S             -->
+    <!-------------------------------------------->
     <div id="divSettings" class="settings">
         <div class="settings-top flx-row1">
             <div class="flx-col">
@@ -64,13 +70,23 @@
                 </div>
 
                 <div class="control checkbox">
-                    <input  id="chkSound" type="checkbox" data-settings="sound" checked disabled>
-                    <label for="chkSound" disabled>Sound enabled</label>            
+                    <input  id="chkSound" type="checkbox" data-settings="sound" checked>
+                    <label for="chkSound">Sound enabled</label>            
                 </div>
 
                 <div class="control checkbox">
-                    <input  id="chkDebuger" type="checkbox" data-settings="debug">
-                    <label for="chkDebuger">Debugmode</label>            
+                    <input  id="chkHelp" type="checkbox" data-settings="help" checked disabled>
+                    <label for="chkHelp" disabled>Show help on start</label>            
+                </div>
+
+                <div class="control checkbox">
+                    <input  id="chkIntro" type="checkbox" data-settings="intro" checked disabled>
+                    <label for="chkIntro" disabled>Show Intro</label>            
+                </div>
+
+                <div class="control checkbox">
+                    <input  id="chkDebugger" type="checkbox" data-settings="debug">
+                    <label for="chkDebugger">Debugmode</label>            
                 </div>
             </div>
 
@@ -78,8 +94,8 @@
                 <div class="flx-row1 center">LEFT: <button type="button" class="btn-keyboard">&#8592</button></div>
                 <div class="flx-row1 center">JUMP: <button type="button" class="btn-keyboard">&#8593</button></div>
                 <div class="flx-row1 center">FEED: <button type="button" class="btn-keyboard">CTRL</button></div>
-                <!-- <div class="flx-row1 center">DOWN: <button type="button" class="btn-keyboard">&#8595</button></div> -->
             </div>
+
             <div class="flx-col">
                 <div class="flx-row1 center">RIGHT: <button type="button" class="btn-keyboard">&#8594</button></div>
                 <div class="flx-row1 center">TAKE / USE: <button type="button" class="btn-keyboard">SPACE</button></div>
@@ -87,7 +103,7 @@
             </div>
         </div>
 
-        <div class="settings-bottom flx-row1">
+        <div class="settings-bottom flx-btw">
             <button id="btnStart">START GAME</button>
             <button title="COMING SOON...">SHOW HELP</button>
         </div>

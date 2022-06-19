@@ -7,9 +7,11 @@ import { FPS, CANVAS_WIDTH } from '../const.js';
 import { playSound, loadArray } from "../library.js";
 
 export default class Chicken extends Mobile {
-    constructor (end, index) { 
+    constructor (level, index) { 
         super().loadImage('./img/Chicken/adult/wlk0.png');
-        this.eastEnd = end - CANVAS_WIDTH / 2;
+        this.level = level;
+        this.eastEnd = level.eastEnd - CANVAS_WIDTH / 2;
+        this.damage = level.levelNo + 1;
         this.name = 'Frida' + index;
         this.initialize();
         this.animate();
@@ -17,6 +19,7 @@ export default class Chicken extends Mobile {
     
     name = '';
     key;
+    level = 0;
     X = 0; 
     Y = 380;
     height= 60;

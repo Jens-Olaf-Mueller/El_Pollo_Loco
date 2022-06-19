@@ -57,7 +57,9 @@ export default class Level {
     }
 
     /**
-    * sets obstracles either to the background or foreground
+    * sets loads all obstracles and sets them 
+    * either to the background or foreground position,
+    * depending on the given state in class initalization
     */
     initObstracles () {
         // load the plants...
@@ -118,7 +120,7 @@ export default class Level {
     initEnemies() {
         let count = this.levelNo * 10 - this.levelNo * 3;
         for (let i = 0; i < count; i++) {
-            this.Enemies.push(new Chicken(this.eastEnd, i));
+            this.Enemies.push(new Chicken(this, i));
         }
         this.Enemies.push(new EndBoss(this.eastEnd));
     }

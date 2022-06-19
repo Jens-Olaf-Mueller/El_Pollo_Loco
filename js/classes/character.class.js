@@ -3,7 +3,7 @@
 * an extending or used class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { updateStatus } from "../game.js";
+import { updateGameStatus } from "../game.js";
 import { playSound, loadArray } from "../library.js";
 import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 
@@ -13,12 +13,13 @@ export default class Character extends Mobile {
     X = 50;
     Y = 150;
     groundY = 0;
+    offsetY = 110;
     height = 300;
     width = 150;
 
     energy = 100;
     score = 0;
-    jumpPower = 11;
+    jumpPower = 70;
     sharpness = 40;
     accuracy = 50;
     coins = 0;
@@ -50,7 +51,7 @@ export default class Character extends Mobile {
         this.loadImageCache (this.arrWalking, this.name + '_wlk');
         this.arrJumping = loadArray ('./img/Pepe/jump/jmp',9);
         this.loadImageCache (this.arrJumping, this.name + '_jmp');
-        this.arrHurt = loadArray ('./img/Pepe/hurt/hurt',3);
+        this.arrHurt = loadArray ('./img/Pepe/hurt/hurt',5);
         this.loadImageCache (this.arrHurt, this.name + '_hrt');
         this.arrDying = loadArray ('./img/Pepe/killed/die',30);
         this.loadImageCache (this.arrDying, this.name + '_die');
@@ -71,11 +72,12 @@ export default class Character extends Mobile {
             }
 
             if (this.keyboard.UP && !this.isAboveGround()) {
-                let power = this.jumpPower < 15 ? this.jumpPower : 15;
+                let power = Math.round(this.jumpPower / 6.75);
+                if (power > 15) power = 15;
                 this.jump(power);
                 this.jumpPower -= this.environment.levelNo/10;
                 if (this.jumpPower < 0) this.jumpPower = 0;
-                updateStatus(this);
+                updateGameStatus(this);
             }
 
             this.environment.camera_X = -this.X + this.cameraOffset;
@@ -105,8 +107,27 @@ export default class Character extends Mobile {
                 this.jumpPower += parseInt(srcObject.jumpPower);            
                 this.sharpness += parseInt(srcObject.sharpness);            
                 this.coins -= srcObject.price;
+                this.score ++;
                 srcObject.enabled(false);
             }    
         }
+    }
+
+    updateItems (item) {
+        if (item.visible) {
+            if (item.type == 'coin') {
+                this.coins += item.value;
+                this.score ++;
+                item.enabled(false);
+            } else if (item.type == 'bottle') {
+                this.bottles++;
+                this.score = this.score + 2;
+                item.enabled(false);                
+            }
+        }
+    }
+
+    updateStatus () {
+
     }
 }

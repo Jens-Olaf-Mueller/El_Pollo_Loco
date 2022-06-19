@@ -41,7 +41,7 @@ export default class Item extends Background {
             this.value++;
             this.height = 30;
             this.width = 30;
-            this.Y = 250 - this.value * 20 - this.value;        
+            this.Y = 260 - this.value * 20 - this.value;        
         } else if (this.type == 'chest') {
             this.height = 90;
             this.width = 100;
@@ -82,6 +82,8 @@ export default class Item extends Background {
             this.value = 0;       
             this.height = 0;
             this.width = 0;
+            this.X = Infinity;
+            this.Y = Infinity;
             return;
         }
         this.initialize();

@@ -19,7 +19,7 @@ body {
     flex-direction: column;
     align-items: center;
     background-image: url('../img/Intro_Outro/start_screen/screen1.png');
-    background-position: center;
+    /* background-position: center; */
     overflow: hidden;
 }
 
@@ -27,39 +27,14 @@ canvas {
     background-color: black;
 }
 
-/* .progress {
-    position: absolute;
-    top: 0.5rem;
-    left: 5.5rem; 
-    height: 0.75rem;
-    width: 8rem;
-    border: 2px solid var(--ctrl-color);
-    border-radius: 16px;
-    background-color: #f6e58d;
-    color: sienna;
-} */
-
-/* common classes */
-.hidden {
-    display: none !important;
-}
-
-.flx-row1 {
-    display: flex;
-    flex-direction: row !important;
-    gap: 1rem;
-}
-
-.center {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
 /* classes for settings */
-
 .settings {
-    margin-top: 5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    /* margin-top: 5rem; */
     background-color: #f6e58d;
     opacity: 0.9;
     border-radius: 2rem;
@@ -86,8 +61,9 @@ canvas {
 }
 
 .settings-bottom button {
-    padding: 0.75rem 1.5rem !important;
-    margin: 0.5rem;
+    /* padding: 0.75rem !important; */
+    padding: 0.75rem ;
+    margin: 0 1rem 1rem 1rem;
     border: none;
     padding: 1rem;
     border-radius: 1.5rem;
@@ -95,7 +71,7 @@ canvas {
     color: #444;
     transition: all 250ms ease 0s; 
     box-shadow: 0 10px var(--ctrl-color);
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     cursor: pointer;
 }
 
@@ -142,19 +118,44 @@ canvas {
     margin-left: 0.5rem;    
 }
 
-#imgLevel {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    width: 1.5rem;
-    background: rgb(255, 215, 13);
-    border: 3px double navy;
-    border-radius: 100%;
-    padding: 0.15rem;
+.status-icon-text {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 3rem;
+}
+.status-icon-text label {
+    padding-top: 0.2rem;
+    font-size: 0.85rem;
+    color: aliceblue;
 }
 
-.status-icon span {
-    left: 2rem;    
+#divScore {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0.25rem;
+    right: 2.5rem;
+    width: auto;
+    min-width: 4rem;
+    height: 1.5rem;
+    font-size: x-large;
+    padding: 0 0.25rem;    
+    border-radius: 100vmin;
+    border: 4px double black;
+    background-color: var(--ctrl-color);    
+}
+
+#imgLevel {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.5rem;
+    width: 1.5rem;
+    background: var(--ctrl-color);
+    border: 4px double black;
+    border-radius: 100%;
+    padding: 0.15rem;
 }
 
 .mobile-navbar {
@@ -175,6 +176,28 @@ canvas {
     height: 2rem;
     margin: 0.25rem;
     cursor: pointer;
+}
+
+/* common classes - at the end of the cascade!!! */
+.hidden {
+    display: none !important;
+}
+
+.flx-row1 {
+    display: flex;
+    flex-direction: row !important;
+    gap: 1rem;
+}
+
+.flx-btw {
+    display: flex;
+    justify-content: space-between;
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 /* #################################################################### */

@@ -46,9 +46,10 @@ export default class Food extends Background {
             // now tuning the food!
             if (this.type == 'chili') {
                 this.sharpness = (this.value - 2) * 5;
+                this.jumpPower = Math.round(this.value / 4);
                 this.Y -= 250;            
             } else if (this.type == 'food') {
-                this.jumpPower = this.value / 3;
+                this.jumpPower = this.value / 2;
                 this.energy = this.value;                
             } else if (this.type == 'drink') {
                 this.accuracy = (this.value - 2) * 5;
@@ -56,7 +57,7 @@ export default class Food extends Background {
                 this.price = this.value + 1;
             }  else if (this.type == 'medicine') {
                 this.Y -= 160;
-                this.energy = (this.value + 5) * 10;
+                this.energy = (this.value + 1) * 10;
                 this.price = 4;
             }
         }

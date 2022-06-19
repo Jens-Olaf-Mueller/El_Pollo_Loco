@@ -6,7 +6,8 @@ import World from './world.class.js';
 
 export default class Mobile {
     X = 50;
-    Y = 0;    
+    Y = 0;
+    // offsetY = 110;    
 
     height = 300;
     width = 150;
@@ -71,13 +72,11 @@ export default class Mobile {
 
     draw (ctx, showframe) {
         try {
-            ctx.drawImage(this.image, this.X  , this.Y, this.width, this.height);
+            ctx.drawImage(this.image, this.X, this.Y, this.width, this.height);
             if (showframe) this.displayFrame (ctx);
-
         } catch (err) {
-            console.warn(`ERROR in Object: ${this.name}: ` + err);
-            console.warn(this.imageCache, 'Current Image: ' + this.image)
-            // debugger
+            console.warn(`ERROR in Object ${this.name}: ` + err);
+            console.warn('Cache: ' + this.imageCache, 'Current Image: ' + this.image)
         }    
     }
 
@@ -89,7 +88,8 @@ export default class Mobile {
         // if (this instanceof Character || this instanceof Chicken ) {
         if (this.name) {
             let isPepe = this.name.includes('Pepe'),
-                offsetY = isPepe ? 100 : 0;
+                name = isPepe ? '' : this.name + ' ',
+                offsetY = isPepe ? this.offsetY : 0;
             if (isPepe || this.name.includes('Frida')) {
                 ctx.beginPath();
                 ctx.lineWidth = '3';
@@ -101,7 +101,7 @@ export default class Mobile {
                 ctx.font = "16px Arial";
                 ctx.fillStyle = 'navy';
                 if (this.isMirrored) this.environment.flipImage(this, true);
-                ctx.fillText(`X: ${parseInt(this.X)} Y: ${parseInt(this.Y)}`,this.X-32, this.Y-10 + offsetY);
+                ctx.fillText(`${name}X: ${parseInt(this.X)} Y: ${parseInt(this.Y)} Top: ${this.Y + offsetY}`,this.X-32, this.Y-10 + offsetY);
                 if (isPepe) {
                     ctx.fillText(`Bottom: ${parseInt(this.bottom())} Right: ${parseInt(this.right())}`,this.right()-100, this.bottom()+20);
                 }                
@@ -110,6 +110,25 @@ export default class Mobile {
         }        
         // }
     }
+
+    /**
+     * plays an animation from the given array of pictures     * 
+     * @param {string} arrImages string array containing the path for the images
+     * @param {string} subkey creates together with name and index the key of the image in 'imageCache'
+     * @var {string} key for the json-array 'imageCache', created from name and image-index number  
+     */
+        playAnimation (arrImages, subkey = 'wlk') {        
+            this.imgIndex++;
+            if (this.imgIndex >= arrImages.length) this.imgIndex = 0;
+            let key = this.name + '_' + subkey + this.imgIndex;        
+            this.image = this.imageCache[key];
+            
+            // for debugging only !!
+            if (this.image == undefined) {
+                console.warn(`Image "${key}" von ${this.name} undefined!`, this);
+                debugger;
+            }
+        }
 
     /**
      * Applies the gravity for the current object, if it is in the air.
@@ -137,14 +156,14 @@ export default class Mobile {
         // if (this.Y != this.groundY) debugger
         return this.Y < (this.groundY - height);
     }
-        
-    // isAboveEnemy (enemy) {
-    //     return this.Y < (this.groundY - (enemy.height-10));
-    // }
 
-    isColliding (object) {
-        return this.X + this.width > object.X && this.Y + this.height > object.Y && this.X < object.X && this.Y < object.Y + object.height;
-        // return this.right > object.X && this.Y + this.height > object.Y && this.X < object.X && this.Y < object.Y + object.height;
+    hit (damage) {
+        this.energy -=damage;
+        if (this.energy < 0) {
+            this.energy = 0; 
+        } else {
+            this.lastHit = new Date().getTime(); // saving time stamp from last hit
+        }  
     }
 
     isDead () {
@@ -161,36 +180,31 @@ export default class Mobile {
         return (timeElapsed < 0.75);
     }
 
-    hit (damage) {
-        this.energy -=damage;
-        if (this.energy < 0) {
-            this.energy = 0; 
-        } else {
-            this.lastHit = new Date().getTime(); // saving time stamp from last hit
-        }  
+    /**
+     * detects if the given objects collides with the caracter.
+     * collision is detected if: 
+     * > the right border is equal or bigger than object's X-coordinate (left side)
+     * > the bottom of the character is bigger than the object's Y-coordinate (top)
+     * > 
+     * >
+     * @param {class} object to check collision with
+     * @returns true | false
+     */
+    isColliding (obj) {
+        return  (this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width) && 
+                (this.Y + this.offsetY + this.height) >= obj.Y &&
+                (this.Y + this.offsetY) <= (obj.Y + obj.height);
+
+        // return this.X + this.width > object.X && 
+        //     this.Y + this.height > object.Y && 
+        //     this.X < object.X && 
+        //     this.Y < object.Y + object.height;
     }
 
-    /**
-     * plays an animation from the given array of pictures     * 
-     * @param {string} arrImages string array containing the path for the images
-     * @param {string} subkey creates together with name and index the key of the image in 'imageCache'
-     * @var {string} key for the json-array 'imageCache', created from name and image-index number  
-     */
-    playAnimation (arrImages, subkey = 'wlk') {        
-        this.imgIndex++;
-        if (this.imgIndex >= arrImages.length) this.imgIndex = 0;
-        let key = this.name + '_' + subkey + this.imgIndex;        
-        this.image = this.imageCache[key];
-        
-        // for debugging only !!
-        if (this.image == undefined) {
-            console.warn(`Image "${key}" von ${this.name} undefined!`, this);
-            debugger;
-        }
-    }
+
 
     top () {
-        return this.Y;
+        return this.Y + this.offsetY;
     }
 
     left () {

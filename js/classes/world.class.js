@@ -3,7 +3,7 @@ import Chicken from "./chicken.class.js";
 import Level from './level.class.js';
 
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
-import { gameSettings, updateStatus } from "../game.js";
+import { gameSettings, updateGameStatus } from "../game.js";
 
 export default class World {   
     // DECLARATIONS
@@ -36,7 +36,7 @@ export default class World {
         this.Pepe = new Character(this);        
         this.initLevel (this.levelNo);
         this.draw();
-        this.checkCollision();           
+        this.checkCollisions();           
     }
 
     initLevel (levelNo) {
@@ -107,18 +107,19 @@ export default class World {
         }
     }
 
-    checkCollision () {
+    checkCollisions () {
         setInterval(() => {
             this.level.Enemies.forEach((enemy) => {
                 if (this.Pepe.isColliding(enemy)) {  
                     // kill the enemy when we come from above
                     // console.log('Above ' + enemy.name + this.Pepe.isAboveEnemy(enemy) )
-                    // if (this.Pepe.isAboveEnemy(enemy)) {
-                    if (this.Pepe.isAboveGround(enemy.height-10)) {
-                        enemy.remove();
+                    if (this.Pepe.isAboveGround(enemy.height - 10)) {
+                        if (enemy.isAlive()) {
+                            this.Pepe.score += this.levelNo * 10;
+                            enemy.remove();                            
+                        }                        
                     } else if (enemy.isAlive()) {
                         this.Pepe.hit(enemy.damage);
-                        // updateStatus (this.Pepe);
                     }   
                 }
             });
@@ -132,26 +133,18 @@ export default class World {
             
             // collision with items...
             this.level.Items.forEach((item) => {
-                if (this.Pepe.isColliding(item) && item.visible && this.keyboard.SPACE) {
-                    if (item.name.includes('coin')) {
-                        this.Pepe.coins += parseInt(item.value);
-                        item.enabled(false);
-                    } else if (item.name.includes('bottle')) {
-                        this.Pepe.bottles++;
-                        item.enabled(false);
-                    }    
+                if (this.Pepe.isColliding(item) && this.keyboard.SPACE) {
+                    this.Pepe.updateItems(item);    
                 }
             });
 
             // collision with obstracles
             this.level.Obstracles.forEach((barrier) => {
                 if (this.Pepe.isColliding(barrier) && barrier.onCollisionCourse && barrier.damage > 0) {
-                    console.log(barrier.name + ' kollidiert: ' + barrier.onCollisionCourse + barrier.damage );                    
+
+                    // console.log(barrier.name + ' kollidiert: ' + barrier.onCollisionCourse + barrier.damage );                    
                     // can we jump on the obstracle?
                     if (barrier.canJumpOn) {
-                        // console.log('Pepe bottom: ' + this.Pepe.bottom());
-                        // console.log(barrier.name + 'Y: ' + barrier.Y)
-
                         if (this.Pepe.isAboveGround(barrier.Y)) {
                             debugger
                             this.Pepe.Y -= barrier.height;
@@ -159,14 +152,11 @@ export default class World {
                             // this.Pepe.energy -=barrier.damage;
                             // this.Pepe.hit(barrier.damage);
                         } 
-                    }
-
-                                        
+                    }                                        
                 }
-
             });
 
-            updateStatus (this.Pepe);
+            updateGameStatus (this.Pepe);
 
         }, 250);
     }
