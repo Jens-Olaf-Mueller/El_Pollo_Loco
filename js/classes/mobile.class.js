@@ -5,24 +5,24 @@ import World from './world.class.js';
 // import Chicken from './chicken.class.js';
 
 export default class Mobile {
-    X = 50;
-    Y = 0;
-    // offsetY = 110;    
-
-    height = 300;
-    width = 150;
+    X = undefined;
+    Y = undefined;
     speed = 0.15;           // default speed
-    image;
+    speedY = 0;             // gravity acceleration
+    acceleration = 0.5;
+
+    image = undefined;
     imgIndex = 0;
     imageCache = {};        // as image cache we use a jsonArray: {pictureKey: picturePath}
     isMirrored = false;     // = 'otherDirection'
-    speedY = 0;             // gravity acceleration
-    acceleration = 0.5;
-    lastHit = 0;
+    
+   
+    lastHit = 0;            // time elapsed when Pepe was hit by an enemy last time
+    lastMove = new Date().getTime(); // time elapsed since Pepe has moved (for sleep animation)
     diedAt = undefined;
 
     loadImage(path) {
-        this.image = new Image();
+        if (this.image === undefined) this.image = new Image();
         this.image.src = path;
     }
 
@@ -89,19 +89,21 @@ export default class Mobile {
         if (this.name) {
             let isPepe = this.name.includes('Pepe'),
                 name = isPepe ? '' : this.name + ' ',
-                offsetY = isPepe ? this.offsetY : 0;
-            if (isPepe || this.name.includes('Frida')) {
+                offsetY = isPepe ? this.offsetY : 0,
+                showTop = isPepe ? `    Top: ${this.Y + offsetY}` : '';
+            if (isPepe || this.name.includes('Frida') || this.name.includes('Gallina')) {
                 ctx.beginPath();
                 ctx.lineWidth = '3';
                 ctx.setLineDash([5, 5]);
                 ctx.strokeStyle = 'navy';
                 ctx.rect(this.X, this.Y + offsetY, this.width, this.height - offsetY);
                 ctx.stroke();
-
+                // show the coordinates and names
                 ctx.font = "16px Arial";
                 ctx.fillStyle = 'navy';
                 if (this.isMirrored) this.environment.flipImage(this, true);
-                ctx.fillText(`${name}X: ${parseInt(this.X)} Y: ${parseInt(this.Y)} Top: ${this.Y + offsetY}`,this.X-32, this.Y-10 + offsetY);
+                ctx.fillText(`${name}`,this.X-20, this.Y-32 + offsetY);                
+                ctx.fillText(`[X:${parseInt(this.X)},Y:${parseInt(this.Y)}]${showTop}`, this.X-20, this.Y-10 + offsetY);
                 if (isPepe) {
                     ctx.fillText(`Bottom: ${parseInt(this.bottom())} Right: ${parseInt(this.right())}`,this.right()-100, this.bottom()+20);
                 }                
@@ -117,18 +119,18 @@ export default class Mobile {
      * @param {string} subkey creates together with name and index the key of the image in 'imageCache'
      * @var {string} key for the json-array 'imageCache', created from name and image-index number  
      */
-        playAnimation (arrImages, subkey = 'wlk') {        
-            this.imgIndex++;
-            if (this.imgIndex >= arrImages.length) this.imgIndex = 0;
-            let key = this.name + '_' + subkey + this.imgIndex;        
-            this.image = this.imageCache[key];
-            
-            // for debugging only !!
-            if (this.image == undefined) {
-                console.warn(`Image "${key}" von ${this.name} undefined!`, this);
-                debugger;
-            }
+    playAnimation (arrImages, subkey = 'wlk') {        
+        this.imgIndex++;
+        if (this.imgIndex >= arrImages.length) this.imgIndex = 0;
+        let key = this.name + '_' + subkey + this.imgIndex;        
+        this.image = this.imageCache[key];
+        
+        // for debugging only !!
+        if (this.image == undefined) {
+            console.warn(`Image "${key}" von ${this.name} undefined!`, this);
+            debugger;
         }
+    }
 
     /**
      * Applies the gravity for the current object, if it is in the air.
@@ -154,7 +156,12 @@ export default class Mobile {
         // 1. Alle Elemente holen, die bei deiner X-Koordinate liegen
         // 2. Höhe von erstem Objekt nehmen, sonst height = 0
         // if (this.Y != this.groundY) debugger
+
         return this.Y < (this.groundY - height);
+    }
+
+    canStrike () {
+        let canHit = this.X + this.width < this.environment.arrEnemies.Endboss.X
     }
 
     hit (damage) {
@@ -167,17 +174,25 @@ export default class Mobile {
     }
 
     isDead () {
-        if (this.energy > 0) {
-            return false;
+        if (this.energy > 0)  return false;
+        
+        if (this.diedAt == undefined) {
+            this.diedAt = new Date().getTime();
         }
-        this.diedAt = new Date().getTime();
         return true;
         // return this.energy == 0;
     }
 
     isHurt () {
-        let timeElapsed = (new Date().getTime() - this.lastHit) / 1000; // time elapsed in sec
-        return (timeElapsed < 0.75);
+        return (this.timeElapsed(this.lastHit) < 0.75);
+    }
+
+    isSleeping () {
+        return (this.timeElapsed(this.lastMove) > 7);
+    }
+
+    timeElapsed (since) {
+        return (new Date().getTime() - since) / 1000; // time elapsed in sec
     }
 
     /**
@@ -193,7 +208,8 @@ export default class Mobile {
     isColliding (obj) {
         return  (this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width) && 
                 (this.Y + this.offsetY + this.height) >= obj.Y &&
-                (this.Y + this.offsetY) <= (obj.Y + obj.height);
+                (this.Y + this.offsetY) <= (obj.Y + obj.height) && 
+                obj.onCollisionCourse;
 
         // return this.X + this.width > object.X && 
         //     this.Y + this.height > object.Y && 

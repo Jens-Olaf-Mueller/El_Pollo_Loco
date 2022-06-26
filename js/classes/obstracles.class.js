@@ -44,7 +44,10 @@ export default class Obstracle extends Background {
             if (this.name.includes('tree')) this.setTreeProperties();
             if (this.name.includes('stone')) this.setStoneProperties();
             if (this.name.includes('cactus')) this.setCactusProperties();                
-            if (this.name.includes('bees')) this.setBeeProperties();            
+            if (this.name.includes('bees')) this.setBeeProperties();
+            if (this.name.includes('snake')) this.setDamage(((this.value + 1) / 2) * 10);            
+            if (this.name.includes('scorpion')) this.setDamage(this.level.levelNo + this.value + 1);            
+            if (this.name.includes('spider')) this.setDamage(this.level.levelNo);            
         }
     }
 
@@ -86,5 +89,12 @@ export default class Obstracle extends Background {
         this.height = 33;
         this.width = 33;
         this.damage = 0.5;
+    }
+    setDamage (toxic) {
+        this.damage = toxic;
+    }
+
+    isAlive () {
+        return this.damage > 0;
     }
 }

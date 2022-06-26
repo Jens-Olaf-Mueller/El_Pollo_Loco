@@ -1,3 +1,4 @@
+import Enemy from './enemy.class.js';
 import Chicken from './chicken.class.js';
 import EndBoss from './endboss.class.js';
 import Background from './background.class.js';
@@ -7,8 +8,22 @@ import Item from './items.class.js';
 
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 import Food from './food.class.js';
+import Bottle from './bottle.class.js';
 
 export default class Level {
+    name = '';
+    levelNo;
+    eastEnd;
+    westEnd;
+    Backgrounds = [];
+    Clouds = [];
+    Enemies = [];
+    Food = [];   
+    Foregrounds = [];
+    Items = [];
+    Obstracles = [];
+    Bottles = [];
+
     constructor (number) {
         this.levelNo = number;
         this.name = 'Level ' + number;
@@ -17,19 +32,6 @@ export default class Level {
         this.initLevel();
     }
 
-    name = '';
-    levelNo;
-    eastEnd;
-    westEnd;
-
-    Backgrounds = [];
-    Clouds = [];
-    Enemies = [];
-    Food = [];   
-    Foregrounds = [];
-    Items = [];
-    Obstracles = [];
-
     initLevel () {        
         this.initBackgrounds();
         this.initEnemies();
@@ -37,6 +39,7 @@ export default class Level {
         this.initClouds();
         this.initFood();
         this.initItems();
+        this.initBottles();
         
         console.log('LeveL: ' + this.levelNo + ' init...', this) 
         // debugger
@@ -57,9 +60,7 @@ export default class Level {
     }
 
     /**
-    * sets loads all obstracles and sets them 
-    * either to the background or foreground position,
-    * depending on the given state in class initalization
+    * loads all obstracles
     */
     initObstracles () {
         // load the plants...
@@ -69,12 +70,6 @@ export default class Level {
         // stones...
         this.Obstracles.push(...this.add(11, Obstracle, 'stone', 'Obstracles/Stones'));
         this.Obstracles.push(...this.add(7, Obstracle, 'stone_big', 'Obstracles/Stones'));
-        // animals...
-        this.Obstracles.push(...this.add(6, Obstracle, 'spider', 'Obstracles/Animals/Spiders'));
-        this.Obstracles.push(...this.add(6, Obstracle, 'scorpion', 'Obstracles/Animals/Spiders'));
-        this.Obstracles.push(...this.add(14, Obstracle, 'snake', 'Obstracles/Animals/Snakes'));
-        this.Obstracles.push(...this.add(3, Obstracle, 'bees', 'Obstracles/Animals/Bugs'));
-
         this.shiftPosition(this.Obstracles);
     }
 
@@ -83,14 +78,19 @@ export default class Level {
      * depending on it's given state on initializing
      */
     shiftPosition (arrObjects) {
-        for (let i = 0; i < arrObjects.length; i++) {
+        for (let i = arrObjects.length - 1; i >= 0 ; i--) {
             const item = arrObjects[i];
             if (item.isBackground) {
                 this.Backgrounds.push(item);
+                arrObjects.splice(i, 1);
             } else {
                 this.Foregrounds.push(item);
-            }
-        }        
+            }         
+        }
+    }
+
+    initBottles() {
+        this.Bottles.push(...this.add(1, Bottle, 'spin','Items/Bottles/rotation'));
     }
 
     initItems () {
@@ -110,6 +110,13 @@ export default class Level {
         this.shiftPosition(this.Items);
     }
 
+    // Wolken evl. noch zufällig verteilen (Param: pX mit übergeben...)
+    initClouds () {
+        for (let i = 1; i < 3; i++) {
+            this.Clouds.push(new Cloud());
+        }
+    }
+
     initFood () {
         this.Food = this.add(17, Food, 'food', 'Food');
         this.Food.push(...this.add(17, Food, 'chili', 'Food/Chili'));
@@ -122,14 +129,20 @@ export default class Level {
         for (let i = 0; i < count; i++) {
             this.Enemies.push(new Chicken(this, i));
         }
-        this.Enemies.push(new EndBoss(this.eastEnd));
-    }
 
-    // Wolken evl. noch zufällig verteilen (Param: pX mit übergeben...)
-    initClouds () {
-        for (let i = 1; i < 3; i++) {
-            this.Clouds.push(new Cloud());
+        for (let i = 0; i < this.levelNo; i++) {
+            if (i % 3 == 0) {
+                this.Enemies.push(new EndBoss(this, i));
+            }            
         }
+
+        // animals...
+        this.Enemies.push(...this.add(6, Obstracle, 'spider', 'Obstracles/Animals/Spiders'));
+        this.Enemies.push(...this.add(6, Obstracle, 'scorpion', 'Obstracles/Animals/Spiders'));
+        this.Enemies.push(...this.add(14, Obstracle, 'snake', 'Obstracles/Animals/Snakes'));
+        this.Enemies.push(...this.add(3, Obstracle, 'bees', 'Obstracles/Animals/Bugs'));
+
+        this.shiftPosition(this.Enemies); 
     }
 
     /**

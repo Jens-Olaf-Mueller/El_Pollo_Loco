@@ -10,6 +10,7 @@ export default class Food extends Background {
     value = 0;
     price = 2;
     visible = false;
+    onCollisionCourse = true;
     energy = 0;
     sharpness = 0;
     accuracy = 0;

@@ -10,6 +10,7 @@ export default class Item extends Background {
     image;
     visible = true;
     isBackground = false;
+    onCollisionCourse = true;
     value;
     height = 70;
     width = 70;
@@ -17,6 +18,7 @@ export default class Item extends Background {
     Y = Infinity;
     eastEnd;
     westEnd;
+    contains = null;
 
     constructor (imgPath, name, level) { 
         super().loadImage(imgPath);       
@@ -26,7 +28,7 @@ export default class Item extends Background {
         this.type = name.replace(/[0-9]/g, '');
         this.level = level;
         this.eastEnd = level.eastEnd || CANVAS_WIDTH;  
-        this.westEnd = -this.eastEnd || -CANVAS_WIDTH; 
+        this.westEnd = level.westEnd || -CANVAS_WIDTH; 
         this.enabled(true); // calls this.initialize();
     }
     
@@ -46,6 +48,12 @@ export default class Item extends Background {
             this.height = 90;
             this.width = 100;
             this.Y = 360;
+            this.fillRepository (true);
+        } else if (this.type == 'jar') {
+            this.height = 55;
+            this.width = 60;
+            this.Y = 380;            
+            this.fillRepository ();
         } else if (this.type == 'shop') {
             this.height = 270;
             this.width = 220;
@@ -59,10 +67,6 @@ export default class Item extends Background {
         //     this.visible = false;
         // } else if (this.type == 'seedbag') {
 
-        } else if (this.type == 'jar') {
-            this.height = 55;
-            this.width = 60;
-            this.Y = 380;
         } else if (this.type == 'misc') {
             this.Y = 400 + Math.random() * 20;
             this.isBackground = Math.random() < 0.5;
@@ -74,6 +78,16 @@ export default class Item extends Background {
         } else  {
             this.enabled(false);
         }
+    }
+
+    fillRepository (keyRequired) {
+        let arrFound = ['key','coin','bullet','food','medicine','seed','chilli','drink', null];
+        if (keyRequired) delete arrFound [0]; // remove the 'key' when we got a chest!
+        let range = 110 - this.level.levelNo * 10,
+            chance = random(1, 100),            
+            value = random (1, this.level.levelNo * 3),
+            index = random (1, arrFound.length);                 
+        if (chance <= range && arrFound[index] != null) this.contains = (arrFound[index] + value);
     }
 
     enabled (state) {

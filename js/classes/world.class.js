@@ -1,9 +1,11 @@
-import Character from "./character.class.js";
-import Chicken from "./chicken.class.js";
+import Character from './character.class.js';
+import Chicken from './chicken.class.js';
+import Endboss from './endboss.class.js';
 import Level from './level.class.js';
 
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
-import { gameSettings, updateGameStatus } from "../game.js";
+import { gameSettings, updateGameStatus, gameIsOver } from '../game.js';
+import { playSound } from '../library.js';
 
 export default class World {   
     // DECLARATIONS
@@ -26,6 +28,9 @@ export default class World {
     arrEnemies;
     arrClouds;
     arrItems;
+    arrBottles;
+
+    requestID = undefined; // ID for requestAnimationFrame
 
     constructor (canvas, keyboard) {
         this.cnv = canvas; // assigning the global canvas to a local variable
@@ -49,7 +54,8 @@ export default class World {
         this.arrClouds = this.level.Clouds;
         this.arrEnemies = this.level.Enemies;
         this.arrFood = this.level.Food;
-        this.arrItems= this.level.Items;
+        this.arrItems = this.level.Items;
+        this.arrBottles =  this.level.Bottles;
         console.log('World created... ', this )
     }
 
@@ -72,11 +78,12 @@ export default class World {
         this.plot (this.arrForegrounds);
         this.plot (this.arrClouds); 
         this.plot (this.arrFood);
+        this.plot (this.arrBottles);
         // this.plot (this.arrItems);
         
         this.ctx.translate(-this.camera_X, 0); // move the camera scope by 100px back to right after drawing the context
         let Me = this;
-        window.requestAnimationFrame(() => {Me.draw()});
+        this.requestID = window.requestAnimationFrame(() => {Me.draw()});
     }
     
     /**
@@ -113,13 +120,19 @@ export default class World {
                 if (this.Pepe.isColliding(enemy)) {  
                     // kill the enemy when we come from above
                     // console.log('Above ' + enemy.name + this.Pepe.isAboveEnemy(enemy) )
-                    if (this.Pepe.isAboveGround(enemy.height - 10)) {
+                    // if (this.Pepe.isAboveGround(enemy.Y)) {
+                    if (this.Pepe.isAboveGround()) {
                         if (enemy.isAlive()) {
+                            playSound('splat.mp3');
                             this.Pepe.score += this.levelNo * 10;
                             enemy.remove();                            
                         }                        
                     } else if (enemy.isAlive()) {
+                        playSound ('ouch.mp3')
                         this.Pepe.hit(enemy.damage);
+                        if (!enemy instanceof Chicken && !enemy instanceof Endboss) enemy.damage = 0;
+
+                        // if (enemy.type != 'frida') enemy.damage = 0; // hit onlc once!
                     }   
                 }
             });
@@ -134,7 +147,21 @@ export default class World {
             // collision with items...
             this.level.Items.forEach((item) => {
                 if (this.Pepe.isColliding(item) && this.keyboard.SPACE) {
-                    this.Pepe.updateItems(item);    
+                    let found;
+                    if (item.type == 'jar') {
+                        found = item.contains;
+                    } else if (item.type == 'chest' && this.Pepe.keyForChest) {
+                        found = item.contains;
+                    } else {
+                        this.Pepe.updateItems(item);
+                    }
+                    if (found) {
+                        playSound ('item found.mp3');
+                        item.contains = null;
+                        this.Pepe.parseFoundItem (found);
+                        console.log('Gefunden: ' + found);
+                        // if (found.includes('bullet')) debugger
+                    }   
                 }
             });
 

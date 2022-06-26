@@ -6,9 +6,9 @@
 // ####################################################################
 import World from './classes/world.class.js';
 import $ from "./library.js";
-import { playSound, random } from "./library.js";
+import { playSound, random, sleep } from "./library.js";
 import Keyboard from './classes/keyboard.class.js';
-import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS } from './const.js';
+import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, ARR_SOUNDS } from './const.js';
 
 /**
  * D E C L A R A T I O N S
@@ -17,21 +17,24 @@ import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS } from 
  *  @param {element} canvas HTML-Element to draw all objects
  */
 let world,
-    keyboard = new Keyboard(),
+    keyboard = new Keyboard(),    
     settings = $('divSettings'),
     statusbar = $('divStatusbar'),
     canvas = $('canvas'),
     songs = ['Chicken Song.mp3','Santa Esmeralda.mp3']; 
-let arrEnergyIcons, arrJumpIcons, arrAccuracyIcons, arrSharpIcons, arrAudio;
+let arrEnergyIcons, arrJumpIcons, arrAccuracyIcons, arrSharpIcons;
 
+export let arrAudio =[];
+export let arrIntervals = [];
+export let gameIsOver = false;
 export let gameSettings = {
-    musicEnabled: false,
+    musicEnabled: true,
     soundEnabled: false,
-    debugMode: false,
+    debugMode: true,
     showIntro: true,
     showHelpOnStart: true,
     lastSong: 'Santa Esmeralda.mp3',
-    lastLevel: 3,
+    lastLevel: 2,
     highScore: 0
 }
 
@@ -51,9 +54,32 @@ function startGame() {
 }
 
 function initGame () {
-    world = new World(canvas, keyboard);
+    gameIsOver = false;
+    world = new World(canvas, keyboard);    
     playSound(songs[Math.floor(Math.random() * (songs.length))], gameSettings.musicEnabled);
-    loadStatusIcons();
+    loadStatusIcons();    
+}
+
+export async function gameOver (status) {
+    stopIntervals();
+    gameIsOver = status;
+    window.cancelAnimationFrame(world.requestID); 
+    world.requestID = undefined;
+    await sleep(3500);
+    console.log('G A M E  O V E R  ! ! !');    
+    statusbar.classList.add('hidden');
+    $('divNavbar').classList.add('hidden');
+    $('divCanvas').classList.add('hidden');
+    settings.classList.remove('hidden');
+    // 
+}
+
+// evl. noch erweitern, so dass ein EINZELNER Interval gelöscht werden kann (param = ID)
+function stopIntervals () {
+    for (let i = 0; i < arrIntervals.length; i++) {
+        const interval_ID = arrIntervals[i];
+        clearInterval(interval_ID);
+    }
 }
 
 function setEventListeners () {
@@ -85,14 +111,15 @@ export function updateGameStatus (pepe) {
     // let j = Math.floor(pepe.jumpPower) > 10 ? 10 : Math.floor(pepe.jumpPower);
     ICON_JUMP.src = arrJumpIcons[getImageIndex(pepe.jumpPower)]; 
     ICON_ENERGY.src = arrEnergyIcons[getImageIndex(pepe.energy)];
-    ICON_SHARPNESS.src = arrSharpIcons[getImageIndex(pepe.sharpness)];
-    
+    ICON_SHARPNESS.src = arrSharpIcons[getImageIndex(pepe.sharpness)];    
     ICON_ACCURACY.src = arrAccuracyIcons[getImageIndex(pepe.accuracy)];
 
     $('#divCoin >label').innerText = pepe.coins;
-    $('#divBottle >label').innerText = pepe.bottles;    
+    $('#divBottle >label').innerText = pepe.bottles;        
     $('divScore').innerText = 'Score: ' + pepe.score;
     $('imgLevel').src = `./img/Status/Level/${world.levelNo}.png`;
+    $('divBullet').classList.toggle('hidden',(!pepe.bullets))
+    $('#divBullet >label').innerText = pepe.bullets;
 }
 
 function getImageIndex (property) {
@@ -118,9 +145,17 @@ function loadSounds () {
         objAudio[`song${i}`] = audio;
         arrAudio.push(objAudio);        
     }
-
-    // console.log(arrAudio);
     // now loading the sounds...
+    for (let i = 0; i < ARR_SOUNDS.length; i++) {
+        const key = Object.keys(ARR_SOUNDS[i]),          
+              sound = new Audio('./sound/' + Object.values(ARR_SOUNDS[i])), objAudio = {};
+        // objAudio[`snd${i}`] = sound;
+        objAudio[key] = sound;
+        arrAudio.push(objAudio);         
+    }
+
+    console.log(arrAudio);
+//     debugger    
 }
 
 function updateSettings (event) {
