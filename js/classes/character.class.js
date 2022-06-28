@@ -167,7 +167,6 @@ export default class Character extends Mobile {
         //
     }
 
-    // '','','','','','','','',
     parseFoundItem (itemName) {
         let value = parseInt(itemName.replace(/[^0-9]/g,'')),
             name = itemName.replace(/[0-9]/g, '');

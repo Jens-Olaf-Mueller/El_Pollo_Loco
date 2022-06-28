@@ -59,14 +59,6 @@ export default class Item extends Background {
             this.width = 220;
             this.Y = 150;
             this.isBackground = true;
-        // } else if (this.type == 'key') {
-
-        // } else if (this.type == 'gun') {
-
-        // } else if (this.type == 'bullet') {
-        //     this.visible = false;
-        // } else if (this.type == 'seedbag') {
-
         } else if (this.type == 'misc') {
             this.Y = 400 + Math.random() * 20;
             this.isBackground = Math.random() < 0.5;

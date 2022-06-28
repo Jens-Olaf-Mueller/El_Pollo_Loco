@@ -1,6 +1,5 @@
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
-import World from './world.class.js';
-
+// import World from './world.class.js';
 // import Character from './character.class.js'; 
 // import Chicken from './chicken.class.js';
 
@@ -65,6 +64,14 @@ export default class Mobile {
             }
         }, 1000 / FPS);
     };
+
+    moveUp (startX) {
+        return setInterval(() => {
+            this.X = startX;
+            this.Y -= this.speed * 15;
+            if (this.Y < -this.height) this.animate(false);
+        }, 1000 / FPS);
+    }
 
     jump (jumpspeed) {
         this.speedY = -jumpspeed;
@@ -210,14 +217,7 @@ export default class Mobile {
                 (this.Y + this.offsetY + this.height) >= obj.Y &&
                 (this.Y + this.offsetY) <= (obj.Y + obj.height) && 
                 obj.onCollisionCourse;
-
-        // return this.X + this.width > object.X && 
-        //     this.Y + this.height > object.Y && 
-        //     this.X < object.X && 
-        //     this.Y < object.Y + object.height;
     }
-
-
 
     top () {
         return this.Y + this.offsetY;

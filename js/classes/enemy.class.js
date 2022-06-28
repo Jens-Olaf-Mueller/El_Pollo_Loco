@@ -5,7 +5,7 @@ import Chicken from './chicken.class.js';
 
 import { arrIntervals } from "../game.js";
 
-import { playSound, loadArray } from '../library.js';
+import { loadArray } from '../library.js';
 import { FPS, CANVAS_WIDTH } from '../const.js';
 
 export default class Enemy extends Mobile {
@@ -94,7 +94,7 @@ export default class Enemy extends Mobile {
         this.loadImage ('./img/Endboss/walking/step1.png');
         this.arrAnimation = loadArray ('./img/Endboss/walking/step', 4);
 
-        this.X = this.level.eastEnd;
+        this.X = this.eastEnd;
         this.speed = 0.15 + Math.random() * 0.5;
     }
 

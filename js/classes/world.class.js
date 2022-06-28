@@ -2,10 +2,12 @@ import Character from './character.class.js';
 import Chicken from './chicken.class.js';
 import Endboss from './endboss.class.js';
 import Level from './level.class.js';
+import Bonus from './bonus.class.js';
 
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 import { gameSettings, updateGameStatus, gameIsOver } from '../game.js';
 import { playSound } from '../library.js';
+import Bottle from './bottle.class.js';
 
 export default class World {   
     // DECLARATIONS
@@ -28,7 +30,8 @@ export default class World {
     arrEnemies;
     arrClouds;
     arrItems;
-    arrBottles;
+    bottleThrow;
+    bonus;
 
     requestID = undefined; // ID for requestAnimationFrame
 
@@ -55,8 +58,11 @@ export default class World {
         this.arrEnemies = this.level.Enemies;
         this.arrFood = this.level.Food;
         this.arrItems = this.level.Items;
-        this.arrBottles =  this.level.Bottles;
-        console.log('World created... ', this )
+        this.bonus = new Bonus('./img/Status/Bonus/bonus0.png');
+        this.bottleThrow = new Bottle('./img/Items/Bottles/rotation/spin0.png');;
+        if (gameSettings.debugMode) {
+            console.log('World created... ', this);
+        }
     }
 
     /**
@@ -78,7 +84,8 @@ export default class World {
         this.plot (this.arrForegrounds);
         this.plot (this.arrClouds); 
         this.plot (this.arrFood);
-        this.plot (this.arrBottles);
+        this.plot (this.bottleThrow);
+        this.plot (this.bonus);
         // this.plot (this.arrItems);
         
         this.ctx.translate(-this.camera_X, 0); // move the camera scope by 100px back to right after drawing the context
@@ -157,10 +164,12 @@ export default class World {
                     }
                     if (found) {
                         playSound ('item found.mp3');
+                        this.bonus.animate(true, item.X, item.Y);
                         item.contains = null;
+                        if (item.type == 'chest') this.Pepe.keyForChest--;
+                        if (this.Pepe.keyForChest < 0) this.Pepe.keyForChest = 0;
                         this.Pepe.parseFoundItem (found);
                         console.log('Gefunden: ' + found);
-                        // if (found.includes('bullet')) debugger
                     }   
                 }
             });

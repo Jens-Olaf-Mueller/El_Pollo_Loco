@@ -1,13 +1,14 @@
 import Mobile from './mobile.class.js';
 import { loadArray } from "../library.js";
+import { arrIntervals } from '../game.js';
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
-export default class Bottle extends Mobile {
-    name = 'bottle';
-    height = 60;
-    width = 60;
+export default class Bonus extends Mobile {
+    name = 'bonus';
+    height = 50;
+    width = 50;
     X = 0;
-    Y = 350;
+    Y = -100;
     speedY = 10; // ??
     arrRotation = [];
     animationID = undefined;
@@ -16,33 +17,22 @@ export default class Bottle extends Mobile {
     constructor (imgPath) {        
         super().loadImage(imgPath);
         this.initialize();
-        // debugger
-        this.applyGravity();
-
-        this.throw (0,150,10);
-        this.animate(true,0,150);
+        arrIntervals.push(this.animationID, this.moveID);
     }
 
     initialize() {
-        this.arrRotation = loadArray ('./img/Items/Bottles/rotation/spin',8);
-        this.loadImageCache (this.arrRotation, 'bottle_spin');
-    }
-
-    throw (pX, pY, speed) {
-        this.X = pX;
-        this.Y = pY;
-        this.speedY = speed;
-        //
+        this.arrRotation = loadArray ('./img/Status/Bonus/bonus', 17);
+        this.loadImageCache (this.arrRotation, 'bonus_spin');
     }
 
     animate (visible, pX, pY) {      
         if (visible) {
             this.X = pX;
             this.Y = pY;
-            // this.moveID = this.moveUp(pX, pY);
+            this.moveID = this.moveUp(pX, pY);
             this.animationID = setInterval(() => {
                 this.playAnimation(this.arrRotation,'spin');          
-            }, 4000 / FPS);
+            }, 5000 / FPS);
         } else {
             clearInterval (this.moveID);
             clearInterval (this.animationID);

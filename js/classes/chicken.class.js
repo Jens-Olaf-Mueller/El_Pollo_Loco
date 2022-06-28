@@ -2,7 +2,6 @@ import Enemy from './enemy.class.js';
 
 export default class Chicken extends Enemy {
     type = 'frida';
-    key;
     Y = 380;
     height = 60;
     width = 60; 

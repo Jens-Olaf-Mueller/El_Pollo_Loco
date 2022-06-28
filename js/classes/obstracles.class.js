@@ -5,6 +5,7 @@ import Background from './background.class.js';
 
 export default class Obstracle extends Background {
     name = '';
+    type = '';
     level;
     value = 0;
     visible = false;
@@ -23,6 +24,7 @@ export default class Obstracle extends Background {
         super().loadImage(imgPath);
         this.name = name;
         this.value = parseInt(name.replace(/[^0-9]/g,'')) || 0; // returns only a number from string!
+        this.type = name.replace(/[0-9]/g, '');
         this.level = level;
         this.eastEnd = level.eastEnd || CANVAS_WIDTH;  
         this.westEnd = -this.eastEnd || -CANVAS_WIDTH;   
@@ -96,5 +98,21 @@ export default class Obstracle extends Background {
 
     isAlive () {
         return this.damage > 0;
+    }
+
+    remove () {
+        if (this.type == 'spider' || this.type == 'scorpion') {
+            // clearInterval(this.animationID);
+            // clearInterval(this.moveID);
+            // this.animationID = undefined;
+            // this.moveID = undefined;
+            this.damage = 0;
+            // this.energy = 0;
+            // this.speed = 0;
+            this.height = 50;
+            this.width = 50; 
+            this.Y = 420;    
+            this.loadImage('./img/Items/Bottles/splash_salsa/splash3.png');
+        }
     }
 }

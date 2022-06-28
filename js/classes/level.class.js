@@ -5,16 +5,19 @@ import Background from './background.class.js';
 import Obstracle from './obstracles.class.js';
 import Cloud from './cloud.class.js';
 import Item from './items.class.js';
-
-import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
+import Bonus from './bonus.class.js';
 import Food from './food.class.js';
 import Bottle from './bottle.class.js';
+
+import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
+import { gameSettings } from '../game.js';
 
 export default class Level {
     name = '';
     levelNo;
     eastEnd;
     westEnd;
+
     Backgrounds = [];
     Clouds = [];
     Enemies = [];
@@ -23,6 +26,7 @@ export default class Level {
     Items = [];
     Obstracles = [];
     Bottles = [];
+    Boni = [];
 
     constructor (number) {
         this.levelNo = number;
@@ -40,9 +44,10 @@ export default class Level {
         this.initFood();
         this.initItems();
         this.initBottles();
-        
-        console.log('LeveL: ' + this.levelNo + ' init...', this) 
-        // debugger
+        if (gameSettings.debugMode) {
+            console.log('LeveL: ' + this.levelNo + ' init...', this);
+            // debugger;
+        }
     }
 
     initBackgrounds() {
@@ -89,9 +94,30 @@ export default class Level {
         }
     }
 
+    hideKey () {
+        let found = false;
+        this.Items.forEach(item => {
+            if (item.type == 'jar') {
+                if (item.contains == 'key') found = true;
+            }            
+        });
+        // no key hidden by random, so we force it!
+        if (!found) {
+            for (let i = 0; i < this.Items.length; i++) {
+                const item = this.Items[i];
+                if (item.type == 'jar') {
+                    item.contains = 'key';
+                    break;
+                }
+            }
+        }
+    }
+
     initBottles() {
         this.Bottles.push(...this.add(1, Bottle, 'spin','Items/Bottles/rotation'));
+        
     }
+
 
     initItems () {
          // amount of bottles and coins depend on the level number
@@ -107,6 +133,7 @@ export default class Level {
         this.Items.push(...this.add (5, Item, 'misc', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'shop', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'seedbag', 'Items/Seeds'));
+        this.hideKey();
         this.shiftPosition(this.Items);
     }
 
