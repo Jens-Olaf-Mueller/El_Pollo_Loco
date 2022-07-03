@@ -1,11 +1,13 @@
 import Character from './character.class.js';
 import Chicken from './chicken.class.js';
-import Endboss from './endboss.class.js';
+import Endboss from './endboss_old.class.js';
+import Bees from './bees.class.js';
+import Snake from './snake.class.js';
 import Level from './level.class.js';
 import Bonus from './bonus.class.js';
 
-import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
-import { gameSettings, updateGameStatus, gameIsOver } from '../game.js';
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
+import { gameSettings, updateGameStatus, arrIntervals, objAudio } from '../game.js';
 import { playSound } from '../library.js';
 import Bottle from './bottle.class.js';
 
@@ -30,10 +32,11 @@ export default class World {
     arrEnemies;
     arrClouds;
     arrItems;
-    bottleThrow;
+    bottle;
     bonus;
-
+    
     requestID = undefined; // ID for requestAnimationFrame
+    runID = undefined;
 
     constructor (canvas, keyboard) {
         this.cnv = canvas; // assigning the global canvas to a local variable
@@ -44,7 +47,8 @@ export default class World {
         this.Pepe = new Character(this);        
         this.initLevel (this.levelNo);
         this.draw();
-        this.checkCollisions();           
+        this.run();
+        arrIntervals.push(this.runID);         
     }
 
     initLevel (levelNo) {
@@ -58,11 +62,18 @@ export default class World {
         this.arrEnemies = this.level.Enemies;
         this.arrFood = this.level.Food;
         this.arrItems = this.level.Items;
-        this.bonus = new Bonus('./img/Status/Bonus/bonus0.png');
-        this.bottleThrow = new Bottle('./img/Items/Bottles/rotation/spin0.png');;
+        this.bonus = new Bonus('./img/Status/Bonus/spin0.png');
+        this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');;
         if (gameSettings.debugMode) {
             console.log('World created... ', this);
         }
+    }
+
+    run () {
+        this.runID = setInterval(() => {
+            this.checkCollisions();
+            this.checkActions();           
+        }, 250);
     }
 
     /**
@@ -84,9 +95,8 @@ export default class World {
         this.plot (this.arrForegrounds);
         this.plot (this.arrClouds); 
         this.plot (this.arrFood);
-        this.plot (this.bottleThrow);
+        this.plot (this.bottle);
         this.plot (this.bonus);
-        // this.plot (this.arrItems);
         
         this.ctx.translate(-this.camera_X, 0); // move the camera scope by 100px back to right after drawing the context
         let Me = this;
@@ -122,78 +132,107 @@ export default class World {
     }
 
     checkCollisions () {
-        setInterval(() => {
-            this.level.Enemies.forEach((enemy) => {
-                if (this.Pepe.isColliding(enemy)) {  
-                    // kill the enemy when we come from above
-                    // console.log('Above ' + enemy.name + this.Pepe.isAboveEnemy(enemy) )
-                    // if (this.Pepe.isAboveGround(enemy.Y)) {
-                    if (this.Pepe.isAboveGround()) {
-                        if (enemy.isAlive()) {
-                            playSound('splat.mp3');
-                            this.Pepe.score += this.levelNo * 10;
-                            enemy.remove();                            
-                        }                        
-                    } else if (enemy.isAlive()) {
-                        playSound ('ouch.mp3')
-                        this.Pepe.hit(enemy.damage);
-                        if (!enemy instanceof Chicken && !enemy instanceof Endboss) enemy.damage = 0;
+        //  collision with enemy...
+        this.level.Enemies.forEach((enemy) => {
+            if (this.Pepe.isColliding(enemy)) {
+                if (this.Pepe.isAboveGround()) {
+                    if (enemy.isAlive()) {
+                        if (enemy instanceof Chicken) {
+                            playSound(objAudio['chicken'], gameSettings.soundEnabled);
+                            enemy.remove('dead');
+                        } else if (enemy instanceof Bees) {
+                            playSound(objAudio['bees'], gameSettings.soundEnabled);
+                        } else if (enemy instanceof Snake) {
+                            playSound(objAudio['snake'], gameSettings.soundEnabled);
+                        } else if (enemy instanceof Endboss) {
 
-                        // if (enemy.type != 'frida') enemy.damage = 0; // hit onlc once!
-                    }   
-                }
-            });
-
-            // collision with foot...
-            this.level.Food.forEach((food) => {
-                if (this.Pepe.isColliding(food) && this.keyboard.SPACE) {
-                    this.Pepe.updateProperties(food);
-                }
-            });
-            
-            // collision with items...
-            this.level.Items.forEach((item) => {
-                if (this.Pepe.isColliding(item) && this.keyboard.SPACE) {
-                    let found;
-                    if (item.type == 'jar') {
-                        found = item.contains;
-                    } else if (item.type == 'chest' && this.Pepe.keyForChest) {
-                        found = item.contains;
-                    } else {
-                        this.Pepe.updateItems(item);
-                    }
-                    if (found) {
-                        playSound ('item found.mp3');
-                        this.bonus.animate(true, item.X, item.Y);
-                        item.contains = null;
-                        if (item.type == 'chest') this.Pepe.keyForChest--;
-                        if (this.Pepe.keyForChest < 0) this.Pepe.keyForChest = 0;
-                        this.Pepe.parseFoundItem (found);
-                        console.log('Gefunden: ' + found);
-                    }   
-                }
-            });
-
-            // collision with obstracles
-            this.level.Obstracles.forEach((barrier) => {
-                if (this.Pepe.isColliding(barrier) && barrier.onCollisionCourse && barrier.damage > 0) {
-
-                    // console.log(barrier.name + ' kollidiert: ' + barrier.onCollisionCourse + barrier.damage );                    
-                    // can we jump on the obstracle?
-                    if (barrier.canJumpOn) {
-                        if (this.Pepe.isAboveGround(barrier.Y)) {
-                            debugger
-                            this.Pepe.Y -= barrier.height;
                         } else {
-                            // this.Pepe.energy -=barrier.damage;
-                            // this.Pepe.hit(barrier.damage);
-                        } 
-                    }                                        
+                            playSound(objAudio['splat'], gameSettings.soundEnabled);
+                            console.log(enemy.name )
+                            // debugger
+
+                            enemy.remove('dead');
+                            // enemy.remove('splash3');
+                        }                        
+                        this.Pepe.score += this.levelNo * 10;                  
+                    }                        
+                } else if (enemy.isAlive()) {
+                    if (enemy instanceof Bees) {
+                        playSound(objAudio['bees'], gameSettings.soundEnabled);
+                    } else if (!this.Pepe.isDead()) {
+                        playSound(objAudio['ouch'], gameSettings.soundEnabled);
+                    }
+                    this.Pepe.hit(enemy.damage);
+                    if (!enemy instanceof Chicken && !enemy instanceof Endboss) enemy.damage = 0;
+                }   
+             }
+        });
+
+        this.checkFoodCollisions();
+        this.checkItemCollisions();
+        this.checkObstracleCollisions();
+        updateGameStatus (this.Pepe);
+    }
+
+    /**
+     * collision with foot...
+     */
+    checkFoodCollisions() {
+        this.level.Food.forEach((food) => {
+            if (this.Pepe.isColliding(food) && this.keyboard.SPACE) {
+                this.Pepe.updateProperties(food);
+            }
+        });
+    }
+
+    /**
+     *  collision with items...
+     */
+    checkItemCollisions() {
+        this.level.Items.forEach((item) => {
+            if (this.Pepe.isColliding(item) && this.keyboard.SPACE) {
+                let foundBonus;
+                if (item.type == 'jar' || (item.type == 'chest' && this.Pepe.keyForChest)) {
+                    foundBonus = item.contains;
                 }
-            });
+                this.Pepe.updateItems(item, foundBonus);  
+            }
+        });
+    }
 
-            updateGameStatus (this.Pepe);
+    /**
+     *  collision with obstracles
+     */
+    checkObstracleCollisions() {
+        this.level.Obstracles.forEach((barrier) => {
+            if (this.Pepe.isColliding(barrier) && barrier.onCollisionCourse && barrier.damage > 0) {                    
+                // can we jump on the obstracle?
+                if (barrier.canJumpOn) {
+                    if (this.Pepe.isAboveGround(barrier.Y)) {
+                        debugger
+                        this.Pepe.Y -= barrier.height;
+                    } else {
+                        // this.Pepe.energy -=barrier.damage;
+                        // this.Pepe.hit(barrier.damage);
+                    } 
+                }                                        
+            }
+        });
+    }
 
-        }, 250);
+    checkActions() {
+        if (this.keyboard.CTRL_LEFT && this.Pepe.isClose('endboss')) {
+            if (this.Pepe.bottles > 0) {                
+                this.bottle.throw(this.Pepe.X + this.Pepe.width/2, 
+                this.Pepe.Y + this.Pepe.height/2,15, this.Pepe.isMirrored);
+                this.Pepe.bottles--;
+                this.Pepe.setMoveTimeStamp();
+            } else if (this.Pepe.gun && this.Pepe.bullets > 0) {
+                console.log('SCHUSS!...' )
+                this.Pepe.bullets--;
+                this.Pepe.setMoveTimeStamp();
+                debugger
+            }
+        }
     }
 }

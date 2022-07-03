@@ -92,6 +92,7 @@ export default class Obstracle extends Background {
         this.width = 33;
         this.damage = 0.5;
     }
+    
     setDamage (toxic) {
         this.damage = toxic;
     }

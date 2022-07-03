@@ -15,14 +15,19 @@ const ICON_ENERGY = document.getElementById('imgEnergy'),
 
 const APP_NAME = 'El Pollo Loco';
 const PEPE = 'Pepe';
-const ARR_SOUNDS = [
-    {ouch: "ouch.mp3"},
-    {plopp: "plopp.mp3"},
-    {found: "item found"},
-    {coin: "coin click.mp3"},
-    {splat: "splat.mp3"},
-    {bottle: "bottle collected.mp3"}
-];
+const SOUNDS = {
+    songs: ['Chicken Song.mp3','Santa Esmeralda.mp3'],
+    ouch: "ouch.mp3",
+    plopp: "plopp.mp3",
+    found: "item found.mp3",
+    coin: "coin click.mp3",
+    bees: "flying bees.mp3",
+    splat: "splat.mp3",
+    bottle: "bottle collected.mp3",
+    chicken: "chicken alert.mp3",
+    snake: "rattle snake.mp3",
+    walk: "walk.mp3",
+    jump: ""
+};
 
-
-export { FPS, CANVAS_HEIGHT, CANVAS_WIDTH, APP_NAME, PEPE, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, ARR_SOUNDS };
+export { FPS, CANVAS_HEIGHT, CANVAS_WIDTH, APP_NAME, PEPE, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, SOUNDS };

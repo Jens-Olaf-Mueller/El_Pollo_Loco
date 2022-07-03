@@ -6,7 +6,7 @@ import Mobile from './mobile.class.js';
 import { FPS, CANVAS_WIDTH } from '../const.js';
 import { playSound, loadArray } from "../library.js";
 
-export default class Chicken extends Mobile {
+export default class Chicken_old extends Mobile {
     name = '';
     type = 'frida';
     key;
@@ -51,7 +51,6 @@ export default class Chicken extends Mobile {
 
         if (this.isAlive) {
             this.moveID = this.move('left', speed, startFromX, startFromY);
-
             this.intervalID = setInterval(() => {
                 this.playAnimation(this.arrWalking,'wlk');          
             }, 12000 / FPS);

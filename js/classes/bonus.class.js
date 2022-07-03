@@ -4,13 +4,13 @@ import { arrIntervals } from '../game.js';
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Bonus extends Mobile {
-    name = 'bonus';
+    name = 'Bonus';
     height = 50;
     width = 50;
     X = 0;
     Y = -100;
     speedY = 10; // ??
-    arrRotation = [];
+    arrAnimation = [];
     animationID = undefined;
     moveID = undefined;
 
@@ -21,8 +21,8 @@ export default class Bonus extends Mobile {
     }
 
     initialize() {
-        this.arrRotation = loadArray ('./img/Status/Bonus/bonus', 17);
-        this.loadImageCache (this.arrRotation, 'bonus_spin');
+        this.arrAnimation = loadArray ('./img/Status/Bonus/spin', 16);
+        this.loadImageCache (this.arrAnimation,this.name);
     }
 
     animate (visible, pX, pY) {      
@@ -31,7 +31,7 @@ export default class Bonus extends Mobile {
             this.Y = pY;
             this.moveID = this.moveUp(pX, pY);
             this.animationID = setInterval(() => {
-                this.playAnimation(this.arrRotation,'spin');          
+                this.playAnimation(this.arrAnimation,'spin');          
             }, 5000 / FPS);
         } else {
             clearInterval (this.moveID);

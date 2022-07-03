@@ -3,12 +3,13 @@
 * an extending or used class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { updateGameStatus, gameOver, arrIntervals, arrAudio } from '../game.js';
+import { updateGameStatus, gameOver, arrIntervals, gameSettings, objAudio } from '../game.js';
 import { playSound, loadArray } from '../library.js';
-import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH , PEPE} from '../const.js';
+import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Character extends Mobile {
     name = 'Pepe';
+    type = 'character';
     environment; // reference to the world
     X = 50;
     Y = 150;
@@ -31,12 +32,8 @@ export default class Character extends Mobile {
     
     keyboard;
     cameraOffset = 150;
-    arrWalking;
-    arrJumping;
-    arrHurt;
-    arrSleeping;
-    arrWaiting;
-    arrDying;
+
+    arrAnimation = [];
 
     constructor (environment) {
         super().loadImage('./img/Pepe/idle/wait/wait0.png');
@@ -47,42 +44,38 @@ export default class Character extends Mobile {
         this.initialize();           
         this.applyGravity();
         this.animate();
-        console.log('Intervals: ' + arrIntervals )
     };
 
     initialize () {
-        this.arrWalking = loadArray ('./img/Pepe/walk/wlk',6);
-        this.loadImageCache (this.arrWalking, 'Pepe_wlk');
-        this.arrJumping = loadArray ('./img/Pepe/jump/jmp',9);
-        this.loadImageCache (this.arrJumping, 'Pepe_jmp');
-        this.arrHurt = loadArray ('./img/Pepe/hurt/hurt',4);
-        this.loadImageCache (this.arrHurt, 'Pepe_hrt');
-        this.arrSleeping = loadArray ('./img/Pepe/idle/sleep/slp',10); 
-        this.loadImageCache (this.arrSleeping, 'Pepe_slp');
-        this.arrWaiting = loadArray ('./img/Pepe/idle/wait/wait',10); 
-        this.loadImageCache (this.arrWaiting, 'Pepe_wait');
-        this.arrDying = loadArray ('./img/Pepe/killed/die',30);
-        this.loadImageCache (this.arrDying, 'Pepe_die');
+        this.arrAnimation.push(...loadArray('./img/Pepe/walk/wlk',6));
+        this.arrAnimation.push(...loadArray('./img/Pepe/jump/jmp',9));
+        this.arrAnimation.push(...loadArray('./img/Pepe/hurt/hurt',4));
+        this.arrAnimation.push(...loadArray('./img/Pepe/idle/sleep/slp',10));
+        this.arrAnimation.push(...loadArray('./img/Pepe/idle/wait/wait',10));
+        this.arrAnimation.push(...loadArray('./img/Pepe/killed/die',30));
+        this.loadImageCache (this.arrAnimation, this.name);
     }
 
     animate () {
         arrIntervals.push(setInterval (() => { 
+            // playSound (objAudio['walk'], false);
             let step = this.speed * 125;
             if (this.keyboard.RIGHT) {
                 if (this.X < this.environment.eastEnd - CANVAS_WIDTH + this.cameraOffset - 10) {
                     this.X += step;
                     this.isMirrored = false;
                     this.setMoveTimeStamp();
-                    // playSound('walking1.mp3');
+                    // playSound (objAudio['walk'], gameSettings.soundEnabled);
                 }                
             }
 
             if (this.keyboard.LEFT) {
                 if (this.X > this.environment.westEnd + this.cameraOffset + 10) {
-                this.X -= step;
-                this.isMirrored = true;
-                this.setMoveTimeStamp();
-            }
+                    this.X -= step;
+                    this.isMirrored = true;
+                    this.setMoveTimeStamp();
+                    // playSound (objAudio['walk'], gameSettings.soundEnabled);
+                }
             }
             
             if (this.keyboard.UP && !this.isAboveGround()) {
@@ -93,6 +86,7 @@ export default class Character extends Mobile {
                 this.jumpPower -= this.environment.levelNo / 10;
                 if (this.jumpPower < 0) this.jumpPower = 0;
                 updateGameStatus(this);
+                // playSound (objAudio['jump'], gameSettings.soundEnabled);
             }
             if (this.X > this.environment.westEnd - this.cameraOffset) {
                 this.environment.camera_X = -this.X + this.cameraOffset;
@@ -103,21 +97,21 @@ export default class Character extends Mobile {
         arrIntervals.push(setInterval(() => {
             if (this.isDead()) {
                 if (this.timeElapsed(this.diedAt) < 2.5) {    
-                    this.playAnimation (this.arrDying,'die');
+                    this.playAnimation (this.arrAnimation,'die');
                 } else {
                     gameOver(true);
                 }  
             } else if (this.isHurt()) {
-                this.playAnimation (this.arrHurt,'hrt');
-                this.setMoveTimeStamp ()
+                this.playAnimation (this.arrAnimation,'hurt');
+                this.setMoveTimeStamp();
             } else if (this.isAboveGround() || this.speedY > 0) {
-                this.playAnimation (this.arrJumping,'jmp');
+                this.playAnimation (this.arrAnimation,'jmp');
             } else if (this.keyboard.RIGHT || this.keyboard.LEFT) {
-                this.playAnimation (this.arrWalking);    
+                this.playAnimation (this.arrAnimation,'wlk');    
             } else if (this.isSleeping()) {
-                this.playAnimation(this.arrSleeping,'slp');              
+                this.playAnimation(this.arrAnimation,'slp');              
             } else {
-                this.playAnimation(this.arrWaiting,'wait');
+                this.playAnimation(this.arrAnimation,'wait');
             }
         }, 6000 / FPS));
     }
@@ -131,11 +125,9 @@ export default class Character extends Mobile {
 
     updateProperties (srcObject) {
         if (srcObject.visible) {
-        // if (this.coins > 0 && srcObject.visible) {
-            
             // still enough money?
             if (this.coins - srcObject.price >= 0) {
-                playSound('plopp.mp3');
+                playSound(objAudio['plopp'], gameSettings.soundEnabled);
                 this.energy += parseInt(srcObject.energy);
                 this.accuracy += parseInt(srcObject.accuracy);
                 this.jumpPower += parseInt(srcObject.jumpPower);            
@@ -147,20 +139,32 @@ export default class Character extends Mobile {
         }
     }
 
-    updateItems (item) {
+    updateItems (item, bonus) {
         if (item.visible) {
             if (item.type == 'coin') {
-                playSound ('coin click.mp3');
+                playSound (objAudio['coin'], gameSettings.soundEnabled);
                 this.coins += item.value;
                 this.score ++;
                 item.enabled(false);
             } else if (item.type == 'bottle') {
-                playSound ('bottle collected.mp3');
+                playSound (objAudio['bottle'], gameSettings.soundEnabled);
                 this.bottles++;
                 this.score = this.score + 2;
                 item.enabled(false);                
             }
         }
+
+        if (bonus) {
+            playSound (objAudio['found'], gameSettings.soundEnabled);
+            this.environment.bonus.animate(true, item.X, item.Y);
+            item.contains = null;
+            if (item.type == 'chest') {
+                this.keyForChest--;
+                if (this.keyForChest < 0) this.keyForChest = 0;
+            }
+            this.parseFoundItem(bonus);
+            console.log('Gefunden: ' + bonus);
+        }  
     }
 
     updateStatus () {
@@ -180,6 +184,9 @@ export default class Character extends Mobile {
                 break;
             case 'bullet':
                 if (this.bullets <= this.environment.levelNo * 6) this.bullets++;        
+                break;
+            case 'gun':
+                this.gun = true;
                 break;
             case 'food':
                 this.jumpPower += value / 2;

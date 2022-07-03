@@ -1,13 +1,13 @@
-import Enemy from './enemy.class.js';
 import Chicken from './chicken.class.js';
-import EndBoss from './endboss.class.js';
+import Endboss from './endboss.class.js';
+import Snake from './snake.class.js';
+
+import Bees from './bees.class.js';
 import Background from './background.class.js';
 import Obstracle from './obstracles.class.js';
 import Cloud from './cloud.class.js';
 import Item from './items.class.js';
-import Bonus from './bonus.class.js';
 import Food from './food.class.js';
-import Bottle from './bottle.class.js';
 
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 import { gameSettings } from '../game.js';
@@ -25,8 +25,7 @@ export default class Level {
     Foregrounds = [];
     Items = [];
     Obstracles = [];
-    Bottles = [];
-    Boni = [];
+    // Boni = [];
 
     constructor (number) {
         this.levelNo = number;
@@ -43,7 +42,6 @@ export default class Level {
         this.initClouds();
         this.initFood();
         this.initItems();
-        this.initBottles();
         if (gameSettings.debugMode) {
             console.log('LeveL: ' + this.levelNo + ' init...', this);
             // debugger;
@@ -78,47 +76,6 @@ export default class Level {
         this.shiftPosition(this.Obstracles);
     }
 
-    /**
-     * moves the objects either in fore- or background,
-     * depending on it's given state on initializing
-     */
-    shiftPosition (arrObjects) {
-        for (let i = arrObjects.length - 1; i >= 0 ; i--) {
-            const item = arrObjects[i];
-            if (item.isBackground) {
-                this.Backgrounds.push(item);
-                arrObjects.splice(i, 1);
-            } else {
-                this.Foregrounds.push(item);
-            }         
-        }
-    }
-
-    hideKey () {
-        let found = false;
-        this.Items.forEach(item => {
-            if (item.type == 'jar') {
-                if (item.contains == 'key') found = true;
-            }            
-        });
-        // no key hidden by random, so we force it!
-        if (!found) {
-            for (let i = 0; i < this.Items.length; i++) {
-                const item = this.Items[i];
-                if (item.type == 'jar') {
-                    item.contains = 'key';
-                    break;
-                }
-            }
-        }
-    }
-
-    initBottles() {
-        this.Bottles.push(...this.add(1, Bottle, 'spin','Items/Bottles/rotation'));
-        
-    }
-
-
     initItems () {
          // amount of bottles and coins depend on the level number
         for (let i = 0; i < this.levelNo * 2; i++) {
@@ -133,8 +90,29 @@ export default class Level {
         this.Items.push(...this.add (5, Item, 'misc', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'shop', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'seedbag', 'Items/Seeds'));
-        this.hideKey();
+        this.hideItem('key','jar');
+        this.hideItem('gun','chest');
         this.shiftPosition(this.Items);
+    }
+    
+    hideItem (content, container) {
+        let found = false;
+        this.Items.forEach(bin => {
+            // if (bin.type == container) {
+            //     if (bin.contains == content) found = true;
+            // }
+            found = (bin.type == container) && (bin.contains == content);        
+        });
+        // no key or gun hidden by random, so we force it!
+        if (!found) {
+            for (let i = 0; i < this.Items.length; i++) {
+                const bin = this.Items[i];
+                if (bin.type == container) {
+                    bin.contains = content;
+                    break;
+                }
+            }
+        }
     }
 
     // Wolken evl. noch zufällig verteilen (Param: pX mit übergeben...)
@@ -145,7 +123,7 @@ export default class Level {
     }
 
     initFood () {
-        this.Food = this.add(17, Food, 'food', 'Food');
+        this.Food.push(...this.add(17, Food, 'food', 'Food'));
         this.Food.push(...this.add(17, Food, 'chili', 'Food/Chili'));
         this.Food.push(...this.add(10, Food, 'drink', 'Food/Drinks'));
         this.Food.push(...this.add(6, Food, 'medicine', 'Food/Medicine'));
@@ -156,18 +134,25 @@ export default class Level {
         for (let i = 0; i < count; i++) {
             this.Enemies.push(new Chicken(this, i));
         }
-
         for (let i = 0; i < this.levelNo; i++) {
             if (i % 3 == 0) {
-                this.Enemies.push(new EndBoss(this, i));
+                this.Enemies.push(new Endboss(this, i));
             }            
         }
+        count = this.levelNo + (1 + Math.random() * this.levelNo);
+        for (let i = 0; i < count; i++) {
+            this.Enemies.push(new Snake(this, i + 1));        
+        }
+
+        this.Enemies.push(new Bees(this,0));
+
+        
 
         // animals...
+        // this.Enemies.push(...this.add(14, Obstracle, 'snake', 'Obstracles/Animals/Snakes'));
         this.Enemies.push(...this.add(6, Obstracle, 'spider', 'Obstracles/Animals/Spiders'));
-        this.Enemies.push(...this.add(6, Obstracle, 'scorpion', 'Obstracles/Animals/Spiders'));
-        this.Enemies.push(...this.add(14, Obstracle, 'snake', 'Obstracles/Animals/Snakes'));
-        this.Enemies.push(...this.add(3, Obstracle, 'bees', 'Obstracles/Animals/Bugs'));
+        this.Enemies.push(...this.add(6, Obstracle, 'scorpion', 'Obstracles/Animals/Spiders'));      
+        // this.Enemies.push(...this.add(3, Obstracle, 'bees', 'Obstracles/Animals/Bugs'));
 
         this.shiftPosition(this.Enemies); 
     }
@@ -188,5 +173,21 @@ export default class Level {
             arr.push(new classType(`${path}/${name}.png`, name, this));
         }
         return arr;
+    }
+
+    /**
+     * moves the objects either in fore- or background,
+     * depending on it's given state on initializing
+     */
+    shiftPosition (arrObjects) {
+        for (let i = arrObjects.length - 1; i >= 0 ; i--) {
+            const item = arrObjects[i];
+            if (item.isBackground) {
+                this.Backgrounds.push(item);
+                arrObjects.splice(i, 1);
+            } else {
+                this.Foregrounds.push(item);
+            }         
+        }
     }
 }

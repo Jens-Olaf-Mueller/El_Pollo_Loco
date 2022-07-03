@@ -3,49 +3,77 @@ import { loadArray } from "../library.js";
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Bottle extends Mobile {
-    name = 'bottle';
-    height = 60;
-    width = 60;
+    name = 'Bottle';
+    type = 'bottle';
+    imagePath = '';
+    height = 70;
+    width = 70;
     X = 0;
-    Y = 350;
-    speedY = 10; // ??
-    arrRotation = [];
+    Y = -70;
+    groundY = 380;
+    speed = 10;
+    speedY = 0.5; 
+    visible = true;
+    arrAnimation = [];
     animationID = undefined;
     moveID = undefined;
+    gravarityID = undefined;
 
     constructor (imgPath) {        
         super().loadImage(imgPath);
-        this.initialize();
-        // debugger
-        this.applyGravity();
-
-        this.throw (0,150,10);
-        this.animate(true,0,150);
+        this.imagePath = imgPath;
+        this.initialize();        
     }
 
     initialize() {
-        this.arrRotation = loadArray ('./img/Items/Bottles/rotation/spin',8);
-        this.loadImageCache (this.arrRotation, 'bottle_spin');
+        this.arrAnimation = loadArray ('./img/Items/Bottles/rotation/spin',8);
+        this.loadImageCache (this.arrAnimation, this.name);
     }
 
-    throw (pX, pY, speed) {
-        this.X = pX;
-        this.Y = pY;
-        this.speedY = speed;
-        //
-    }
-
-    animate (visible, pX, pY) {      
-        if (visible) {
+    throw (pX, pY, speed, mirrored = false) {
+        if( this.moveID == undefined) {
+            if (!this.visible) {
+                this.loadImage(this.imagePath);            
+                this.visible = true;
+            }
             this.X = pX;
             this.Y = pY;
-            // this.moveID = this.moveUp(pX, pY);
-            this.animationID = setInterval(() => {
-                this.playAnimation(this.arrRotation,'spin');          
-            }, 4000 / FPS);
-        } else {
-            clearInterval (this.moveID);
-            clearInterval (this.animationID);
+            this.speedY = -speed;
+            this.gravarityID = this.applyGravity();
+            this.animationID = this.animate();
+            
+            this.moveID = setInterval(() => {
+                if (this.Y < this.groundY) {
+                    let dir = mirrored ? -1 : 1;
+                    this.X += this.speed * dir;
+                } else if (this.Y >= this.groundY) {
+                    this.hide();
+                }            
+            }, 25);
         }
+    }
+
+    animate () {      
+        return setInterval(() => {
+            this.playAnimation(this.arrAnimation,'spin');          
+        }, 2000 / FPS);
+    }
+
+    hide () {
+        this.visible = false;        
+        clearInterval (this.gravarityID);
+        clearInterval (this.animationID);
+        clearInterval (this.moveID);
+        this.animationID = undefined;
+        this.moveID = undefined;
+        this.gravarityID = undefined;
+        this.loadImage('');
+        
+        if (this.moveID) {
+            console.log('Interval läuft mit ID: ' + this.moveID)
+        } else {
+            console.log('Interval aus! [ID: ' + this.moveID + ']')
+        }
+        
     }
 }

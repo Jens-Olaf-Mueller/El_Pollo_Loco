@@ -8,7 +8,7 @@ import World from './classes/world.class.js';
 import $ from "./library.js";
 import { playSound, random, sleep } from "./library.js";
 import Keyboard from './classes/keyboard.class.js';
-import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, ARR_SOUNDS } from './const.js';
+import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, SOUNDS } from './const.js';
 
 /**
  * D E C L A R A T I O N S
@@ -20,13 +20,13 @@ let world,
     keyboard = new Keyboard(),    
     settings = $('divSettings'),
     statusbar = $('divStatusbar'),
-    canvas = $('canvas'),
-    songs = ['Chicken Song.mp3','Santa Esmeralda.mp3']; 
+    canvas = $('canvas');     
 let arrEnergyIcons, arrJumpIcons, arrAccuracyIcons, arrSharpIcons;
 
-export let arrAudio =[];
 export let arrIntervals = [];
 export let gameIsOver = false;
+export let objAudio = {};
+// export let objAudio = {songs: []};
 export let gameSettings = {
     musicEnabled: true,
     soundEnabled: false,
@@ -56,7 +56,8 @@ function startGame() {
 function initGame () {
     gameIsOver = false;
     world = new World(canvas, keyboard);    
-    playSound(songs[Math.floor(Math.random() * (songs.length))], gameSettings.musicEnabled);
+    let songNr = Math.floor(Math.random() * SOUNDS.songs.length);
+    playSound(objAudio[`song${songNr}`],gameSettings.musicEnabled);
     loadStatusIcons();    
 }
 
@@ -71,7 +72,6 @@ export async function gameOver (status) {
     $('divNavbar').classList.add('hidden');
     $('divCanvas').classList.add('hidden');
     settings.classList.remove('hidden');
-    // 
 }
 
 // evl. noch erweitern, so dass ein EINZELNER Interval gelöscht werden kann (param = ID)
@@ -120,7 +120,9 @@ export function updateGameStatus (pepe) {
     $('imgLevel').src = `./img/Status/Level/${world.levelNo}.png`;
     $('divBullet').classList.toggle('hidden',(!pepe.bullets));
     $('#divBullet >label').innerText = pepe.bullets;
-    $('imgKey').classList.toggle('hidden', !pepe.keyForChest);
+    $('imgKey').classList.toggle('hidden', !pepe.keyForChest);    
+    $('divSeed').classList.toggle('hidden',(!pepe.seeds));
+    $('#divSeed >label').innerText = pepe.seeds;
 }
 
 function getImageIndex (property) {
@@ -137,26 +139,25 @@ function loadStatusIcons () {
     }        
 }
 
-
-
 function loadSounds () {
-    arrAudio = [];
-    for (let i = 0; i < songs.length; i++) {
-        const audio = new Audio('./sound/' + songs[i]), objAudio = {};
-        objAudio[`song${i}`] = audio;
-        arrAudio.push(objAudio);        
+    // let arrSongs = [];
+    for (let i = 0; i < SOUNDS['songs'].length; i++) {
+        const song = new Audio ('./sound/' + SOUNDS['songs'][i]);
+        // objAudio.songs.push(song); // GEHT NICHT!
+        // arrSongs.push(song);
+        objAudio[`song${i}`] = song;
     }
-    // now loading the sounds...
-    for (let i = 0; i < ARR_SOUNDS.length; i++) {
-        const key = Object.keys(ARR_SOUNDS[i]),          
-              sound = new Audio('./sound/' + Object.values(ARR_SOUNDS[i])), objAudio = {};
-        // objAudio[`snd${i}`] = sound;
-        objAudio[key] = sound;
-        arrAudio.push(objAudio);         
-    }
+    // objAudio.songs.push.apply(arrSongs);
 
-    console.log(arrAudio);
-//     debugger    
+    // now loading the sounds...
+    for (const key in SOUNDS) {
+        if (SOUNDS.hasOwnProperty(key)) {    
+            const sound = new Audio('./sound/' + SOUNDS[key]);
+            objAudio[key] = sound;
+        }
+    } 
+//   console.log( objAudio)
+//   debugger
 }
 
 function updateSettings (event) {

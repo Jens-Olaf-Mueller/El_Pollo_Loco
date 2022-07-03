@@ -1,7 +1,6 @@
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
-// import World from './world.class.js';
-// import Character from './character.class.js'; 
-// import Chicken from './chicken.class.js';
+import { loadArray, getFilename } from '../library.js';
+// import Endboss from './endboss.class.js';
 
 export default class Mobile {
     X = undefined;
@@ -25,13 +24,13 @@ export default class Mobile {
         this.image.src = path;
     }
 
-    loadImageCache (arr, key) {
+    loadImageCache (arr, name) {
         let z = 0;
         arr.forEach(path => {            
-            let img = new Image();
+            let img = new Image(), key = getFilename(path, false);
             img.src = path;
-            this.imageCache[key + z] = img;
-            // console.log('Key: ' + key+z, 'Path: ' + path )
+            this.imageCache[name + '_' + key] = img;
+            // console.log('Key: ' + key, 'Path: ' + path )
             z++;
         });
     }
@@ -92,13 +91,12 @@ export default class Mobile {
      * @param {canvas context} ctx the given context to draw
      */
     displayFrame (ctx) {
-        // if (this instanceof Character || this instanceof Chicken ) {
         if (this.name) {
-            let isPepe = this.name.includes('Pepe'),
+            let isPepe = this.name == 'Pepe',
                 name = isPepe ? '' : this.name + ' ',
                 offsetY = isPepe ? this.offsetY : 0,
                 showTop = isPepe ? `    Top: ${this.Y + offsetY}` : '';
-            if (isPepe || this.name.includes('Frida') || this.name.includes('Gallina')) {
+            if (isPepe || this.type == 'chicken' || this.type == 'endboss') {
                 ctx.beginPath();
                 ctx.lineWidth = '3';
                 ctx.setLineDash([5, 5]);
@@ -116,8 +114,16 @@ export default class Mobile {
                 }                
                 if (this.isMirrored) this.environment.flipImage(this, false);
             }
-        }        
-        // }
+        }      
+    }
+
+    displayHeart (ctx) {
+        if (this.type == 'chicken') {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = 'red';
+            ctx.fillText ('&#x2764');
+        }
+        return;
     }
 
     /**
@@ -126,9 +132,10 @@ export default class Mobile {
      * @param {string} subkey creates together with name and index the key of the image in 'imageCache'
      * @var {string} key for the json-array 'imageCache', created from name and image-index number  
      */
-    playAnimation (arrImages, subkey = 'wlk') {        
+    playAnimation (arrImages, subkey = 'wlk') {  
+        const arr = arrImages.filter(img => {return img.includes(subkey)});        
         this.imgIndex++;
-        if (this.imgIndex >= arrImages.length) this.imgIndex = 0;
+        if (this.imgIndex >= arr.length) this.imgIndex = 0;
         let key = this.name + '_' + subkey + this.imgIndex;        
         this.image = this.imageCache[key];
         
@@ -144,7 +151,7 @@ export default class Mobile {
      * Therefor we increase the Y-coordinate by the acceleration speed
      */
     applyGravity () {
-        setInterval(() => {            
+        return setInterval(() => {            
             if (this.isAboveGround() || this.speedY < 0 ) {
                 this.Y += this.speedY;
                 this.speedY += this.acceleration;              
@@ -167,8 +174,33 @@ export default class Mobile {
         return this.Y < (this.groundY - height);
     }
 
-    canStrike () {
-        let canHit = this.X + this.width < this.environment.arrEnemies.Endboss.X
+    isClose (enemyType) {
+        // find all endbosses in the current level...
+        const bosses = this.environment.arrEnemies.filter(e => {
+            return (e.type == enemyType);
+        });
+        let retVal = false;
+        // now check, if one of them is close enough for a hit
+        bosses.forEach(boss => {
+            // debugger
+            // console.log('Pepe-left: ' , this.X, 'right: ', this.right())
+            // console.log('Boss-left: ' , boss.X, 'right: ',  boss.X + boss.width)
+
+            // if (this.right() < boss.X) {
+            //     console.log('Diff. links vom Endboss ' , boss.X - this.right())
+            //     // debugger
+            // } else if (this.right() > boss.X + boss.width) {
+            //     console.log('Diff. rechts vom Endboss: ' , this.X - (boss.X + boss.width))
+            //     // debugger
+            // }
+
+            if (!this.isMirrored && boss.X - this.right() <= CANVAS_WIDTH / 2 ||
+                this.isMirrored && this.X - (boss.X + boss.width) <= CANVAS_WIDTH / 4) {
+                retVal = true;
+                return;
+            }
+        });
+        return retVal;
     }
 
     hit (damage) {

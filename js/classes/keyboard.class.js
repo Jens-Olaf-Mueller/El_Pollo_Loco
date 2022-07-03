@@ -21,12 +21,11 @@ export default class Keyboard {
             if (event.key == 'ArrowLeft') this.LEFT = true;
             if (event.key == 'ArrowRight') this.RIGHT = true;
             if (event.key == 'ArrowUp') this.UP = true;
-            // if (event.key == 'ArrowDown') this.DOWN = true;
             if (event.key == ' ') this.SPACE = true;
             if (event.key == 'f') this.F_KEY = true;
             if (event.key == 'q') this.Q_KEY = true;
-            if (event.key == 'ControlLeft') this.CTRL_LEFT = true;
-            if (event.key == 'ControlRight')  this.CTRL_RIGHT = true;
+            if (event.code == 'ControlLeft') this.CTRL_LEFT = true;
+            if (event.code == 'ControlRight')  this.CTRL_RIGHT = true;
         });
             
         window.addEventListener('keyup', (event) => {
@@ -34,12 +33,11 @@ export default class Keyboard {
             if (event.key == 'ArrowLeft') this.LEFT = false;
             if (event.key == 'ArrowRight') this.RIGHT = false;
             if (event.key == 'ArrowUp') this.UP = false;
-            // if (event.key == 'ArrowDown') this.DOWN = false;
             if (event.key == ' ') this.SPACE = false;
             if (event.key == 'f') this.F_KEY = false;
             if (event.key == 'q') this.Q_KEY = false;
-            if (event.key == 'ControlLeft') this.CTRL_LEFT = false;
-            if (event.key == 'ControlRight')  this.CTRL_RIGHT = false;
+            if (event.code == 'ControlLeft') this.CTRL_LEFT = false;
+            if (event.code == 'ControlRight')  this.CTRL_RIGHT = false;
         });
 
         // event listeners for touch screen devices

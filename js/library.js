@@ -122,42 +122,44 @@ export function loadArray (path, count, extension = '.png') {
     return arr;
 }
 
-// function playSnd (file) {
-//     file = './sound/' + file;
-//     let audio = new Audio(file);
-//     audio.play();
+// export function getFilename (path) {
+//     return path.replace(/^.*[\\\/]/, '');
 // }
+
+export function getFilename(path, extention = true) {
+    let file = path.match(/[-_\w]+[.][\w]+$/i)[0];
+    if (extention) return file;
+    //removing extension and returning just the filename
+    return file.split('.').shift();     
+}
 
 /**
  * function for sound output
- * @param {string} filename the sound file to be played without path
+ * @param {string} file the sound file to be played without path
  * @param {boolean} soundEnabled global variable, meant to be used in settings od the app
  */
- export function playSound (filename, soundEnabled = true) {
-    if (filename && soundEnabled) {
-        let path = './sound/' + filename,
-            audio = new Audio(path);
-        // audio.volume = volSound.value / 10; // must be defined in outer settings!
-        audio.play();
-        console.log(audio);
-    } else if (!filename || soundEnabled === false) {
-        // audio.pause();
+ export function playSound (file, soundEnabled = true, vol = 1) {
+    if (soundEnabled) {
+        if (typeof file == 'string') {
+            let path = './sound/' + file, audio = new Audio(path);
+            audio.play();
+            audio.volume = vol;
+            return audio;
+        } else if (typeof file == 'object') {
+            file.play();
+            file.volume = vol;
+            return file;
+        } else {
+            return 'No valid audio file.'
+        }
+    } 
+    if (typeof file == 'object') {
+        file.pause();
+        file.currentTime = 0;
+        file = null;
+        return null;
     }
 }
-
-// export function playMusic (file) {
-//     // if (currAudioID) currAudioID = null;
-//     if (file) {
-//         file = './sound/' + file;   // auto complete path
-//         currAudioID = new Audio(file);
-//         currAudioID.volume = volMusic.value / 10;
-//         currAudioID.play();
-//     } else if (currAudioID) {       // is there an audio object?
-//         currAudioID.pause();
-//         currAudioID.currentTime = 0;
-//         currAudioID = null;
-//     }
-// }
 
 // export function todo (msgtext, title = 'Coming soon') {
 //     playSound('notify.mp3');
