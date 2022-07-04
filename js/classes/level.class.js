@@ -1,6 +1,8 @@
 import Chicken from './chicken.class.js';
 import Endboss from './endboss.class.js';
 import Snake from './snake.class.js';
+import Spider from './spider.class.js';
+import Scorpion from './scorpion.class.js';
 
 import Bees from './bees.class.js';
 import Background from './background.class.js';
@@ -90,6 +92,7 @@ export default class Level {
         this.Items.push(...this.add (5, Item, 'misc', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'shop', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'seedbag', 'Items/Seeds'));
+        // make sure we got at least one key and gun in each level!
         this.hideItem('key','jar');
         this.hideItem('gun','chest');
         this.shiftPosition(this.Items);
@@ -98,19 +101,15 @@ export default class Level {
     hideItem (content, container) {
         let found = false;
         this.Items.forEach(bin => {
-            // if (bin.type == container) {
-            //     if (bin.contains == content) found = true;
-            // }
             found = (bin.type == container) && (bin.contains == content);        
         });
+        if (found) return;
         // no key or gun hidden by random, so we force it!
-        if (!found) {
-            for (let i = 0; i < this.Items.length; i++) {
-                const bin = this.Items[i];
-                if (bin.type == container) {
-                    bin.contains = content;
-                    break;
-                }
+        for (let i = 0; i < this.Items.length; i++) {
+            const bin = this.Items[i];
+            if (bin.type == container) {
+                bin.contains = content;
+                break;
             }
         }
     }
@@ -139,26 +138,23 @@ export default class Level {
                 this.Enemies.push(new Endboss(this, i));
             }            
         }
-        count = this.levelNo + (1 + Math.random() * this.levelNo);
+        count = this.levelNo + (3 + Math.random() * this.levelNo);
         for (let i = 0; i < count; i++) {
             this.Enemies.push(new Snake(this, i + 1));        
         }
+        count = this.levelNo + (5 + Math.random() * this.levelNo);
+        for (let i = 0; i < count; i++) {
+            this.Enemies.push(new Spider(this, i + 1));        
+            this.Enemies.push(new Scorpion(this, i + 1));        
+        }
 
         this.Enemies.push(new Bees(this,0));
-
-        
-
-        // animals...
-        // this.Enemies.push(...this.add(14, Obstracle, 'snake', 'Obstracles/Animals/Snakes'));
-        this.Enemies.push(...this.add(6, Obstracle, 'spider', 'Obstracles/Animals/Spiders'));
-        this.Enemies.push(...this.add(6, Obstracle, 'scorpion', 'Obstracles/Animals/Spiders'));      
-        // this.Enemies.push(...this.add(3, Obstracle, 'bees', 'Obstracles/Animals/Bugs'));
 
         this.shiftPosition(this.Enemies); 
     }
 
     /**
-     * helper function for: initObstracles(), initItems(), initFood().
+     * helper function for: initObstracles(), initFood().
      * @param {integer} count the amount of objects to be loades
      * @param {object} classType the kind of class instance to be created
      * @param {string} key value to create an unique key as identifyer for name

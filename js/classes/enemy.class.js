@@ -68,16 +68,23 @@ export default class Enemy extends Mobile {
     }
 
     remove (displayImage) {
-        if (this.type == 'endboss') return;
+        if (this.type == 'endboss' || this.type == 'bees' || this.type == 'snake') return;
         clearInterval(this.animationID);
         clearInterval(this.moveID);
         this.animationID = undefined;
         this.moveID = undefined;
         this.damage = 0;
         this.energy = 0;
-        this.speed = 0;
-        this.height = 70;
-        this.width = 70; 
+        this.speed = 0; 
+        if (this.type == 'chicken') {
+            this.height = 70;
+            this.width = 70;
+            this.Y = 380;
+        } else {
+            this.height = 30;
+            this.width = 70;
+            this.Y = 430;
+        }        
         // used to display a dead enemy (i.e chicken)     
         if (displayImage) this.loadImage(this.imageCache[this.name + '_' + displayImage].src);
     }

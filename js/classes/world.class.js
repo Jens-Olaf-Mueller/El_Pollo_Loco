@@ -3,17 +3,18 @@ import Chicken from './chicken.class.js';
 import Endboss from './endboss_old.class.js';
 import Bees from './bees.class.js';
 import Snake from './snake.class.js';
+import Scorpion from './scorpion.class.js';
+import Spider from './spider.class.js';
+
 import Level from './level.class.js';
 import Bonus from './bonus.class.js';
+import Bottle from './bottle.class.js';
 
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 import { gameSettings, updateGameStatus, arrIntervals, objAudio } from '../game.js';
 import { playSound } from '../library.js';
-import Bottle from './bottle.class.js';
 
-export default class World {   
-    // DECLARATIONS
-    debugMode = false;
+export default class World { 
     Pepe;  
     level;
     levelNo = 1;
@@ -42,7 +43,6 @@ export default class World {
         this.cnv = canvas; // assigning the global canvas to a local variable
         this.ctx = canvas.getContext('2d');        
         this.keyboard = keyboard;
-        this.debugMode = gameSettings.debugMode;
         this.levelNo = gameSettings.lastLevel;
         this.Pepe = new Character(this);        
         this.initLevel (this.levelNo);
@@ -64,15 +64,17 @@ export default class World {
         this.arrItems = this.level.Items;
         this.bonus = new Bonus('./img/Status/Bonus/spin0.png');
         this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');;
-        if (gameSettings.debugMode) {
-            console.log('World created... ', this);
-        }
+        if (gameSettings.debugMode) console.log('World created... ', this);
     }
 
     run () {
         this.runID = setInterval(() => {
-            this.checkCollisions();
-            this.checkActions();           
+            this.checkEnemyCollisions();
+            this.checkFoodCollisions();
+            this.checkItemCollisions();
+            this.checkObstracleCollisions();            
+            this.checkActions();  
+            updateGameStatus (this.Pepe);         
         }, 250);
     }
 
@@ -110,11 +112,11 @@ export default class World {
     plot (object) {
         if (Array.isArray(object)) {
             object.forEach(obj => {
-                obj.draw(this.ctx, this.debugMode);
+                obj.draw(this.ctx, gameSettings.debugMode);
             });
         } else { // just to avoid confusions: we got a single object here!
             if (object.isMirrored) this.flipImage(object);
-            object.draw(this.ctx, this.debugMode);
+            object.draw(this.ctx, gameSettings.debugMode);
             if (object.isMirrored) this.flipImage(object, true);            
         }                
     }
@@ -131,47 +133,46 @@ export default class World {
         }
     }
 
-    checkCollisions () {
+    checkEnemyCollisions () {
         //  collision with enemy...
         this.level.Enemies.forEach((enemy) => {
-            if (this.Pepe.isColliding(enemy)) {
+            if (this.Pepe.isColliding(enemy) && enemy.isAlive()) {
                 if (this.Pepe.isAboveGround()) {
-                    if (enemy.isAlive()) {
-                        if (enemy instanceof Chicken) {
-                            playSound(objAudio['chicken'], gameSettings.soundEnabled);
-                            enemy.remove('dead');
-                        } else if (enemy instanceof Bees) {
-                            playSound(objAudio['bees'], gameSettings.soundEnabled);
-                        } else if (enemy instanceof Snake) {
-                            playSound(objAudio['snake'], gameSettings.soundEnabled);
-                        } else if (enemy instanceof Endboss) {
-
-                        } else {
-                            playSound(objAudio['splat'], gameSettings.soundEnabled);
-                            console.log(enemy.name )
-                            // debugger
-
-                            enemy.remove('dead');
-                            // enemy.remove('splash3');
-                        }                        
-                        this.Pepe.score += this.levelNo * 10;                  
-                    }                        
-                } else if (enemy.isAlive()) {
-                    if (enemy instanceof Bees) {
-                        playSound(objAudio['bees'], gameSettings.soundEnabled);
-                    } else if (!this.Pepe.isDead()) {
-                        playSound(objAudio['ouch'], gameSettings.soundEnabled);
-                    }
+                    if (enemy instanceof Chicken) {
+                        playSound(objAudio['chicken'], gameSettings.soundEnabled);
+                        enemy.remove('dead');
+                        this.enlargeChickens();
+                        this.Pepe.score += this.levelNo * 10;
+                    } else if (enemy instanceof Spider || enemy instanceof Scorpion) { 
+                        playSound(objAudio['splat'], gameSettings.soundEnabled);
+                        enemy.remove('dead');
+                        this.Pepe.score += this.levelNo * 10;                         
+                    } else {
+                        console.log(enemy.name )
+                    }                                                 
+                } else {
                     this.Pepe.hit(enemy.damage);
-                    if (!enemy instanceof Chicken && !enemy instanceof Endboss) enemy.damage = 0;
+                    if (!this.Pepe.isDead()) playSound(objAudio['ouch'], gameSettings.soundEnabled);
+                   
+                    // if (!enemy instanceof Chicken && !enemy instanceof Endboss) enemy.damage = 0;
                 }   
-             }
-        });
 
-        this.checkFoodCollisions();
-        this.checkItemCollisions();
-        this.checkObstracleCollisions();
-        updateGameStatus (this.Pepe);
+                if (enemy instanceof Bees) playSound(objAudio['bees'], gameSettings.soundEnabled);
+                if (enemy instanceof Snake) playSound(objAudio['snake'], gameSettings.soundEnabled);
+            }
+        });
+    }
+
+    // später in Settings: on / off !!!!!!!
+    enlargeChickens (increment = 2) {
+        this.level.Enemies.forEach((enemy) => {
+            if (enemy instanceof Chicken && enemy.isAlive() && !enemy.isFriendly) {
+                enemy.width +=increment;
+                enemy.height +=increment;
+                enemy.Y -=increment;
+                enemy.damage +=1;
+            }
+        });
     }
 
     /**
@@ -221,16 +222,18 @@ export default class World {
     }
 
     checkActions() {
+        // TODO: 
+        // feed the chicken & set to friendly
         if (this.keyboard.CTRL_LEFT && this.Pepe.isClose('endboss')) {
             if (this.Pepe.bottles > 0) {                
-                this.bottle.throw(this.Pepe.X + this.Pepe.width/2, 
-                this.Pepe.Y + this.Pepe.height/2,15, this.Pepe.isMirrored);
+                this.bottle.throw(this.Pepe.X + this.Pepe.width / 2, 
+                this.Pepe.Y + this.Pepe.height / 2, 15, this.Pepe.isMirrored);
                 this.Pepe.bottles--;
-                this.Pepe.setMoveTimeStamp();
+                this.Pepe.setNewTimeStamp();
             } else if (this.Pepe.gun && this.Pepe.bullets > 0) {
                 console.log('SCHUSS!...' )
                 this.Pepe.bullets--;
-                this.Pepe.setMoveTimeStamp();
+                this.Pepe.setNewTimeStamp();
                 debugger
             }
         }

@@ -1,6 +1,5 @@
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 import { loadArray, getFilename } from '../library.js';
-// import Endboss from './endboss.class.js';
 
 export default class Mobile {
     X = undefined;
@@ -16,7 +15,7 @@ export default class Mobile {
     
    
     lastHit = 0;            // time elapsed when Pepe was hit by an enemy last time
-    lastMove = new Date().getTime(); // time elapsed since Pepe has moved (for sleep animation)
+    // lastMove = new Date().getTime(); // time elapsed since Pepe has moved (for sleep animation)
     diedAt = undefined;
 
     loadImage(path) {
@@ -72,18 +71,21 @@ export default class Mobile {
         }, 1000 / FPS);
     }
 
-    jump (jumpspeed) {
-        this.speedY = -jumpspeed;
-    }
-
     draw (ctx, showframe) {
         try {
             ctx.drawImage(this.image, this.X, this.Y, this.width, this.height);
+            if (this.type == 'chicken') this.displayHeart(ctx);
             if (showframe) this.displayFrame (ctx);
         } catch (err) {
             console.warn(`ERROR in Object ${this.name}: ` + err);
             console.warn('Cache: ' + this.imageCache, 'Current Image: ' + this.image)
         }    
+    }
+
+    displayHeart (ctx) {
+        if (this.isFriendly && this.isAlive()) {
+            ctx.drawImage(this.heart, this.X+16, this.Y-16, 16, 16);
+        }        
     }
 
     /**
@@ -115,15 +117,6 @@ export default class Mobile {
                 if (this.isMirrored) this.environment.flipImage(this, false);
             }
         }      
-    }
-
-    displayHeart (ctx) {
-        if (this.type == 'chicken') {
-            ctx.font = "16px Arial";
-            ctx.fillStyle = 'red';
-            ctx.fillText ('&#x2764');
-        }
-        return;
     }
 
     /**
@@ -208,7 +201,7 @@ export default class Mobile {
         if (this.energy < 0) {
             this.energy = 0; 
         } else {
-            this.lastHit = new Date().getTime(); // saving time stamp from last hit
+            this.lastHit = new Date().getTime(); // saving time stamp since last hit
         }  
     }
 
@@ -219,7 +212,6 @@ export default class Mobile {
             this.diedAt = new Date().getTime();
         }
         return true;
-        // return this.energy == 0;
     }
 
     isHurt () {
@@ -227,7 +219,7 @@ export default class Mobile {
     }
 
     isSleeping () {
-        return (this.timeElapsed(this.lastMove) > 7);
+        return (this.timeElapsed(this.lastMove) > 7); // gameSettings.SleepTime...
     }
 
     timeElapsed (since) {

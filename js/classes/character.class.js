@@ -11,6 +11,7 @@ export default class Character extends Mobile {
     name = 'Pepe';
     type = 'character';
     environment; // reference to the world
+    lastMove = new Date().getTime(); // time elapsed since Pepe has moved (requ. for sleep animation)
     X = 50;
     Y = 150;
     groundY = 0;
@@ -32,7 +33,6 @@ export default class Character extends Mobile {
     
     keyboard;
     cameraOffset = 150;
-
     arrAnimation = [];
 
     constructor (environment) {
@@ -59,42 +59,21 @@ export default class Character extends Mobile {
     animate () {
         arrIntervals.push(setInterval (() => { 
             // playSound (objAudio['walk'], false);
-            let step = this.speed * 125;
-            if (this.keyboard.RIGHT) {
-                if (this.X < this.environment.eastEnd - CANVAS_WIDTH + this.cameraOffset - 10) {
-                    this.X += step;
-                    this.isMirrored = false;
-                    this.setMoveTimeStamp();
-                    // playSound (objAudio['walk'], gameSettings.soundEnabled);
-                }                
-            }
+            // playSound (objAudio['jump'], false);
+            if (this.keyboard.RIGHT) this.walk('right');
+            if (this.keyboard.LEFT) this.walk('left');
+            if (this.keyboard.UP && !this.isAboveGround()) this.jump();
 
-            if (this.keyboard.LEFT) {
-                if (this.X > this.environment.westEnd + this.cameraOffset + 10) {
-                    this.X -= step;
-                    this.isMirrored = true;
-                    this.setMoveTimeStamp();
-                    // playSound (objAudio['walk'], gameSettings.soundEnabled);
-                }
-            }
-            
-            if (this.keyboard.UP && !this.isAboveGround()) {
-                this.setMoveTimeStamp();
-                let power = Math.round(this.jumpPower / 6.75);
-                if (power > 15) power = 15;
-                this.jump(power);
-                this.jumpPower -= this.environment.levelNo / 10;
-                if (this.jumpPower < 0) this.jumpPower = 0;
-                updateGameStatus(this);
-                // playSound (objAudio['jump'], gameSettings.soundEnabled);
-            }
             if (this.X > this.environment.westEnd - this.cameraOffset) {
                 this.environment.camera_X = -this.X + this.cameraOffset;
             }
             // this.environment.camera_X = -this.X + this.cameraOffset;
-        }, 15)); //, 1000 / FPS
+        }, 1000 / FPS)); // 16 ms
+        arrIntervals.push(this.runAnimationInterval()); 
+    }
 
-        arrIntervals.push(setInterval(() => {
+    runAnimationInterval () {
+        return setInterval (() => {
             if (this.isDead()) {
                 if (this.timeElapsed(this.diedAt) < 2.5) {    
                     this.playAnimation (this.arrAnimation,'die');
@@ -103,7 +82,7 @@ export default class Character extends Mobile {
                 }  
             } else if (this.isHurt()) {
                 this.playAnimation (this.arrAnimation,'hurt');
-                this.setMoveTimeStamp();
+                this.setNewTimeStamp();
             } else if (this.isAboveGround() || this.speedY > 0) {
                 this.playAnimation (this.arrAnimation,'jmp');
             } else if (this.keyboard.RIGHT || this.keyboard.LEFT) {
@@ -113,19 +92,42 @@ export default class Character extends Mobile {
             } else {
                 this.playAnimation(this.arrAnimation,'wait');
             }
-        }, 6000 / FPS));
+        }, 6000 / FPS); // 60 ms
+    }
+
+    walk (direction) {
+        // playSound (objAudio['walk'], gameSettings.soundEnabled);
+        let step = (direction == 'right') ? 18 : -18;
+        if (direction == 'right') {
+            if (this.X < this.environment.eastEnd - CANVAS_WIDTH + this.cameraOffset - 10) this.X += step;
+        } else if (direction == 'left') {
+            if (this.X > this.environment.westEnd + this.cameraOffset + 10) this.X += step;
+        }
+        this.isMirrored = (direction == 'left');
+        this.setNewTimeStamp();        
+    }
+
+    jump () {
+        // playSound (objAudio['jump'], gameSettings.soundEnabled);
+        let power = Math.round(this.jumpPower / 6.75);
+        if (power > 15) power = 15;
+        this.speedY = -power;
+        this.jumpPower -= this.environment.levelNo / 10;
+        if (this.jumpPower < 0) this.jumpPower = 0;        
+        updateGameStatus(this);
+        this.setNewTimeStamp();        
     }
 
     /**
      * saving time stamp since last move
      */
-    setMoveTimeStamp () {
+    setNewTimeStamp () {
         this.lastMove = new Date().getTime();
     }
 
     updateProperties (srcObject) {
         if (srcObject.visible) {
-            // still enough money?
+            // still enough money left?
             if (this.coins - srcObject.price >= 0) {
                 playSound(objAudio['plopp'], gameSettings.soundEnabled);
                 this.energy += parseInt(srcObject.energy);
@@ -149,7 +151,8 @@ export default class Character extends Mobile {
             } else if (item.type == 'bottle') {
                 playSound (objAudio['bottle'], gameSettings.soundEnabled);
                 this.bottles++;
-                this.score = this.score + 2;
+                this.score += 2;
+                // this.score = this.score + 2;
                 item.enabled(false);                
             }
         }
@@ -162,13 +165,9 @@ export default class Character extends Mobile {
                 this.keyForChest--;
                 if (this.keyForChest < 0) this.keyForChest = 0;
             }
-            this.parseFoundItem(bonus);
+            this.parseFoundItem (bonus);
             console.log('Gefunden: ' + bonus);
         }  
-    }
-
-    updateStatus () {
-        //
     }
 
     parseFoundItem (itemName) {
@@ -199,7 +198,7 @@ export default class Character extends Mobile {
                 this.accuracy += (value - 2) * 5;
                 this.energy += value / 2;        
                 break;
-            case 'chilli':
+            case 'chili':
                 this.sharpness += (value - 2) * 5;
                 this.jumpPower += Math.round(value / 4);        
                 break;
