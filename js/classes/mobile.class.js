@@ -1,5 +1,6 @@
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
-import { loadArray, getFilename } from '../library.js';
+import { getFilename } from '../library.js';
+import { gameSettings } from '../settings_mod.js';
 
 export default class Mobile {
     X = undefined;
@@ -11,8 +12,7 @@ export default class Mobile {
     image = undefined;
     imgIndex = 0;
     imageCache = {};        // as image cache we use a jsonArray: {pictureKey: picturePath}
-    isMirrored = false;     // = 'otherDirection'
-    
+    isMirrored = false;     // = 'otherDirection'    
    
     lastHit = 0;            // time elapsed when Pepe was hit by an enemy last time
     // lastMove = new Date().getTime(); // time elapsed since Pepe has moved (for sleep animation)
@@ -63,16 +63,21 @@ export default class Mobile {
         }, 1000 / FPS);
     };
 
-    moveUp (startX) {
+    moveUp (startX, speed = 1) {
         return setInterval(() => {
             this.X = startX;
-            this.Y -= this.speed * 15;
-            if (this.Y < -this.height) this.animate(false);
+            this.Y -= speed;
+            if (this.Y + this.height < 0) this.hide(); // hide when top of the screen is reached
         }, 1000 / FPS);
     }
 
     draw (ctx, showframe) {
         try {
+            if(this.image.src.toString().includes('undefined')  ) {
+                debugger;
+            }
+            // console.log('Image.src = ' + this.image.src )
+
             ctx.drawImage(this.image, this.X, this.Y, this.width, this.height);
             if (this.type == 'chicken') this.displayHeart(ctx);
             if (showframe) this.displayFrame (ctx);
@@ -98,7 +103,7 @@ export default class Mobile {
                 name = isPepe ? '' : this.name + ' ',
                 offsetY = isPepe ? this.offsetY : 0,
                 showTop = isPepe ? `    Top: ${this.Y + offsetY}` : '';
-            if (isPepe || this.type == 'chicken' || this.type == 'endboss') {
+            if (isPepe || this.type == 'chicken' || this.type == 'endboss' || this.type == 'seed') {
                 ctx.beginPath();
                 ctx.lineWidth = '3';
                 ctx.setLineDash([5, 5]);
@@ -126,8 +131,8 @@ export default class Mobile {
      * @var {string} key for the json-array 'imageCache', created from name and image-index number  
      */
     playAnimation (arrImages, subkey = 'wlk') {  
-        const arr = arrImages.filter(img => {return img.includes(subkey)});        
-        this.imgIndex++;
+        const arr = arrImages.filter(img => {return img.includes(subkey)});      
+        this.imgIndex++;     
         if (this.imgIndex >= arr.length) this.imgIndex = 0;
         let key = this.name + '_' + subkey + this.imgIndex;        
         this.image = this.imageCache[key];
@@ -171,26 +176,16 @@ export default class Mobile {
         // find all endbosses in the current level...
         const bosses = this.environment.arrEnemies.filter(e => {
             return (e.type == enemyType);
-        });
-        let retVal = false;
+        });        
         // now check, if one of them is close enough for a hit
-        bosses.forEach(boss => {
-            // debugger
-            // console.log('Pepe-left: ' , this.X, 'right: ', this.right())
-            // console.log('Boss-left: ' , boss.X, 'right: ',  boss.X + boss.width)
-
-            // if (this.right() < boss.X) {
-            //     console.log('Diff. links vom Endboss ' , boss.X - this.right())
-            //     // debugger
-            // } else if (this.right() > boss.X + boss.width) {
-            //     console.log('Diff. rechts vom Endboss: ' , this.X - (boss.X + boss.width))
-            //     // debugger
-            // }
-
-            if (!this.isMirrored && boss.X - this.right() <= CANVAS_WIDTH / 2 ||
-                this.isMirrored && this.X - (boss.X + boss.width) <= CANVAS_WIDTH / 4) {
-                retVal = true;
-                return;
+        let retVal = false;
+        bosses.forEach(boss => {            
+            let PepeIsLeft = (this.X + this.width < boss.X),
+                distance = PepeIsLeft ? boss.X - (this.X + this.width) : this.X - (boss.X + boss.width);
+            if (PepeIsLeft && !this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 1.5 || 
+                !PepeIsLeft && this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 4) {
+                    retVal = true;
+                    return;
             }
         });
         return retVal;
@@ -219,7 +214,7 @@ export default class Mobile {
     }
 
     isSleeping () {
-        return (this.timeElapsed(this.lastMove) > 7); // gameSettings.SleepTime...
+        return (this.timeElapsed(this.lastMove) > parseInt(gameSettings.sleepTime)); 
     }
 
     timeElapsed (since) {
@@ -228,11 +223,6 @@ export default class Mobile {
 
     /**
      * detects if the given objects collides with the caracter.
-     * collision is detected if: 
-     * > the right border is equal or bigger than object's X-coordinate (left side)
-     * > the bottom of the character is bigger than the object's Y-coordinate (top)
-     * > 
-     * >
      * @param {class} object to check collision with
      * @returns true | false
      */
@@ -241,6 +231,16 @@ export default class Mobile {
                 (this.Y + this.offsetY + this.height) >= obj.Y &&
                 (this.Y + this.offsetY) <= (obj.Y + obj.height) && 
                 obj.onCollisionCourse;
+    }
+
+    hide () {
+        this.visible = false; 
+        this.gravarityID = clearInterval (this.gravarityID);
+        this.animationID = clearInterval (this.animationID);
+        this.moveID = clearInterval (this.moveID);
+        this.Y = CANVAS_HEIGHT * -1; // move the object out of the screen
+
+        // console.log(`Animation von ${this.name} ausgeschaltet...`)      
     }
 
     top () {

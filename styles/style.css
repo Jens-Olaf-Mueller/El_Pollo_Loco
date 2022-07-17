@@ -1,13 +1,18 @@
 :root {
     --ctrl-color: #f9ca24; /* #ffa600;*/
+    --bg-yellow: #f6e58d;
+    --txt-color: #4f2816;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Red Hot Chili', sans-serif;
-    font-size: xx-large;
+    /* font-family: 'Red Hot Chili', sans-serif;
+    font-size: xx-large; */
+    font-family: 'zabarsregular', arial;
+    font-size: 1.33rem;
+    font-weight: 100;
 }
 
 * [disabled] {
@@ -27,77 +32,139 @@ canvas {
     background-color: black;
 }
 
-/* classes for settings */
-.settings {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
-    /* margin-top: 5rem; */
-    background-color: #f6e58d;
-    opacity: 0.9;
-    border-radius: 2rem;
-}
-
-.control, .flx-col {
+/* #################################################################### */
+/*                        H O M E - S C R E E N                         */
+/* #################################################################### */
+.home {
     display: flex;
     flex-direction: column;
-    padding: 0.5rem;
-}
-
-.control * {cursor: pointer;}
-
-.checkbox {
-    flex-direction: row;
     align-items: center;
-    gap: 0.5rem;    
+    min-height: 100vh;
+    min-width: 100vw;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+    background-image: url('../img/Intro_Outro/desert1920.png');
+    padding: 2rem 4rem;
+    background-color: var(--bg-yellow);
+    opacity: 0.95;
 }
 
-.checkbox input[type=checkbox] {
-    width: 1.5rem;
-    height: 1.5rem;
-    accent-color: var(--ctrl-color);
+.home a {
+    text-decoration: none;            
+    color: unset;
 }
 
-.settings-bottom button {
-    /* padding: 0.75rem !important; */
-    padding: 0.75rem ;
-    margin: 0 1rem 1rem 1rem;
-    border: none;
-    padding: 1rem;
-    border-radius: 1.5rem;
-    background-color: #f6e58d;
-    color: #444;
-    transition: all 250ms ease 0s; 
-    box-shadow: 0 10px var(--ctrl-color);
-    font-size: 1.75rem;
+.home-navbar {
+    display: flex;
+    flex-wrap: wrap;
+    padding-top: 4rem;
+}
+
+.home-icons {
+    margin: 2rem;
+    width: 192px;
+    height: 192px;
     cursor: pointer;
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 
-.settings-bottom button:hover {
-    background-color: #faeeb0;
-    color: black;
-    transform: scale(1.05);
+.home-icons:hover, h1 {
+    text-shadow: 4px 4px 4px #666;
 }
 
-.btn-keyboard {
-    margin: 0.25rem;
-    min-width: 3rem;
-    border: .1rem solid #aaa;
-    border-radius: 15%;
-    display: inline-block;
-    padding: .1rem .5rem;
-    background: linear-gradient(180deg, #fff, #fff, #fff, #ddd);
-    user-select: none;
-    cursor: pointer;
-    color: #000;
-    font-weight: bold;
-}
-.btn-keyboard:hover {
-    background: linear-gradient(0deg, #fff, #fff, #fff, #ddd);
+.home-icons h3 {
+    position: absolute;
+    left: 50%;
+    top: 110%;
+    bottom: -2rem;
+    font-size: 2rem;
+    transform: translate(-50%, -50%); /* center content*/
 }
 
+.home-icons.start {
+    background-image: url('../img/Status/door0.png');
+}
+
+.home-icons.start:hover {
+    background-image: url('../img/Status/door1.png');
+}
+
+.home-icons.start:hover h3 {
+    top: 35%;
+    transition: ease-in-out 333ms;
+}
+
+.home-icons.home-settings {
+    background-image: url('../img/Status/wheel0.png');
+    
+}
+.home-icons.home-settings:hover {
+    background-image: url('../img/Status/wheel.png');
+    animation-name: spin;
+    animation-duration: 5000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear; 
+}
+@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
+
+.home-icons.help {
+    background-image: url('../img/Status/signpost0.png');
+}
+.home-icons.help:hover {
+    background-image: url('../img/Status/signpost1.png');
+}
+
+.home-icons.help:hover h3 {
+    transform: rotate(-10deg);
+    top: 14%;
+    left: 30%;
+    transition: ease-in-out 333ms;
+}
+
+.desktop, .mobile {
+    font-size: 5rem;
+    text-align: center;
+}
+
+.intro {
+    background-color: var(--bg-yellow);
+    background-image: none; 
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    opacity: 1;
+    transition: opacity 4s; 
+}
+
+.intro.fade {
+    opacity: 0;
+}
+
+.intro h1 {
+    font-size: 8rem;
+    color: var(--txt-color);
+}
+
+/* #################################################################### */
+/*                             C A N V A S                              */
+/* #################################################################### */
 .canvas {
     position: relative;
 }
@@ -108,13 +175,13 @@ canvas {
     left: 0;
     display: flex;
     align-items: center;
-    /* gap: 0.5rem; */
     padding: 0.33rem 0;
     font-size: 0.8rem;
 }
 
 .status-icon {
-    width: 1.25rem;
+    width: 1.75rem;
+    height: 1.75rem;
     margin-left: 0.5rem;    
 }
 
@@ -122,12 +189,12 @@ canvas {
     display: flex;
     align-items: center;
     gap: 2px;
-    /* gap: 0.25rem; */
-    /* min-width: 3rem; */
 }
+
 .status-icon-text label {
     padding-top: 0.2rem;
-    font-size: 0.85rem;
+    font-size: 1rem;
+    font-weight: 100;
     color: aliceblue;
 }
 
@@ -136,12 +203,13 @@ canvas {
     justify-content: center;
     align-items: center;
     position: absolute;
-    top: 0.25rem;
-    right: 2rem;
+    top: 0.33rem;
+    right: 2.33rem;
     width: auto;
     min-width: 4rem;
-    height: 1.5rem;
-    font-size: x-large;
+    height: 1.75rem;
+    font-size: 1rem;
+    font-weight: 100;
     padding: 0 0.25rem;    
     border-radius: 100vmin;
     border: 4px double black;
@@ -150,9 +218,9 @@ canvas {
 
 #imgLevel {
     position: absolute;
-    top: 0.25rem;
+    top: 0.33rem;
     right: 0.33rem;
-    width: 1.5rem;
+    width: 1.75rem;
     background: var(--ctrl-color);
     border: 4px double black;
     border-radius: 100%;
@@ -163,7 +231,7 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0.5rem;
+    padding: 0 2.75rem;
     width: 100%;
 }
 
@@ -180,10 +248,6 @@ canvas {
 }
 
 /* common classes - at the end of the cascade!!! */
-.hidden {
-    display: none !important;
-}
-
 .flx-row1 {
     display: flex;
     flex-direction: row !important;
@@ -201,29 +265,71 @@ canvas {
     justify-content: space-between;
 }
 
+.hidden {
+    display: none;
+}
 /* #################################################################### */
 /*                          R E S P O N S I V E                         */
 /* #################################################################### */
+@media only screen and (max-width: 1000px) {
+    .home { padding: 2rem; }
+    .home-icons { 
+        margin: 1.5rem;
+        width: 160px;
+        height: 160px;
+    }
+}
 
 @media only screen and (max-width: 850px) {
-    .settings {
-        margin-top: unset;
-        margin: 0.25rem;
-        /* padding-bottom: 0.25rem; */
+    .home { 
+        padding: 1.5rem; 
+        justify-content: center;
     }
 
-    .settings-bottom {
-        justify-content: space-around;
-        margin-top: 0.25rem;
+    .home-icons { 
+        width: 128px;
+        height: 128px;
+    }
+    .home-icons h3 {
+        font-size: 1.5rem;
     }
 
-    .settings-bottom button {
-        font-size: x-large;
-        font-weight: bolder;
-        margin: 0;
-        padding: 0.5rem 1.5rem 0.75rem 1.5rem !important;
-        /* offset-x | offset-y | blur-radius | spread-radius | color */
-        box-shadow: 1px 5px 5px 5px var(--ctrl-color);
+    .home-navbar {
+        padding-top: 1rem;
+        justify-content: center;
+    }
+
+    .desktop {
+        display: none;
+    }
+
+    .mobile {
+        display: flex;
+        font-size: 4rem;
+    }
+}
+
+/* @media only screen and (max-width: 850px) {
+    .home-icons { 
+        width: 128px;
+        height: 128px;
+    }
+    .home-icons h3 {
+        font-size: 1.5rem;
+    }
+} */
+
+@media only screen and (max-width: 400px) {
+    .home { 
+        padding: 1rem; 
+        justify-content: flex-start;
+    }
+    .mobile {
+        font-size: 3rem;
+    }
+
+    .intro h1 {
+        font-size: 4rem;
     }
 }
 
@@ -231,9 +337,15 @@ canvas {
     ...
 } */
 
-@media screen and (max-width: 300px) and (orientation: landscape) { 
-    canvas, .canvas {
-        width: 100vw; 
+/* @media screen and (max-width: 300px) and (orientation: landscape) {  */
+@media screen and (max-height: 400px) and (orientation: landscape) { 
+    canvas {
+        height: 390px;
+        width: 720px;
+    }
+
+    .canvas {
+        /* width: 100vw;  */
         height: 100vh;
         overflow: hidden;
     }
@@ -247,51 +359,27 @@ canvas {
 }
 
 @media only screen and (min-width: 300px) and (orientation: portrait) {
-    html {
-        height: 100vw;
-        transform: rotate(-90deg);
-    }
-    body {
-        align-items: flex-end;
+    canvas {
+        height: 390px;
+        width: 720px;
     }
 
-    canvas, .canvas {
+    .canvas {
         /* height and width are switched due to landscape mode !!! */
-        width: 100vh; 
+        width: 138vh; 
         height: 100vw;
         overflow: hidden;
+        transform: rotate(-90deg);
     }
 
     .mobile-navbar {
+        
         position: absolute;
         bottom: 0rem;
         left: 0;
+        width: 62%;
+        padding: 0 2rem;
         display: flex;
         z-index: 101;
-    }
-
-    .settings {
-        margin-top: unset;
-        margin: 0.25rem;
-        padding-bottom: 0.25rem;
-    }
-
-    .settings-bottom {
-        justify-content: space-around;
-        margin-top: 0.25rem;
-    }
-
-    .settings-bottom button {
-        font-size: x-large;
-        font-weight: bolder;
-        margin: 0;
-        padding: 0.5rem 1.5rem 0.75rem 1.5rem !important;
-        /* offset-x | offset-y | blur-radius | spread-radius | color */
-        box-shadow: 1px 5px 5px 5px var(--ctrl-color);
-    }
-    
-    .checkbox input[type=checkbox] {
-        width: 1.25rem;
-        height: 1.25rem;
     }
 }

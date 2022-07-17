@@ -8,13 +8,24 @@ import { arrIntervals } from '../game.js';
 export default class Cloud extends Mobile { 
     height = 300;
     width = 500;
-    X = 10 + Math.random() * 500 + 1;
-    Y = 1 + Math.random() * 15;
+    X = undefined;
+    Y = undefined;
+    eastEnd = undefined;
+    westEnd = undefined;
 
-    constructor () {
+    constructor (level) {
         super().loadImage('./img/Background/layers/clouds/2.png');
+        this.eastEnd = level.eastEnd;
+        this.westEnd = level.westEnd; 
+        this.initialize();
         this.animate();
     };   
+
+    initialize() {
+        this.X = Math.random() * this.eastEnd;
+        this.X = Math.random() > 0.5 ? this.X : this.X * -1;
+        this.Y = 1 + Math.random() * 16;
+    }
 
     animate () {
         let random = Math.random() * 0.125,

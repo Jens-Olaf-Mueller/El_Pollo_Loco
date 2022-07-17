@@ -16,7 +16,8 @@ export default class Snake extends Enemy {
     initialize () {
         this.loadImage ('./img/Obstracles/Animals/Snakes/snake13.png');
         // this.arrAnimation = loadArray('./img/Obstracles/Animals/Bugs/bees',3);
-        // this.loadImageCache (this.arrAnimation, this.name);
+        this.arrAnimation.push('./img/Obstracles/Animals/Snakes/dead.png');
+        this.loadImageCache (this.arrAnimation, this.name);
         this.setPosition(random(1, 30));
     }
 }

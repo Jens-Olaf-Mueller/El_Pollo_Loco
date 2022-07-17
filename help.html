@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Pollo Loco - Help</title>
+    <link rel="icon" type="image/x-icon" href="./img/Chicken/adult/wlk0.png">
+
+    <link rel="stylesheet" href="./fonts/Zabars/stylesheet.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="./styles/style_help.css">
+
+    <script type="module" src="./js/help.js"></script>
+</head>
+<body>    
+    <div id="divHelp" class="help">
+        <h1>El Pollo Loco - Help</h1>
+
+        <details> <!-- 1. GAME -->
+            <summary>1. Game</summary>
+            <p>
+                Pepe ist auf dem Weg nach Hause. Dabei muss er die mexikanische Wüste durchqueren, 
+                in der allerlei Gefahren auf ihn lauern:
+            
+                <ul class="icon-list">            
+                    <li><img class="help-icon" src="./img/Obstracles/Animals/Spiders/spider1.png">Vogelspinnen</li>
+                    <li><img class="help-icon" src="./img/Obstracles/Animals/Spiders/scorpion1.png">Skorpione</li>
+                    <li><img class="help-icon" src="./img/Obstracles/Animals/Snakes/snake13.png">Schlangen</li>
+                    <li>
+                        <img class="help-icon" src="./img/Obstracles/Animals/Bugs/bees0.png">wilde Bienen beschützen meist ihren Bienenstock mit Honig 
+                        <img class="help-icon" src="./img/Items/Misc/beehive0.png">
+                    </li>
+                    <li><img class="help-icon" src="./img/Chicken/adult/wlk0.png">aggressive Hühner</li>
+                    <li><img class="help-icon" src="./img/Endboss/attack/attack/att1.png">und am Ende wartet auch noch Seniora Gallina, das grösste und böseste aller Hühner...</li>
+                </ul> <br>
+                Und alle trachten sie Pepe nach dem Leben oder können ihn verletzen. 
+                In der <a href="#hlpStatusbar">Statusleiste</a> zeigt dir dieses Symbol <img class="help-icon" src="./img/Status/Energy/battery70.png"> deine Lebensenergie an.
+                Hüte dich also vor ihnen, indem du über sie hinweg springst. Allerdings kostet jeder Sprung in der trockenen, heissen Wüste auch Kraft. <br>
+                Wieviel Sprungkraft du noch hast, zeigt dir dieses Symbol:  <img class="help-icon" src="./img/Status/Jump/jmp70.png"> <br>
+                Mit Ausnahme der Schlangen und der wilden Bienen kannst du deine Feinde auch töten, indem du auf sie drauf springst. <br>
+                Allerdings werden alle verbleibenden Hühner dadurch noch aggressiver, wenn du eines ihrer Artgenossen killst. Daher kannst du sie, mit Ausnahme der bösen Seniora Gallina, mit <a href="#hlpBonus">Futter <img class="help-icon" src="./img/Items/Seeds/seedbag1.png"></a> besänftigen. <br>
+                Über jedem gefütterten Huhn erscheint ein Herz <img src="./img/Status/heart.png" width="16px" height="16px"> und es wird dich nicht mehr angreifen.<br>
+                Hüte dich jedoch davor, ein gefüttertes Huhn zu töten, denn das wird nicht ohne Folgen sein... 
+            </p>
+        </details>
+
+        <details> <!-- 2. FOOD -->
+            <summary id="hlpFood">2. Food</summary>
+            <p>
+                Es gibt verschiedene mexikanische Gerichte, die du einsammeln kannst, um bei Kräften zu bleiben: <br>
+                <ul class="icon-list">
+                    <li><img class="help-icon" src="./img/Food/food1.png"> Obst und Gemüse,</li>
+                    <li><img class="help-icon" src="./img/Food/food3.png"> Nachos,</li>
+                    <li><img class="help-icon" src="./img/Food/food4.png"> Tortillas,</li>
+                    <li><img class="help-icon" src="./img/Food/food5.png"> Tacos,</li>
+                    <li><img class="help-icon" src="./img/Food/food6.png"> Burritos,</li>
+                    <li><img class="help-icon" src="./img/Food/food7.png"> Burger,</li>
+                    <li><img class="help-icon" src="./img/Food/food14.png"> Barbecue und einige mehr.</li>
+                </ul>
+                Jedoch ist nichts im Leben umsonst! Natürlich musst du die leckeren Gerichte auch bezahlen! <br>
+                Sorge also dafür, dass du immer genügend <a href="#hlpCoins">Münzen oder Diamanten</a> bei dir hast.
+            </p>
+        </details>
+
+        <details> <!-- 3. COINS & DIAMONDS -->
+            <summary id="hlpCoins">3. Coins & Diamonds</summary>
+                <p>Um <a href="#hlpFood">Essen</a>, <a href="#hlpChili"> Chili-Schoten</a>, <a href="#hlpDrinks">Tequila</a> oder <a href="#hlpMedizin">Medizin</a> kaufen zu können,
+                    <ul class="icon-list">
+                        <li>brauchst du Münzen oder Diamanten.
+                            <img class="help-icon" src="./img/Items/Coins/coin0.png">
+                            <img class="help-icon" src="./img/Items/Coins/coin4.png">
+                            <img class="help-icon" src="./img/Items/Coins/coin7.png">
+                            <img class="help-icon" src="./img/Items/Coins/coin9.png">
+                        </li>
+                    </ul>
+                    Du findest sie überall in der Wüste. Sammle so viele davon, wie du kannst! <br>                    
+                    Dabei gilt: Je höher sie sich befinden, desto wertvoller sind sie.
+                </p>
+            
+        </details>
+
+        <details> <!-- 4. BOTTLES & CHILI -->
+            <summary id="hlpChili">4. Bottles & Chili</summary>
+                <p>
+                    Sammle soviel wie möglich Flaschen mit Salsasauce,
+                    <img class="salsa-bottle" src="./img/Items/Bottles/bottle1.png"> <br>
+                    um damit die gefährliche <a href="#hlpGalina">Seniora Gallina</a> aus dem Weg zu räumen! <br> <br>
+                    Je schärfer deine Salsa ist, desto leichter ist Seniora Gallina zu besiegen.
+                    Du kannst die Schärfe deiner Salsa erhöhen, indem du genügend Chili-Schoten sammelst. <br>
+                    Achte darauf, dass du nur die roten <img class="help-icon" src="./img/Food/Chili/chili10.png"> Chilis einsammelst.<br>                    
+                    <span class="red">ACHTUNG! </span> Grüne Chili-Schoten 
+                    <img class="help-icon" src="./img/Food/Chili/chili0.png">
+                    <img class="help-icon" src="./img/Food/Chili/chili1.png"> 
+                    vermindern die Schärfe der Sauce wieder!
+                </p>            
+        </details>
+
+        <details> <!-- 5. DRINKS -->
+            <summary id="hlpDrinks">5. Drinks</summary>
+                <p>
+                    Die beste Waffe ist nutzlos, wenn man damit nicht trifft! <br>
+                    Genügend Coins vorausgesetzt, kannst du deine <a href="#hlpStatusbar">Treffsicherheit  
+                    <img class="help-icon" src="./img/Status/Accuracy/accuracy80.png"></a> allerdings jederzeit verbessern, und zwar mit Feuerwasser! <br>                      
+                    Bier, Rum, Whiskey, Tequila... je hochprozentiger, desto besser triffst du!
+                    <img class="help-icon" src="./img/Food/Drinks/drink4.png">
+                    <img class="help-icon" src="./img/Food/Drinks/drink7.png">
+                    <img class="help-icon" src="./img/Food/Drinks/drink5.png">
+                    <img class="help-icon" src="./img/Food/Drinks/drink9.png"><br>
+                    <span class="red">ACHTUNG! </span>Die Sache hat jedoch einen Haken: <br>
+                    Säfte und Sirup 
+                    <img class="help-icon" src="./img/Food/Drinks/drink0.png">
+                    <img class="help-icon" src="./img/Food/Drinks/drink2.png">
+                    verbessern zwar deine <img class="help-icon" src="./img/Status/Energy/battery70.png"> Lebensenergie, verringern aber deine Treffsicherheit!
+                </p>            
+        </details>
+        
+        <details> <!-- 6. MEDICINE -->
+            <summary id="hlpMedizin">6. Medicine</summary>
+                <p>
+                    Solltest du verletzt sein und deine <a href="#hlpStatusbar"><img class="help-icon" src="./img/Status/Energy/battery100.png"> Lebensenergie </a> sich zu stark verringern, <img class="help-icon" src="./img/Status/Energy/battery10.png">
+                    gibt es drei Möglichkeiten, dich wieder zu erholen: <br>
+                    <ul class="icon-list">
+                        <li>
+                            <img class="help-icon" src="./img/Food/Medicine/medicine3.png"> sammle Medizin oder Ginseng, sofern du genügend Coins hast,</li>
+                        <li>
+                            <img class="help-icon" src="./img/Items/Chest/chest3.png"> finde Medizin in Truhen und Gefässen
+                            <img class="help-icon" src="./img/Items/Misc/jar0.png">
+                        </li>
+                        <li><img class="help-icon" src="./img/Items/Misc/shop2.png"> oder kaufe sie in einem <a href="#hlpShop">Shop.</a></li>
+                    </ul> <br>
+                    <span class="red">ACHTUNG! </span> 
+                    Nicht jede Medizin wirkt gleich gut! <br>
+                    Die weissen Medizinflaschen <img class="help-icon" src="./img/Food/Medicine/medicine0.png"> sind weniger wirksam als die roten. <img class="help-icon" src="./img/Food/Medicine/medicine4.png">
+                    Am besten hilft Ginseng. <img class="help-icon" src="./img/Food/Medicine/medicine5.png">
+                </p>            
+        </details>
+
+        <details> <!-- 7. BONUS ITEMS & SHOP-->
+            <summary id="hlpBonus">7. Bonus Items & Shop</summary>
+                <p>
+                    Es gibt einige Gegenstände in der Wüste, die du nicht einfach einsammeln kannst. Dazu gehören: <br>
+                    <ul class="icon-list">
+                        <li><img class="help-icon" src="./img/Items/Guns/gun1.png"> ein Revolver,</li>
+                        <li><img class="help-icon" src="./img/Items/Guns/bullet0.png"> Kugeln für den Revolver,</li>
+                        <li><img class="help-icon" src="./img/Items/Chest/key1.png"> Schlüssel zum Öffnen von Truhen,</li>
+                        <li><img class="help-icon" src="./img/Items/Seeds/seedbag1.png"> und Hühnerfutter.</li>
+                    </ul> <br>
+                    Kugeln und Hühnerfutter findest du in allen möglichen Gefässen 
+                    <img class="help-icon" src="./img/Items/Misc/jar5.png">
+                    oder Truhen. <img class="help-icon" src="./img/Items/Chest/chest4.png"> <br>
+                    Einen Revolver kannst du im <a href="#hlpShop">Shop</a> kaufen. Er kostet in jedem Level 1.000 Coins mehr! <br>
+                    Mit viel Glück kannst du ihn auch in einer der Truhen finden, für die du wiederum einen Schlüssel benötigst. Es ist in <i>jedem</i> Level ein Revolver versteckt. Du kannst allerdings nur einen besitzen! <br>
+                    Schlüssel kannst du in allen möglichen Gefässen finden.
+                    <img class="help-icon" src="./img/Items/Misc/jar2.png">
+                    <img class="help-icon" src="./img/Items/Misc/jar4.png">
+                    <img class="help-icon" src="./img/Items/Misc/jar5.png"> <br>
+                    <span class="red">ACHTUNG! </span>
+                    Mit jedem Level nimmt die Anzahl der versteckten Gegenstände ab!
+                    <h2 id="hlpShop">DER SHOP...</h2>
+                    <img src="./img/Items/Misc/shop2.png" height="96px" width="96px"> <br>
+                    Jedes Level besitzt einen Shop, in dem du Medizin, einen Revolver oder Kugeln kaufen kannst, sofern du genügend <a href="#hlpCoins">Coins</a> hast. <br>
+                    Du kaufst einen Gegenstand, indem du die <a href="#hlpKeyboard">ACTION</a>-Taste drückst, während du vor dem Shop stehst. <br>
+                    Dabei gilt jedoch folgende Prioritätenfolge: <br> 
+                    1. Medizin <br>
+                    2. Revolver <br>
+                    3. Kugeln <br> <br>
+                    Sobald deine <a href="#hlpStatusbar"><img class="help-icon" src="./img/Status/Energy/battery50.png"> Lebensenergie </a> 50% unterschritten hat, wird <i>immer</i> zuerst <a href="#hlpMedizin">Medizin</a> gekauft! <br>
+                    Wenn sie über 50% beträgt, wird ein Revolver gekauft. Die Kosten für den Revolver betragen 1.000 Coins pro Level! <br>
+                    Kugeln kannst du <i>nur dann </i> kaufen, wenn du schon einen Revolver besitzt <i>und </i> deine Lebensenergie mindestens 50% beträgt.
+                </p>            
+        </details>
+    
+        <details>  <!-- 8. GALLINA -->
+            <summary id="hlpGalina">8. Seniora Gallina</summary>
+                <p>
+                    Am Ende jedes Levels wartet Seniora Gallina - EL POLLO LOCO - auf dich! <br>
+                    Ihr Wille, dir den Garaus zu machen, nimmt mit jedem Level zu. <br>
+                    Du kannst sie besiegen, indem du sie mit <a href="#hlpChili">Salsa-Flaschen</a> bewirst, die du vorher gesammelt hast. <br>
+                    Du wirst umso erfolgreicher sein, je schärfer deine Salsasauce und je besser deine 
+                    <a href="#hlpStatusbar">Treffsicherheit <img class="help-icon" src="./img/Status/Accuracy/accuracy80.png"></a> ist! <br>
+                    Eine weitere Möglichkeit, sie aus dem Weg zu räumen besteht darin, sie zu erschiessen, sofern du einen Revolver mit Kugeln darin hast! <br>
+                    Auch hier ist deine Treffsicherheit gefragt! <br>
+                    <span class="red">ACHTUNG! </span> Du kannst den Revolver <i>nur dann</i> einsetzen, wenn du keine Salsa-Flaschen mehr hast! <br>
+                    Zuerst werden immer alle Salsa-Flaschen verwendet!
+                </p>            
+        </details>
+
+        <details> <!-- 9. STATUSBAR -->
+            <summary id="hlpStatusbar">9. Statusbar</summary>
+                <p>
+                    In der Statusleiste findest du folgende Symbole, deren Bedeutung und womit man sie verbessern kann:
+                    <ul class="icon-list">
+                        <li>
+                            <img class="help-icon" src="./img/Status/Energy/battery100.png"> Lebensenergie   &#x22B3  Medizin & Ginseng
+                            <img class="help-icon" src="./img/Food/Medicine/medicine1.png">
+                            <img class="help-icon" src="./img/Food/Medicine/medicine5.png">
+                        </li>
+                        <li><img class="help-icon" src="./img/Status/Jump/jmp100.png"> Sprungkraft   &#x22B3  Nahrung</li>
+                        <li>
+                            <img class="help-icon" src="./img/Status/Accuracy/accuracy100.png"> Treffsicherheit   &#x22B3  Alkohol: Tequila, Whiskey, Rum, Bier etc.
+                            <img class="help-icon" src="./img/Food/Drinks/drink9.png">
+                            <img class="help-icon" src="./img/Food/Drinks/drink5.png">
+                            <img class="help-icon" src="./img/Food/Drinks/drink7.png">
+                            <img class="help-icon" src="./img/Food/Drinks/drink4.png">
+                        </li>
+                        <li>
+                            <img class="help-icon" src="./img/Status/Sharpness/sharp80.png"> Schärfe deiner Salza-Sauce   &#x22B3 Chili 
+                            <img class="help-icon" src="./img/Food/Chili/chili16.png">
+                            <img class="help-icon" src="./img/Food/Chili/chili6.png">                          
+                        </li>
+                        <li>
+                            <img class="help-icon" src="./img/Items/Coins/coin0.png"> Gold & Diamanten  &#x22B3 einsammeln oder in Gefässen und Truhen
+                            <img class="help-icon" src="./img/Items/Chest/chest1.png">
+                        </li>
+                        <li>
+                            <img class="help-icon" src="./img/Items/Chest/key1.png"> Schlüssel für Truhe  &#x22B3 in Gefässen
+                            <img class="help-icon" src="./img/Items/Misc/jar1.png">
+                            <img class="help-icon" src="./img/Items/Misc/jar2.png"> usw.
+                        </li>
+                        <li><img class="help-icon" src="./img/Status/Bullets/bullet1.png"> Kugeln  &#x22B3 in Gefässen und Truhen</li>
+                        <li><img class="help-icon" src="./img/Status/Bullets/gun1.png"> Revolver  &#x22B3 kaufen im Shop, oder in Truhen</li>
+                        <li><img class="help-icon" src="./img/Items/Seeds/seedbag1.png"> Futter  &#x22B3 in Gefässen und Truhen</li>
+                    </ul> <br>
+                    Schlüssel, Kugeln, Revolver und Futter werden nur angezeigt, wenn du diese auch besitzt. <br>
+                    Wenn du <i>keinen</i> Revolver, aber Kugeln hast, werden nur die Anzahl der Kugeln angezeigt. <br>
+                    Sonst ist der Revolver, mit der Anzahl Kugeln sichtbar. Es können maximal 6 Kugeln im Revolver sein!
+                </p>            
+        </details>
+
+        <details> <!-- 10. KEYBOARD & SETTINGS -->
+            <summary id="hlpKeyboard">10. Navigation</summary>
+                <p>
+                    Du kannst Pepe mit folgenden Tasten durch die mexikanische Wüste navigieren: <br>
+                    <ul class="icon-list">
+                        <li>Cursor links <div class="keyboard-key">&#8592</div> nach Westen </li>
+                        <li>Cursor rechts <div class="keyboard-key">&#8594</div> nach Osten </li>
+                        <li>Cursor hoch <div class="keyboard-key">&#8593</div> Sprung </li>
+                        <li>Space-Taste <div class="keyboard-key">SPACE</div>Action: Sammeln, Flasche werden, Verstecke durchsuchen </li>
+                        <li>Control links <div class="keyboard-key">CTRL-L</div> Hühner füttern </li>
+                        <li>Taste <div class="keyboard-key">P</div> Pause <span class="red">(noch nicht implementiert)</span> </li>
+                        <li>Taste <div class="keyboard-key">S</div> Spiel speichern <span class="red">(noch nicht implementiert)</span></li>
+                        <li>Taste <div class="keyboard-key">F1</div> ruft diese Hilfe auf <span class="red">(noch nicht implementiert)</span></li> <br>
+                    </ul>       
+                    In den <a href="settings.html">Settings</a> kannst du die Navigation selbst anpassen. <span class="red">(noch nicht implementiert)</span>
+                </p>            
+        </details>
+
+        <details> <!-- 11. IMPRESSUM -->
+            <summary>11. Credits & Impressum</summary>
+                <p>
+                    Credits gehen an: <br>
+                    Junus Ergin und Mihai-Andrei Neacsu für den Support und die Geduld mit mir beim Erstellen des Projektes. <img class="help-icon" src="./img/Status/wink.png"> <br><br>
+
+                    Icons und Bilder, die nicht vom Projekt  EL POLLO LOCO  der <a href="https://developerakademie.com/" target="_blank">Developerakademie</a> zur Verfügung gestellt wurden, <br>
+                    stammen von der Seite <a href="https://www.flaticon.com/" target="_blank">flaticon.com</a> <br><br>
+                    Der Titelsong #1 ist eine Kurzfassung der Instrumentalversion des Songs <br>
+                    "Don't le me be misunderstood" der Gruppe "Santa Esmeralda" aus dem Jahre 1977.
+                </p>            
+        </details>
+
+        <div class="home-navbar">
+            <a href="index.html"><div class="signpost"><h3>Home</h3></div></a>   
+        </div>
+    </div>    
+</body>
+</html>

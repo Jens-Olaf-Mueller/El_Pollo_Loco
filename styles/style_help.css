@@ -1,0 +1,187 @@
+:root {
+    --bg-yellow: #f6e58d;  /* #f9ca24; #ffa600;*/
+    --txt-color: #4f2816;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'zabarsregular', arial;
+    font-size: 1.33rem;
+    font-weight: 100;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-image: url('../img/Intro_Outro/desert1920.png');
+    font-family: 'zabarsregular', arial;
+}
+
+h1 {
+    font-size: 4rem;
+    text-align: center;
+}
+
+h2 {
+    margin-top: 1rem;
+    font-size: 1.75rem;
+}
+
+a {
+    text-decoration: none;
+    color: sienna;
+}
+/* a:visited {color: unset;} */
+
+summary::-webkit-details-marker {display: none; }
+
+summary {
+    list-style: none;
+    color: black;    
+    margin-top: 0.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+summary:hover, h1, h2, a, details[open] summary {
+    text-shadow: 4px 4px 4px #666;
+}
+
+details summary::before { 
+    content: ' ';
+    background-image: url('../img/Status/Bullets/gun0.png');
+    background-size: 32px;
+    background-repeat: no-repeat;
+    background-position-y: 8px;
+    position: absolute;
+    color: red;
+    padding: 8px;
+    left: 32px;
+    height: 24px;
+    width: 24px;
+}
+
+details summary:hover::before, details[open] summary::before {
+    background-image: url('../img/Status/Bullets/gun1.png');
+}
+
+
+.help {
+    min-height: 100vh;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+    padding: 2rem 4rem;
+    background-color: var(--bg-yellow);
+    color: var(--txt-color);
+    opacity: 0.75;
+}
+
+.icon-list li {
+    list-style: none;
+    margin-top: 0.5rem;
+    padding-right: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.help-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.home-navbar {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.home-navbar a {
+    text-decoration: none;
+    color: unset;
+}
+
+.signpost {
+    background-image: url('../img/Status/signpost2.png');
+    margin: 2rem;
+    width: 192px;
+    height: 192px;
+    position: relative;
+    background-size: contain;
+    color: var(--txt-color);
+}
+
+.signpost:hover {
+    background-image: url('../img/Status/signpost3.png');
+    text-shadow: 3px 3px 2px #666;
+    color: black;
+}
+
+.signpost h3 {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    bottom: -2rem;
+    font-size: 1.25rem;
+    font-weight: lighter;
+    transform: translate(-50%, -50%); /* center content*/
+}
+
+.red {
+    color: red;
+}
+
+.salsa-bottle {
+    position: absolute;
+    width: 48px;
+    height: 40px;
+}
+
+.keyboard-key {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0.25rem;
+    min-width: 3rem;
+    border: .1rem solid #aaa;
+    border-radius: 15%;
+    display: inline-block;
+    padding: .1rem .5rem;
+    background: linear-gradient(180deg, #fff, #fff, #fff, #ddd);
+    user-select: none;
+    /* cursor: pointer; */
+    color: #000;
+    /* font-weight: bold; */
+}
+.keyboard-key:hover {
+    background: linear-gradient(0deg, #fff, #fff, #fff, #ddd);
+}
+
+/* #################################################################### */
+/*                          R E S P O N S I V E                         */
+/* #################################################################### */
+@media only screen and (max-width: 850px) {
+    .help {
+        padding: 1rem 0.75rem 1rem 2.25rem;
+    }
+
+    details summary::before {
+        left: 8px;
+    }
+
+    .help h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    .signpost {
+        margin: 0 0 1rem 0;
+        width: 128px;
+        height: 128px;
+    }
+}

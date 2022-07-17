@@ -9,7 +9,9 @@ export default class Bonus extends Mobile {
     width = 50;
     X = 0;
     Y = -100;
-    speedY = 10; // ??
+    speedY = 10;  
+    speed = 2.25;
+    visible = false;
     arrAnimation = [];
     animationID = undefined;
     moveID = undefined;
@@ -17,7 +19,6 @@ export default class Bonus extends Mobile {
     constructor (imgPath) {        
         super().loadImage(imgPath);
         this.initialize();
-        arrIntervals.push(this.animationID, this.moveID);
     }
 
     initialize() {
@@ -25,17 +26,14 @@ export default class Bonus extends Mobile {
         this.loadImageCache (this.arrAnimation,this.name);
     }
 
-    animate (visible, pX, pY) {      
-        if (visible) {
+    animate (pX, pY) { 
+        if ( this.moveID == undefined) { 
             this.X = pX;
             this.Y = pY;
-            this.moveID = this.moveUp(pX, pY);
+            this.moveID = this.moveUp(pX, this.speed);
             this.animationID = setInterval(() => {
                 this.playAnimation(this.arrAnimation,'spin');          
             }, 5000 / FPS);
-        } else {
-            clearInterval (this.moveID);
-            clearInterval (this.animationID);
         }
     }
 }

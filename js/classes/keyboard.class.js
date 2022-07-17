@@ -8,10 +8,10 @@ export default class Keyboard {
     LEFT = false;
     RIGHT = false;
     UP = false;
-    // DOWN = false;
     SPACE = false;
     Q_KEY = false; // quit (suicide)
-    F_KEY = false; // feed chicken
+    S_KEY = false; // save game
+    P_KEY = false; // pause game
     CTRL_LEFT = false;
     CTRL_RIGHT = false;
 
@@ -22,8 +22,9 @@ export default class Keyboard {
             if (event.key == 'ArrowRight') this.RIGHT = true;
             if (event.key == 'ArrowUp') this.UP = true;
             if (event.key == ' ') this.SPACE = true;
-            if (event.key == 'f') this.F_KEY = true;
+            if (event.key == 's') this.S_KEY = true;
             if (event.key == 'q') this.Q_KEY = true;
+            if (event.key == 'p') this.P_KEY = true;
             if (event.code == 'ControlLeft') this.CTRL_LEFT = true;
             if (event.code == 'ControlRight')  this.CTRL_RIGHT = true;
         });
@@ -34,8 +35,9 @@ export default class Keyboard {
             if (event.key == 'ArrowRight') this.RIGHT = false;
             if (event.key == 'ArrowUp') this.UP = false;
             if (event.key == ' ') this.SPACE = false;
-            if (event.key == 'f') this.F_KEY = false;
+            if (event.key == 's') this.S_KEY = false;
             if (event.key == 'q') this.Q_KEY = false;
+            if (event.key == 'p') this.P_KEY = false;
             if (event.code == 'ControlLeft') this.CTRL_LEFT = false;
             if (event.code == 'ControlRight')  this.CTRL_RIGHT = false;
         });

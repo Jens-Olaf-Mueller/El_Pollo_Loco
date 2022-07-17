@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Pollo Loco - Settings</title>
+    <link rel="icon" type="image/x-icon" href="./img/Chicken/adult/wlk0.png">
+
+    <link rel="stylesheet" href="./fonts/Zabars/stylesheet.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="./styles/style_settings.css">
+
+    <script type="module" src="./js/settings.js"></script>
+</head>
+
+<body>
+    <!-------------------------------------------->
+    <!--            S E T T I N G S             -->
+    <!-------------------------------------------->
+    <div id="divSettings" class="settings">
+        <h1>El Pollo Loco - Settings</h1>
+        <div class="settings-top flx-row1">
+            <div class="flx-col">
+                <div class="control checkbox">
+                    <input  id="chkSound" type="checkbox" data-settings="sound" checked>
+                    <label for="chkSound">Sound enabled</label>            
+                </div>
+                
+                <div class="control checkbox">
+                    <input  id="chkMusic" type="checkbox" data-settings="music">
+                    <label for="chkMusic">Music enabled</label>            
+                </div>
+                    <div class="control checkbox indent">
+                        <label for="volMusic" id="lblVolMusic" disabled>Volume:</label>
+                        <input id="volMusic" class="slider" type="range" min="1" max="100" value="50" data-settings="musicvol" disabled><span id="volPercent" disabled>50%</span>
+                    </div>
+
+                    <div class="control checkbox indent">
+                        <input id="optSong1" type="radio" name="song" value ="Santa Esmeralda.mp3" data-settings="song" checked disabled>
+                        <label for="optSong1" id="lblSong1" disabled>Santa Esmeralda</label>            
+                    </div>
+
+                    <div class="control checkbox indent">
+                        <input id="optSong2" type="radio" name="song" value ="Chicken song.mp3" data-settings="song" disabled>
+                        <label for="optSong2" id="lblSong2" disabled>Chicken song</label>            
+                    </div>
+                
+                <div class="control checkbox">
+                    <label for="sleepTime">Sleeping after</label>
+                    <input id="sleepTime" class="slider" type="range" min="3" max="30" value="7" data-settings="sleep"><span id="secSleep" >7 seconds</span> 
+                </div>
+
+                <div class="control checkbox">
+                    <label for="enlargeChicken">Chicken kill enlargement: </label>
+                    <input id="enlargeChicken" class="slider" type="range" min="3" max="10" value="3" data-settings="enlarge"><span id="enlargePix">3 px</span> 
+                </div>
+
+                <div class="control checkbox">
+                    <input  id="chkHelp" type="checkbox" data-settings="help" checked>
+                    <label for="chkHelp">Show help on start</label>            
+                </div>
+
+                <div class="control checkbox">
+                    <input  id="chkIntro" type="checkbox" data-settings="intro" checked>
+                    <label for="chkIntro">Show Intro</label>            
+                </div>
+
+                <div class="control checkbox debugmode">
+                    <input  id="chkDebugger" type="checkbox" data-settings="debug">
+                    <label for="chkDebugger">Debugmode</label>            
+                </div>
+            </div>
+        </div>
+
+    <div class="home-navbar">
+        <a href="index.html"><div class="signpost"><h3>Home</h3></div></a>   
+    </div>
+</body>
+</html>

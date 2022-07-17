@@ -5,17 +5,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El Pollo Loco</title>
-    <link rel="icon" type="image/x-icon" href="./img/Chicken/adult/wlk0.png">
-    <link href="https://fonts.cdnfonts.com/css/red-hot-chili" rel="stylesheet">
 
+    <link rel="icon" type="image/x-icon" href="./img/Chicken/adult/wlk0.png">
+    <!-- <link href="https://fonts.cdnfonts.com/css/red-hot-chili" rel="stylesheet"> -->
+    <link rel="stylesheet" href="./fonts/Zabars/stylesheet.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="./styles/style.css">
 
-    <!-- <script src="./js/const.js"></script> -->
     <script type="module" defer src="./js/game.js"></script>
+
 </head>
 
 <body>
-    <!-- <h1>El Pollo Loco</h1>     -->
+    <!-------------------------------------------->
+    <!--              C A N V A S               -->
+    <!-------------------------------------------->    
     <div id="divCanvas" class="canvas hidden">
         <div id="divStatusbar" class="statusbar">
             <img id="imgEnergy" class="status-icon" src="./img/Status/Energy/battery100.png"> 
@@ -27,10 +30,11 @@
                 <label id="lblBottles">0</label>
             </div>
 
-            <img id="imgGun" class="status-icon hidden" src="./img/Status/Bullets/gun0.png">
+            <!-- <img id="imgGun" class="status-icon hidden" src="./img/Status/Bullets/gun0.png"> -->
             <img id="imgKey" class="status-icon hidden" src="./img/Items/Chest/key1.png">
             
             <div id="divBullet" class="status-icon-text hidden">
+                <img id="imgGun" class="status-icon" src="./img/Status/Bullets/gun1.png">
                 <img id="imgBullet" class="status-icon" src="./img/Status/Bullets/bullet1.png">
                 <label id="lblBullets">0</label>
             </div>
@@ -41,8 +45,7 @@
             <div id="divSeed" class="status-icon-text">
                 <img id="imgSeed" class="status-icon" src="./img/Items/Seeds/seedbag1.png">
                 <label id="lblSeed">0</label>
-            </div>
-                     
+            </div>                     
         </div>
 
         <div id="divScore" class="status-icon">Score: 1000</div>
@@ -64,56 +67,20 @@
             </div>
         </div>
     </div>  
-    
     <!-------------------------------------------->
-    <!--            S E T T I N G S             -->
+    <!--                H O M E                 -->
     <!-------------------------------------------->
-    <div id="divSettings" class="settings">
-        <div class="settings-top flx-row1">
-            <div class="flx-col">
-                <div class="control checkbox">
-                    <input  id="chkMusic" type="checkbox" data-settings="music">
-                    <label for="chkMusic">Music enabled</label>            
-                </div>
-
-                <div class="control checkbox">
-                    <input  id="chkSound" type="checkbox" data-settings="sound" checked>
-                    <label for="chkSound">Sound enabled</label>            
-                </div>
-
-                <div class="control checkbox">
-                    <input  id="chkHelp" type="checkbox" data-settings="help" checked disabled>
-                    <label for="chkHelp" disabled>Show help on start</label>            
-                </div>
-
-                <div class="control checkbox">
-                    <input  id="chkIntro" type="checkbox" data-settings="intro" checked disabled>
-                    <label for="chkIntro" disabled>Show Intro</label>            
-                </div>
-
-                <div class="control checkbox">
-                    <input  id="chkDebugger" type="checkbox" data-settings="debug">
-                    <label for="chkDebugger">Debugmode</label>            
-                </div>
-            </div>
-
-            <div class="flx-col">
-                <div class="flx-row1 center">LEFT: <button type="button" class="btn-keyboard">&#8592</button></div>
-                <div class="flx-row1 center">JUMP: <button type="button" class="btn-keyboard">&#8593</button></div>
-                <div class="flx-row1 center">FEED: <button type="button" class="btn-keyboard">CTRL</button></div>
-            </div>
-
-            <div class="flx-col">
-                <div class="flx-row1 center">RIGHT: <button type="button" class="btn-keyboard">&#8594</button></div>
-                <div class="flx-row1 center">ACTION: <button type="button" class="btn-keyboard">SPACE</button></div>
-                <div class="flx-row1 center">QUIT: <button type="button" class="btn-keyboard">Q</button></div>
-            </div>
-        </div>
-
-        <div class="settings-bottom flx-btw">
-            <button id="btnStart">START GAME</button>
-            <button title="COMING SOON...">SHOW HELP</button>
-        </div>
+    <div id="divHome" class="home">
+        <h1 class="desktop">El Pollo Loco - Ultimate</h1>
+        <h1 class="mobile hidden">El Pollo Loco</h1>
+        <div class="home-navbar">
+            <a href="settings.html"><div class="home-icons home-settings"><h3>Settings</h3></div></a>        
+            <a href="help.html"><div class="home-icons help"><h3>Help</h3></div></a>
+            <div id="btnStart" class="home-icons start"><h3>Start</h3></div>
+        </div>        
+    </div>
+    <div id="divIntro" class="intro hidden">
+        <h1 id="introH1" class="intro-level">Level  1</h1>
     </div>
 </body>
 </html>

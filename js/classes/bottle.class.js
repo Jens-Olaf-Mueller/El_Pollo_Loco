@@ -5,15 +5,17 @@ import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 export default class Bottle extends Mobile {
     name = 'Bottle';
     type = 'bottle';
-    imagePath = '';
+    // imagePath = '';
     height = 70;
     width = 70;
     X = 0;
     Y = -70;
+    offsetY = 0;
     groundY = 380;
     speed = 10;
     speedY = 0.5; 
-    visible = true;
+    visible = false;
+    onCollisionCourse = true;
     arrAnimation = [];
     animationID = undefined;
     moveID = undefined;
@@ -21,7 +23,6 @@ export default class Bottle extends Mobile {
 
     constructor (imgPath) {        
         super().loadImage(imgPath);
-        this.imagePath = imgPath;
         this.initialize();        
     }
 
@@ -31,11 +32,7 @@ export default class Bottle extends Mobile {
     }
 
     throw (pX, pY, speed, mirrored = false) {
-        if( this.moveID == undefined) {
-            if (!this.visible) {
-                this.loadImage(this.imagePath);            
-                this.visible = true;
-            }
+        if (this.moveID == undefined) {
             this.X = pX;
             this.Y = pY;
             this.speedY = -speed;
@@ -57,23 +54,5 @@ export default class Bottle extends Mobile {
         return setInterval(() => {
             this.playAnimation(this.arrAnimation,'spin');          
         }, 2000 / FPS);
-    }
-
-    hide () {
-        this.visible = false;        
-        clearInterval (this.gravarityID);
-        clearInterval (this.animationID);
-        clearInterval (this.moveID);
-        this.animationID = undefined;
-        this.moveID = undefined;
-        this.gravarityID = undefined;
-        this.loadImage('');
-        
-        if (this.moveID) {
-            console.log('Interval läuft mit ID: ' + this.moveID)
-        } else {
-            console.log('Interval aus! [ID: ' + this.moveID + ']')
-        }
-        
     }
 }

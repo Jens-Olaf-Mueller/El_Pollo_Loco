@@ -5,9 +5,8 @@ import { CANVAS_WIDTH } from '../const.js';
 export default class Chicken extends Enemy {
     Y = 380;
     height = 60;
-    width = 60;
-    isFriendly = false;   
-    heart = new Image(16,16); // img/Status/heart.png 
+    width = 60;  
+    heart = new Image(16,16);  
 
     constructor (level, index) { 
         super(level, 'Chicken', index);

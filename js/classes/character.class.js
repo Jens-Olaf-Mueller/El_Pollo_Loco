@@ -3,8 +3,9 @@
 * an extending or used class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { updateGameStatus, gameOver, arrIntervals, gameSettings, objAudio } from '../game.js';
-import { playSound, loadArray } from '../library.js';
+import { updateGameStatus, gameOver, arrIntervals, objAudio } from '../game.js';
+import { loadSettings, saveSettings, gameSettings } from '../settings_mod.js';
+import { playSound, loadArray, random } from '../library.js';
 import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Character extends Mobile {
@@ -25,11 +26,11 @@ export default class Character extends Mobile {
     sharpness = 40;
     accuracy = 50;
     coins = 0;
-    bottles = 0;
+    bottles = 100;
     bullets = 0;
     gun = false;
     keyForChest = 0;
-    seeds = 0;
+    seeds = 100;
     
     keyboard;
     cameraOffset = 150;
@@ -42,7 +43,7 @@ export default class Character extends Mobile {
         this.groundY = environment.groundY;
         this.Y = environment.groundY;
         this.initialize();           
-        this.applyGravity();
+        arrIntervals.push(this.applyGravity());
         this.animate();
     };
 
@@ -54,20 +55,35 @@ export default class Character extends Mobile {
         this.arrAnimation.push(...loadArray('./img/Pepe/idle/wait/wait',10));
         this.arrAnimation.push(...loadArray('./img/Pepe/killed/die',30));
         this.loadImageCache (this.arrAnimation, this.name);
+        this.loadSettings();
+    }
+
+    loadSettings () {
+        this.score = gameSettings.score || 0;
+        this.energy = gameSettings.energy || 100;        
+        this.jumpPower = gameSettings.jumpPower || 70;
+        this.sharpness = gameSettings.sharpness || 40;
+        this.accuracy = gameSettings.accuracy || 50;
+        this.coins = gameSettings.coins || 0;
+        this.bottles = gameSettings.bottles || 0;
+        this.bullets = gameSettings.bullets || 0;
+        this.gun = gameSettings.gun || false;
+        this.keyForChest = gameSettings.keyForChest || 0;
+        this.seeds = gameSettings.seeds || 0;
     }
 
     animate () {
         arrIntervals.push(setInterval (() => { 
-            // playSound (objAudio['walk'], false);
+            playSound (objAudio['walk'], false);
             // playSound (objAudio['jump'], false);
             if (this.keyboard.RIGHT) this.walk('right');
             if (this.keyboard.LEFT) this.walk('left');
             if (this.keyboard.UP && !this.isAboveGround()) this.jump();
 
-            if (this.X > this.environment.westEnd - this.cameraOffset) {
-                this.environment.camera_X = -this.X + this.cameraOffset;
-            }
-            // this.environment.camera_X = -this.X + this.cameraOffset;
+            this.environment.camera_X = -this.X + this.cameraOffset;
+            // if (this.X > this.environment.westEnd - this.cameraOffset) {
+            //     this.environment.camera_X = -this.X + this.cameraOffset;
+            // }           
         }, 1000 / FPS)); // 16 ms
         arrIntervals.push(this.runAnimationInterval()); 
     }
@@ -78,7 +94,7 @@ export default class Character extends Mobile {
                 if (this.timeElapsed(this.diedAt) < 2.5) {    
                     this.playAnimation (this.arrAnimation,'die');
                 } else {
-                    gameOver(true);
+                    gameOver();
                 }  
             } else if (this.isHurt()) {
                 this.playAnimation (this.arrAnimation,'hurt');
@@ -96,7 +112,7 @@ export default class Character extends Mobile {
     }
 
     walk (direction) {
-        // playSound (objAudio['walk'], gameSettings.soundEnabled);
+        playSound (objAudio['walk'], gameSettings.soundEnabled);
         let step = (direction == 'right') ? 18 : -18;
         if (direction == 'right') {
             if (this.X < this.environment.eastEnd - CANVAS_WIDTH + this.cameraOffset - 10) this.X += step;
@@ -108,36 +124,64 @@ export default class Character extends Mobile {
     }
 
     jump () {
-        // playSound (objAudio['jump'], gameSettings.soundEnabled);
+        playSound (objAudio['jump'], gameSettings.soundEnabled);
         let power = Math.round(this.jumpPower / 6.75);
         if (power > 15) power = 15;
         this.speedY = -power;
-        this.jumpPower -= this.environment.levelNo / 10;
+        this.jumpPower -= this.environment.levelNo / 5;
         if (this.jumpPower < 0) this.jumpPower = 0;        
         updateGameStatus(this);
         this.setNewTimeStamp();        
     }
 
+    hitSuccessful () {
+        return random(1,100) <= this.accuracy;
+    }
+
+    throwBottle () {
+        this.environment.bottle.throw(this.X + this.width / 2, this.Y + this.height / 2, 15, this.isMirrored);
+        this.bottles--;
+        this.setNewTimeStamp();
+    }
+
+    canShoot () {
+        return this.gun && this.bullets > 0;
+    }    
+
+    shoot () {
+        playSound(objAudio['gun'], gameSettings.soundEnabled);
+        playSound(objAudio['shot'], gameSettings.soundEnabled);
+        this.bullets--;
+        this.setNewTimeStamp();
+        // hier Accuracy und Trefferquote berechnen & returnieren...!!!
+        return 10;
+    }
+
     /**
-     * saving time stamp since last move
+     * saving time stamp since last action
      */
     setNewTimeStamp () {
         this.lastMove = new Date().getTime();
     }
 
-    updateProperties (srcObject) {
-        if (srcObject.visible) {
+    updateProperties (item) {
+        if (item.visible) {
             // still enough money left?
-            if (this.coins - srcObject.price >= 0) {
+            if (this.coins - item.price >= 0) {
                 playSound(objAudio['plopp'], gameSettings.soundEnabled);
-                this.energy += parseInt(srcObject.energy);
-                this.accuracy += parseInt(srcObject.accuracy);
-                this.jumpPower += parseInt(srcObject.jumpPower);            
-                this.sharpness += parseInt(srcObject.sharpness);            
-                this.coins -= srcObject.price;
+                this.energy += parseInt(item.energy);
+                if (this.energy > 150) this.energy = 150;
+                this.accuracy += parseInt(item.accuracy);
+                if (this.accuracy > 100) this.accuracy = 100;
+                this.jumpPower += parseInt(item.jumpPower);            
+                this.sharpness += parseInt(item.sharpness); 
+                if (this.sharpness > 120) this.sharpness = 120;           
+                this.coins -= item.price;
                 this.score ++;
-                srcObject.enabled(false);
-            }    
+                item.enabled(false);
+            } else {
+                playSound(objAudio['money'], gameSettings.soundEnabled);
+            }   
         }
     }
 
@@ -152,14 +196,13 @@ export default class Character extends Mobile {
                 playSound (objAudio['bottle'], gameSettings.soundEnabled);
                 this.bottles++;
                 this.score += 2;
-                // this.score = this.score + 2;
                 item.enabled(false);                
             }
         }
 
         if (bonus) {
             playSound (objAudio['found'], gameSettings.soundEnabled);
-            this.environment.bonus.animate(true, item.X, item.Y);
+            this.environment.bonus.animate(item.X, item.Y);
             item.contains = null;
             if (item.type == 'chest') {
                 this.keyForChest--;
@@ -208,6 +251,6 @@ export default class Character extends Mobile {
             default:
                 break;
         } 
-        this.score ++;
+        this.score += this.environment.levelNo * 10;
     }
 }

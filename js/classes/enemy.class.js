@@ -15,6 +15,7 @@ export default class Enemy extends Mobile {
     westEnd = undefined;
     isBackground = false;
     onCollisionCourse = true;
+    isFriendly = false; 
     energy = 100;
     damage = 0;
 
@@ -64,28 +65,53 @@ export default class Enemy extends Mobile {
     }
 
     isAlive () {
-        return this.damage > 0;
+        return this.energy > 0;
     }
 
     remove (displayImage) {
-        if (this.type == 'endboss' || this.type == 'bees' || this.type == 'snake') return;
-        clearInterval(this.animationID);
-        clearInterval(this.moveID);
-        this.animationID = undefined;
-        this.moveID = undefined;
+        // if (this.type == 'endboss' || this.type == 'bees') return;
+        if (this.type == 'bees') return;
+        this.animationID = clearInterval(this.animationID);
+        this.moveID = clearInterval(this.moveID);
         this.damage = 0;
         this.energy = 0;
         this.speed = 0; 
-        if (this.type == 'chicken') {
-            this.height = 70;
-            this.width = 70;
-            this.Y = 380;
-        } else {
-            this.height = 30;
-            this.width = 70;
-            this.Y = 430;
-        }        
+        this.resizeEnemy(this.type);
+
+        // if (this.type == 'chicken') {
+        //     this.height = 70;
+        //     this.width = 70;
+        //     this.Y = 380;
+        // } else if (this.type == 'endboss') {
+        //     this.height = 200;
+        //     this.width = 175; 
+        //     this.Y = 260;
+        // } else {
+        //     this.height = 30;
+        //     this.width = 70;
+        //     this.Y = 430;
+        // }        
         // used to display a dead enemy (i.e chicken)     
         if (displayImage) this.loadImage(this.imageCache[this.name + '_' + displayImage].src);
+    }
+
+    resizeEnemy (type) {
+        switch (type) {
+            case 'chicken':
+                this.height = 70;
+                this.width = 70;
+                this.Y = 380;
+                break;
+            case 'endboss':
+                this.height = 200;
+                this.width = 175; 
+                this.Y = 260;           
+                break;
+            default: // spiders & scorpions...
+                this.height = 30;
+                this.width = 70;
+                this.Y = 430;
+                break;
+        }
     }
 }

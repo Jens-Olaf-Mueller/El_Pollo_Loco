@@ -140,6 +140,7 @@ export function getFilename(path, extention = true) {
  */
  export function playSound (file, soundEnabled = true, vol = 1) {
     if (soundEnabled) {
+        if (vol > 1) vol = parseFloat(vol / 100);
         if (typeof file == 'string') {
             let path = './sound/' + file, audio = new Audio(path);
             audio.play();
@@ -155,9 +156,25 @@ export function getFilename(path, extention = true) {
     } 
     if (typeof file == 'object') {
         file.pause();
-        file.currentTime = 0;
-        file = null;
-        return null;
+        // file.currentTime = 0;
+        // file = null;
+        // return null;
+    }
+}
+
+export function fadeSound (audio, fadeEnd = true) {
+    if (audio instanceof Audio) {        
+        const fadePoint = (fadeEnd) ? audio.duration - 5 : audio.currentTime;
+        const fadeID = setInterval(() => {
+            if ((audio.currentTime >= fadePoint) && (audio.volume !== 0)) {
+                audio.volume -= 0.1
+            }
+            // if (audio.volume < 0.003) {
+            if (audio.volume < 0.01) {
+                clearInterval(fadeID);
+                audio.pause();
+            }        
+        }, 250);
     }
 }
 

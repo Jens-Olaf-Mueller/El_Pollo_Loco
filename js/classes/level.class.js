@@ -1,4 +1,5 @@
 import Chicken from './chicken.class.js';
+import Chicklet from './chicklet.class.js';
 import Endboss from './endboss.class.js';
 import Snake from './snake.class.js';
 import Spider from './spider.class.js';
@@ -11,8 +12,9 @@ import Cloud from './cloud.class.js';
 import Item from './items.class.js';
 import Food from './food.class.js';
 
-import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
-import { gameSettings } from '../game.js';
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
+import { gameSettings } from '../settings_mod.js';
+// import { gameSettings } from '../game.js';
 
 export default class Level {
     name = '';
@@ -89,8 +91,8 @@ export default class Level {
         this.Items.push(...this.add (1, Item, 'bullet', 'Items/Guns'));
         this.Items.push(...this.add (1, Item, 'beehive', 'Items/Misc'));
         this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
-        this.Items.push(...this.add (5, Item, 'misc', 'Items/Misc'));
-        this.Items.push(...this.add (4, Item, 'shop', 'Items/Misc'));
+        this.Items.push(...this.add (16, Item, 'misc', 'Items/Misc'));
+        this.Items.push(...this.add (1, Item, 'shop', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'seedbag', 'Items/Seeds'));
         // make sure we got at least one key and gun in each level!
         this.hideItem('key','jar');
@@ -117,7 +119,7 @@ export default class Level {
     // Wolken evl. noch zufällig verteilen (Param: pX mit übergeben...)
     initClouds () {
         for (let i = 1; i < 3; i++) {
-            this.Clouds.push(new Cloud());
+            this.Clouds.push(new Cloud(this));
         }
     }
 
@@ -148,9 +150,16 @@ export default class Level {
             this.Enemies.push(new Scorpion(this, i + 1));        
         }
 
-        this.Enemies.push(new Bees(this,0));
+        // this.createChicklets(2,300);
 
+        this.Enemies.push(new Bees(this,0));
         this.shiftPosition(this.Enemies); 
+    }
+
+    createChicklets (count = 0, pX, pY) {
+        for (let i = 0; i < count; i++) {
+            this.Enemies.push(new Chicklet(this, i, pX, pY));           
+        }
     }
 
     /**

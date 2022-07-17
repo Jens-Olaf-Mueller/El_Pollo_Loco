@@ -5,10 +5,12 @@
 // ###  import all required classes                                 ###
 // ####################################################################
 import World from './classes/world.class.js';
+import Container from './classes/container.class.js';
 import $ from "./library.js";
-import { playSound, random, sleep } from "./library.js";
+import { loadSettings, saveSettings, gameSettings } from './settings_mod.js';
+import { playSound, fadeSound, sleep, random } from "./library.js";
 import Keyboard from './classes/keyboard.class.js';
-import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, SOUNDS } from './const.js';
+import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, SOUNDS, IMG_GAMEOVER, IMG_START } from './const.js';
 
 /**
  * D E C L A R A T I O N S
@@ -16,82 +18,130 @@ import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, SOUNDS
  *  @param {class} keyboard class to survey the keyboard interactions
  *  @param {element} canvas HTML-Element to draw all objects
  */
-let world,
-    keyboard = new Keyboard(),    
-    settings = $('divSettings'),
-    statusbar = $('divStatusbar'),
-    canvas = $('canvas');     
-let arrEnergyIcons, arrJumpIcons, arrAccuracyIcons, arrSharpIcons;
+let canvas = $('canvas'),
+    world,
+    arrEnergyIcons, 
+    arrJumpIcons, 
+    arrAccuracyIcons, 
+    arrSharpIcons,
+    gameStarted,
+    currentSong;
 
 export let arrIntervals = [];
-export let gameIsOver = false;
 export let objAudio = {};
-// export let objAudio = {songs: []};
-export let gameSettings = {
-    musicEnabled: true,
-    soundEnabled: false,
-    debugMode: true,
-    showIntro: true,
-    showHelpOnStart: true,
-    lastSong: 'Santa Esmeralda.mp3',
-    lastLevel: 2,
-    highScore: 0
-}
 
-setEventListeners();
-loadSettings();
+const homeScreen = new Container('divHome'),
+      introScreen = new Container('divIntro'),
+      navBar = new Container('divNavbar'),
+      statusBar = new Container('divStatusbar'),
+      canvasDiv = new Container('divCanvas'),
+      keyboard = new Keyboard();
 
-function startGame() { 
-    loadSounds(); 
-    saveSettings();     
-    settings.classList.add('hidden');
-    $('divCanvas').classList.remove('hidden');
-    $('divNavbar').classList.remove('hidden');
-    statusbar.classList.remove('hidden');
-    document.body.style.backgroundImage = 'none'; 
-    initGame();
-    console.log('GAME STARTED!');
-}
 
-function initGame () {
-    gameIsOver = false;
-    world = new World(canvas, keyboard);    
-    let songNr = Math.floor(Math.random() * SOUNDS.songs.length);
-    playSound(objAudio[`song${songNr}`],gameSettings.musicEnabled);
-    loadStatusIcons();    
-}
+runApp();
 
-export async function gameOver (status) {
-    stopIntervals();
-    gameIsOver = status;
-    window.cancelAnimationFrame(world.requestID); 
-    world.requestID = undefined;
-    await sleep(3500);
-    console.log('G A M E  O V E R  ! ! !');    
-    statusbar.classList.add('hidden');
-    $('divNavbar').classList.add('hidden');
-    $('divCanvas').classList.add('hidden');
-    settings.classList.remove('hidden');
-}
-
-// evl. noch erweitern, so dass ein EINZELNER Interval gelöscht werden kann (param = ID)
-function stopIntervals () {
-    for (let i = 0; i < arrIntervals.length; i++) {
-        const interval_ID = arrIntervals[i];
-        clearInterval(interval_ID);
+function runApp () {
+    setEventListeners();
+    loadSettings(APP_NAME);
+     // check for the very first start and show help if wanted
+    gameStarted = sessionStorage.getItem(APP_NAME + '_IsRunning');
+    if (!gameStarted) {
+        sessionStorage.setItem(APP_NAME + '_IsRunning', true);
+        if (gameSettings.showHelpOnStart) window.location.href = 'help.html';
     }
+}
+
+function startGame() {      
+    saveSettings(APP_NAME); 
+    loadStatusIcons();   
+    loadSounds();
+    document.body.style.backgroundImage = 'none';  
+    homeScreen.hide();
+    canvasDiv.show();
+    navBar.show();
+    statusBar.show();
+    introScreen.removeClass('fade');  
+    if (gameSettings.showIntro) showIntroScreen(gameSettings.lastLevel);
+    if (gameSettings.musicEnabled) playMusic();
+    world = new World(canvas, keyboard);
+    if (gameSettings.debugMode) console.log('GAME STARTED...'); 
+}
+
+export async function gameOver () {
+    stopIntervals();
+    saveSettings(APP_NAME, world.Pepe);
+    fadeSound (currentSong, false);    
+    await sleep(1000);
+    playSound(objAudio['gameover'], gameSettings.soundEnabled);
+    world = undefined;   
+    statusBar.hide();
+    navBar.hide();
+    canvasDiv.hide();        
+    await showIntroScreen(false);
+    introScreen.hide();    
+    homeScreen.show();
+    document.body.style.backgroundImage = IMG_START[random(0,1)];
+    if (gameSettings.debugMode) console.log('G A M E  O V E R  ! ! !'); 
+}
+
+/**
+ * displays the intro- or outro screen: number == false shows outro!
+ * @param {number} level if numeric, shows the intro screen of the given level, 
+ * otherwise the game over-screen
+ */
+export async function showIntroScreen (level) {
+    if (level === false) {
+        $('introH1').innerText = '';
+        introScreen.element.style.backgroundImage = IMG_GAMEOVER; 
+        introScreen.removeClass('fade');
+        introScreen.show();        
+        await sleep(5000);
+    } else {
+        playSound(objAudio['jingle'], gameSettings.soundEnabled);
+        $('introH1').innerText = 'Level  ' + level;
+        introScreen.element.style.backgroundImage = IMG_START[random(0,1)];       
+        introScreen.show();
+        await sleep(2000);
+        introScreen.addClass('fade');
+    }       
+}
+
+function playMusic () {
+    let key = gameSettings.lastSong.toLowerCase().includes('esmeralda') ? 'song0' : 'song1';
+    currentSong = objAudio[key];
+    playSound (currentSong, true, gameSettings.volume);
+}
+
+/**
+ * clears a single interval or all intervals in the main intervals-array
+ * @param {number} interval 
+ * @returns 
+ */
+function stopIntervals (interval) {
+    if (interval) {
+        clearInterval(interval);
+        return;
+    }
+    for (let i = 0; i < arrIntervals.length; i++) {
+        const interval = arrIntervals[i];
+        clearInterval(interval);
+    }
+    arrIntervals = [];
+    window.cancelAnimationFrame(world.requestID);
+    world.requestID = undefined;
+}
+
+export function pauseGame () {
+    for (let i = 0; i < arrIntervals.length; i++) {
+        const interval = arrIntervals[i];
+        clearInterval(interval);
+    }
+    playSound(gameSettings.lastSong, false);
+    arrIntervals = [];
 }
 
 function setEventListeners () {
     $('btnStart').addEventListener('click', startGame);
-    let arrCheckboxes = Array.from($('[data-settings'));
-    // Use Array.forEach to add an event listener to each checkbox.
-    arrCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', (event) => {
-            updateSettings(event);
-        })
-    });
-
     $('imgEnergy').addEventListener('dblclick', (e) => {
         console.log('Status Pepe: [Score: ' + world.Pepe.score + ']');
         console.log('==============================');
@@ -102,10 +152,10 @@ function setEventListeners () {
     });
 }
 
-function removeEventListener (id) {
+// function removeEventListener (id) {
     // comes later
     // id must be given in 'setEventListeners' function, say as variable
-}
+// }
 
 export function updateGameStatus (pepe) {
     // let j = Math.floor(pepe.jumpPower) > 10 ? 10 : Math.floor(pepe.jumpPower);
@@ -116,13 +166,20 @@ export function updateGameStatus (pepe) {
 
     $('#divCoin >label').innerText = pepe.coins;
     $('#divBottle >label').innerText = pepe.bottles;        
-    $('divScore').innerText = 'Score: ' + pepe.score;
+    $('divScore').innerText = 'Score: ' + parseInt(pepe.score);
     $('imgLevel').src = `./img/Status/Level/${world.levelNo}.png`;
-    $('divBullet').classList.toggle('hidden',(!pepe.bullets));
+    $('divBullet').classList.toggle('hidden',(!pepe.bullets && !pepe.gun));
     $('#divBullet >label').innerText = pepe.bullets;
     $('imgKey').classList.toggle('hidden', !pepe.keyForChest);    
     $('divSeed').classList.toggle('hidden',(!pepe.seeds));
     $('#divSeed >label').innerText = pepe.seeds;
+    if (pepe.gun) {
+        $('imgGun').classList.toggle('hidden', false);
+        $('imgBullet').classList.toggle('hidden', true);
+    } else if (pepe.bullets) {
+        $('imgGun').classList.toggle('hidden', true);
+        $('imgBullet').classList.toggle('hidden', false);
+    }
 }
 
 function getImageIndex (property) {
@@ -151,52 +208,13 @@ function loadSounds () {
 
     // now loading the sounds...
     for (const key in SOUNDS) {
-        if (SOUNDS.hasOwnProperty(key)) {    
-            const sound = new Audio('./sound/' + SOUNDS[key]);
-            objAudio[key] = sound;
+        if (SOUNDS.hasOwnProperty(key)) {   
+            if (!Array.isArray(SOUNDS[key])) {
+                const sound = new Audio('./sound/' + SOUNDS[key]);
+                objAudio[key] = sound;
+            }             
         }
     } 
 //   console.log( objAudio)
 //   debugger
-}
-
-function updateSettings (event) {
-    let setting = event.target.dataset.settings,
-    value = event.target.checked;
-
-    switch (setting) {
-        case 'music':
-            gameSettings.musicEnabled = value;
-            break;
-        case 'sound':
-            gameSettings.soundEnabled = value;
-            break;
-        case 'help':
-            gameSettings.showHelpOnStart = value;
-            break;
-        case 'intro':
-            gameSettings.showIntro = value;
-            break;
-        default:
-            gameSettings.debugMode = value;
-            break;
-    }
-}
-
-function loadSettings() {   
-    // Alternative:
-    // let fromStorage = localStorage.getItem('key') || 'default-settings'; 
-    let ls = localStorage.getItem(APP_NAME);
-    if (ls) gameSettings = JSON.parse(ls);
-    // und Werte im Formular setzen:
-    $('chkMusic').checked = gameSettings.musicEnabled;
-    $('chkSound').checked = gameSettings.soundEnabled;
-    $('chkHelp').checked = gameSettings.showHelpOnStart;
-    $('chkIntro').checked = gameSettings.showIntro
-    $('chkDebugger').checked = gameSettings.debugMode;
-}
-
-function saveSettings () {    
-    // if(world.Pepe.score > gameSettings.highScore) gameSettings.highScore = world.Pepe.score;
-    localStorage.setItem(APP_NAME, JSON.stringify(gameSettings));
 }
