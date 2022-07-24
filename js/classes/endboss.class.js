@@ -8,6 +8,7 @@ export default class Endboss extends Enemy {
     height = 400;
     width = 350; 
     bossNo = 0;
+    isAttacking = false;
 
     constructor (level, index = 0) { 
         super(level, 'Endboss', index)
@@ -20,7 +21,7 @@ export default class Endboss extends Enemy {
     initialize() {        
         this.loadImage ('./img/Endboss/walking/wlk1.png');
         this.arrAnimation = loadArray ('./img/Endboss/walking/wlk', 4); 
-        this.arrAnimation.push(...loadArray('./img/Endboss/attack/attack/att',8));
+        this.arrAnimation.push(...loadArray('./img/Endboss/attack/attack/atk',8));
         this.arrAnimation.push(...loadArray('./img/Endboss/dead/die',3));
         this.arrAnimation.push(...loadArray('./img/Endboss/hurt/hurt',3));
         this.arrAnimation.push(...loadArray('./img/Endboss/attack/alert/alt', 8));
@@ -35,11 +36,16 @@ export default class Endboss extends Enemy {
         this.animationID = setInterval(() => {
             if (this.isDead()) {
                 this.playAnimation (this.arrAnimation,'die');
-                // this.speed = 0;
             } else if (this.isHurt()) {
+                this.isAttacking = true;
                 this.playAnimation (this.arrAnimation,'hurt');
-                console.log('Endboss hurt...' + this.energy)
+                console.log('Endboss energy...' + this.energy)
+            } else if (this.isAttacking) {
+                this.speed += 2.5;
+                this.playAnimation (this.arrAnimation,'atk');            
             } else {
+                this.speed = 0.25 + Math.random() * 0.25;
+                this.isAttacking = false;
                 this.playAnimation (this.arrAnimation,'wlk');                
             }
         }, 250);

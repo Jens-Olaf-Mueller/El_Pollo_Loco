@@ -1,6 +1,7 @@
 :root {
     --bg-yellow: #f6e58d;  /* #f9ca24; #ffa600;*/
     --txt-color: #4f2816;
+    --bg-sand: #c49961;
 }
 
 * {
@@ -100,7 +101,7 @@ h1 {
     -webkit-appearance: none;
     height: 0.66rem;
     width: 3.5rem;
-    background: rgb(196, 153, 97);
+    background: var(--bg-sand);
     outline: none;
     border: 2px solid var(--txt-color);
     border-radius: 8px;    
@@ -134,18 +135,14 @@ h1 {
 
 .slider:disabled {
     border: 2px solid grey;
-    background: lightgray;
+    background: lightgray;    
 }
 
 .slider:disabled::-webkit-slider-thumb {
     border: 2px solid grey;
     background-color: lightgray;
+    cursor: default;
 }
-
-/* .slider-display {
-    color: lawngreen;
-    font-size: medium;
-} */
 
 .slider-display.disabled {
     color: grey !important;
@@ -154,7 +151,38 @@ h1 {
 
 [disabled] {
     color: grey !important;
-    cursor: unset;
+    cursor: default;
+}
+
+.debugmode {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.debugmode button {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    background-color: var(--bg-sand);
+    color: var(--txt-color);
+    cursor: pointer;
+}
+
+.debugmode button:hover {
+    background-color: var(--txt-color);
+    color: var(--bg-sand);
+}
+
+.debugmode button[disabled]:hover {
+    background-color: var(--bg-sand);
+    color: grey !important;
+    cursor: default;
+}
+
+.debug-left {
+    min-width: 12rem;
 }
 
 /* #################################################################### */
@@ -177,7 +205,6 @@ h1 {
         width: 128px;
         height: 128px;
     }
-    
 }
 
 @media only screen and (max-width: 400px) {

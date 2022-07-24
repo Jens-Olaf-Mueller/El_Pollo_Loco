@@ -14,7 +14,6 @@ import Food from './food.class.js';
 
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 import { gameSettings } from '../settings_mod.js';
-// import { gameSettings } from '../game.js';
 
 export default class Level {
     name = '';
@@ -29,7 +28,6 @@ export default class Level {
     Foregrounds = [];
     Items = [];
     Obstracles = [];
-    // Boni = [];
 
     constructor (number) {
         this.levelNo = number;
@@ -46,10 +44,10 @@ export default class Level {
         this.initClouds();
         this.initFood();
         this.initItems();
-        if (gameSettings.debugMode) {
-            console.log('LeveL: ' + this.levelNo + ' init...', this);
-            // debugger;
-        }
+        // if (gameSettings.debugMode) {
+        //     console.log('LeveL: ' + this.levelNo + ' init...', this);
+        //     // debugger;
+        // }
     }
 
     initBackgrounds() {
@@ -81,19 +79,22 @@ export default class Level {
     }
 
     initItems () {
-         // amount of bottles and coins depend on the level number
+         // amount of bottles and coins depend on the level number        
         for (let i = 0; i < this.levelNo * 2; i++) {
-            this.Items.push(...this.add (3, Item, 'bottle', 'Items/Bottles'));
             this.Items.push(...this.add (10, Item, 'coin', 'Items/Coins'));
         }
-        this.Items.push(...this.add (2, Item, 'key', 'Items/Chest'));
+        let count = this.levelNo < 2 ? 4 : 2 + this.levelNo;
+        for (let i = 0; i < count; i++) {
+            this.Items.push(...this.add (3, Item, 'bottle', 'Items/Bottles'));
+        }
+            // this.Items.push(...this.add (2, Item, 'key', 'Items/Chest'));
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));         
-        this.Items.push(...this.add (1, Item, 'bullet', 'Items/Guns'));
-        this.Items.push(...this.add (1, Item, 'beehive', 'Items/Misc'));
+            // this.Items.push(...this.add (1, Item, 'bullet', 'Items/Guns'));
+        // this.Items.push(...this.add (1, Item, 'beehive', 'Items/Misc'));
         this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
         this.Items.push(...this.add (16, Item, 'misc', 'Items/Misc'));
         this.Items.push(...this.add (1, Item, 'shop', 'Items/Misc'));
-        this.Items.push(...this.add (4, Item, 'seedbag', 'Items/Seeds'));
+            // this.Items.push(...this.add (4, Item, 'seedbag', 'Items/Seeds'));
         // make sure we got at least one key and gun in each level!
         this.hideItem('key','jar');
         this.hideItem('gun','chest');
@@ -124,20 +125,22 @@ export default class Level {
     }
 
     initFood () {
-        this.Food.push(...this.add(17, Food, 'food', 'Food'));
+        this.Food.push(...this.add(16, Food, 'food', 'Food'));
         this.Food.push(...this.add(17, Food, 'chili', 'Food/Chili'));
         this.Food.push(...this.add(10, Food, 'drink', 'Food/Drinks'));
         this.Food.push(...this.add(6, Food, 'medicine', 'Food/Medicine'));
     }
 
     initEnemies() {
-        let count = this.levelNo * 10 - this.levelNo * 3;
+        // let count = this.levelNo * 10 - this.levelNo * 3;
+        let count = this.levelNo * 7;
         for (let i = 0; i < count; i++) {
             this.Enemies.push(new Chicken(this, i));
         }
         for (let i = 0; i < this.levelNo; i++) {
             if (i % 3 == 0) {
                 this.Enemies.push(new Endboss(this, i));
+                this.Enemies.push(new Bees(this, i));
             }            
         }
         count = this.levelNo + (3 + Math.random() * this.levelNo);
@@ -150,9 +153,7 @@ export default class Level {
             this.Enemies.push(new Scorpion(this, i + 1));        
         }
 
-        // this.createChicklets(2,300);
-
-        this.Enemies.push(new Bees(this,0));
+        // this.Enemies.push(new Bees(this,0));
         this.shiftPosition(this.Enemies); 
     }
 

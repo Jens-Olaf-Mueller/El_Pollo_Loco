@@ -7,6 +7,11 @@ export default class Mobile {
     Y = undefined;
     speed = 0.15;           // default speed
     speedY = 0;             // gravity acceleration
+    delta = {t0: null,      // to determine if we are falling (for check collision from above)
+             Y0: 0,
+             t1: null,
+             Y1: 0
+    }
     acceleration = 0.5;
 
     image = undefined;
@@ -136,10 +141,13 @@ export default class Mobile {
         if (this.imgIndex >= arr.length) this.imgIndex = 0;
         let key = this.name + '_' + subkey + this.imgIndex;        
         this.image = this.imageCache[key];
+
+        // if (this.type == 'bees' && this.isMirrored) console.log('Bienen fliegen nach rechts...'  )
         
         // for debugging only !!
         if (this.image == undefined) {
             console.warn(`Image "${key}" von ${this.name} undefined!`, this);
+            console.log('Filter-arr: ', arr);
             debugger;
         }
     }
@@ -152,13 +160,39 @@ export default class Mobile {
         return setInterval(() => {            
             if (this.isAboveGround() || this.speedY < 0 ) {
                 this.Y += this.speedY;
-                this.speedY += this.acceleration;              
+                this.speedY += this.acceleration; 
+                if (this.delta.t0 == null) {
+                    this.setDelta(0);
+                } else {
+                    this.setDelta(1);
+                }           
              } else {
                 this.Y = this.groundY;
                 this.speedY = 0;
+                this.setDelta(false);
             }           
         }, 1000 / FPS);
     }
+
+    /**
+     * sets or resets the delta-json
+     * @param {number} t = 0 sets the 1st time point X, t = 1 sets the 2nd,
+     * t = false => reset both points
+     */
+    setDelta (t) {
+        if (t === false) {
+            this.delta.t0 = null;
+            this.delta.t1 = null;
+            this.delta.Y0 = 0;
+            this.delta.Y1 = 0;
+        } else if (t == 0) {
+            this.delta.t0 = new Date().getTime();
+            this.delta.Y0 = this.Y;
+        } else if (t == 1) {
+            this.delta.t1 = new Date().getTime();
+            this.delta.Y1 = this.Y;
+        }
+    } 
 
     /**
      * helper function for fnc 'applyGravity': determines if object is in the air
@@ -170,6 +204,15 @@ export default class Mobile {
         // if (this.Y != this.groundY) debugger
 
         return this.Y < (this.groundY - height);
+    }
+
+    /**
+     * determines, if an object is falling or not (gravity)
+     * @returns true || false
+     */
+    isFalling () {
+        // return this.delta < 0;
+        return this.delta.Y1 - this.delta.Y0 < 0;
     }
 
     isClose (enemyType) {
@@ -229,8 +272,12 @@ export default class Mobile {
     isColliding (obj) {
         return  (this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width) && 
                 (this.Y + this.offsetY + this.height) >= obj.Y &&
-                (this.Y + this.offsetY) <= (obj.Y + obj.height) && 
-                obj.onCollisionCourse;
+                (this.Y + this.offsetY) <= (obj.Y + obj.height) && obj.onCollisionCourse;
+                
+    }
+
+    isInFrontOfShop (obj) {
+        return obj.isShop && (this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width);
     }
 
     hide () {

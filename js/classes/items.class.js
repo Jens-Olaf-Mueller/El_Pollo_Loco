@@ -10,6 +10,7 @@ export default class Item extends Background {
     image;
     visible = true;
     isBackground = false;
+    isShop = false;
     onCollisionCourse = true;
     value;
     height = 70;
@@ -36,7 +37,6 @@ export default class Item extends Background {
     initialize() {
         this.X = random (150, this.eastEnd - CANVAS_WIDTH * 0.8);
         this.X = Math.random() < 0.5 ? -this.X : this.X;
-        // console.log(this.name + 'X: ' + this.X )
 
         if (this.type == 'bottle') {
             this.Y = 370;
@@ -46,20 +46,21 @@ export default class Item extends Background {
             this.width = 30;
             this.Y = 260 - this.value * 20 - this.value;        
         } else if (this.type == 'chest') {
-            this.height = 90;
-            this.width = 100;
-            this.Y = 360;
+            this.height = 80;
+            this.width = 90;
+            this.Y = 370;
             this.fillRepository (true);
         } else if (this.type == 'jar') {
-            this.height = 55;
-            this.width = 60;
-            this.Y = 380;            
+            this.height = 45;
+            this.width = 50;
+            this.Y = 390;            
             this.fillRepository ();
         } else if (this.type == 'shop') {
             this.height = 270;
             this.width = 220;
             this.Y = 150;
             this.isBackground = true;
+            this.isShop = true;
         } else if (this.type == 'misc') {
             this.Y = 400 + Math.random() * 20;
             this.isBackground = Math.random() < 0.5;
@@ -68,7 +69,7 @@ export default class Item extends Background {
                 this.width = 40;
                 this.Y = this.Y - 40;
             }
-        } else  {
+        } else {
             this.enabled(false);
         }
     }
@@ -84,7 +85,7 @@ export default class Item extends Background {
     }
 
     enabled (state) {
-        if (state == false) {
+        if (state === false) {
             this.visible = false; 
             this.value = 0;       
             this.height = 0;

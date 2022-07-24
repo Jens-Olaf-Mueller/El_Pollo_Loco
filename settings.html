@@ -30,29 +30,31 @@
                     <input  id="chkMusic" type="checkbox" data-settings="music">
                     <label for="chkMusic">Music enabled</label>            
                 </div>
-                    <div class="control checkbox indent">
-                        <label for="volMusic" id="lblVolMusic" disabled>Volume:</label>
-                        <input id="volMusic" class="slider" type="range" min="1" max="100" value="50" data-settings="musicvol" disabled><span id="volPercent" disabled>50%</span>
-                    </div>
+                    <div id="divMusic">
+                        <div class="control checkbox indent">
+                            <label for="volMusic" id="lblVolMusic" disabled>Volume:</label>
+                            <input id="volMusic" class="slider" type="range" min="1" max="100" value="50" data-settings="musicvol" name="musicvolume" disabled><span id="volPercent" disabled>50%</span>
+                        </div>
 
-                    <div class="control checkbox indent">
-                        <input id="optSong1" type="radio" name="song" value ="Santa Esmeralda.mp3" data-settings="song" checked disabled>
-                        <label for="optSong1" id="lblSong1" disabled>Santa Esmeralda</label>            
-                    </div>
+                        <div class="control checkbox indent">
+                            <input id="optSong1" type="radio" name="song" value ="Santa Esmeralda.mp3" data-settings="song" checked disabled>
+                            <label for="optSong1" id="lblSong1" disabled>Santa Esmeralda</label>            
+                        </div>
 
-                    <div class="control checkbox indent">
-                        <input id="optSong2" type="radio" name="song" value ="Chicken song.mp3" data-settings="song" disabled>
-                        <label for="optSong2" id="lblSong2" disabled>Chicken song</label>            
-                    </div>
+                        <div class="control checkbox indent">
+                            <input id="optSong2" type="radio" name="song" value ="Chicken song.mp3" data-settings="song" disabled>
+                            <label for="optSong2" id="lblSong2" disabled>Chicken song</label>            
+                        </div>
+                    </div>                    
                 
                 <div class="control checkbox">
                     <label for="sleepTime">Sleeping after</label>
-                    <input id="sleepTime" class="slider" type="range" min="3" max="30" value="7" data-settings="sleep"><span id="secSleep" >7 seconds</span> 
+                    <input id="sleepTime" class="slider" type="range" min="3" max="30" value="7" data-settings="sleep" name="sleeptime"><span id="secSleep" >7 sec</span> 
                 </div>
 
                 <div class="control checkbox">
                     <label for="enlargeChicken">Chicken kill enlargement: </label>
-                    <input id="enlargeChicken" class="slider" type="range" min="3" max="10" value="3" data-settings="enlarge"><span id="enlargePix">3 px</span> 
+                    <input id="enlargeChicken" class="slider" type="range" min="3" max="10" value="3" data-settings="enlarge" name="enlarge"><span id="enlargePix">3 px</span> 
                 </div>
 
                 <div class="control checkbox">
@@ -65,9 +67,41 @@
                     <label for="chkIntro">Show Intro</label>            
                 </div>
 
-                <div class="control checkbox debugmode">
-                    <input  id="chkDebugger" type="checkbox" data-settings="debug">
-                    <label for="chkDebugger">Debugmode</label>            
+                <!-------------------------------------------->
+                <!--          D E B U G  -  M O D E         -->
+                <!-------------------------------------------->
+                <div id="divDebugmode" class="debugmode">
+                    <div class="debug-left">
+                        <div id="divChkDebugger" class="control checkbox">
+                            <input  id="chkDebugger" type="checkbox" data-settings="debug">
+                            <label for="chkDebugger">Debugmode</label>            
+                        </div>
+        
+                        <div class="control checkbox indent">
+                            <label for="debugBottles" id="lblBottles" disabled>Bottles</label>
+                            <input id="debugBottles" class="slider" type="range" min="0" max="30" value="0" data-settings="bottles" name="bottles" disabled><span id="dbgBottles" disabled>0</span> 
+                        </div>
+        
+                        <div class="control checkbox indent">
+                            <label for="debugBullets" id="lblBullets" disabled>Bullets</label>
+                            <input id="debugBullets" class="slider" type="range" min="0" max="30" value="0" data-settings="bullets" name="bullets" disabled><span id="dbgBullets" disabled>0</span> 
+                        </div>
+        
+                        <div class="control checkbox indent">
+                            <label for="debugSeeds" id="lblSeeds" disabled>Seeds</label>
+                            <input id="debugSeeds" class="slider" type="range" min="0" max="100" value="10" data-settings="seeds" name="seeds" disabled><span id="dbgSeeds" disabled>10</span> 
+                        </div>                        
+                    </div>
+
+                    <div class="debug-right">
+                        <div class="control checkbox">
+                            <input  id="chkFrame" type="checkbox" data-settings="frame">
+                            <label for="chkFrame">Show Frame</label>            
+                        </div>
+
+                        <button id="btnClearStorage" >Clear local storage</button>
+                    </div>
+
                 </div>
             </div>
         </div>

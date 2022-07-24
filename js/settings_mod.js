@@ -5,6 +5,10 @@ export let gameSettings = {
     volume: 50,
     soundEnabled: true,
     debugMode: false,
+      debugBottles: 0,
+      debugBullets: 0,
+      debugGun: false,
+      debugSeeds: 0,
     showIntro: true,
     showHelpOnStart: true,
     lastSong: 'Santa Esmeralda.mp3',
@@ -43,13 +47,20 @@ export function setSettings () {
         $('optSong2').checked = true;
     }
     $('sleepTime').value = gameSettings.sleepTime;
-    $('secSleep').innerText = gameSettings.sleepTime + ' seconds';
+    $('secSleep').innerText = gameSettings.sleepTime + ' sec';
     $('enlargeChicken').value = gameSettings.chickenEnlargement;
     $('enlargePix').innerText = gameSettings.chickenEnlargement + ' px';
     $('chkSound').checked = gameSettings.soundEnabled;
     $('chkHelp').checked = gameSettings.showHelpOnStart;
     $('chkIntro').checked = gameSettings.showIntro
     $('chkDebugger').checked = gameSettings.debugMode;
+    $('debugBottles').value = gameSettings.debugBottles;
+    $('dbgBottles').innerText = gameSettings.debugBottles;
+    $('debugBullets').value = gameSettings.debugBullets;
+    $('dbgBullets').innerText = gameSettings.debugBullets;
+    $('debugSeeds').value = gameSettings.debugSeeds;
+    $('dbgSeeds').innerText = gameSettings.debugSeeds;
+    
 }
 
 export function saveSettings (key, pepe) {    

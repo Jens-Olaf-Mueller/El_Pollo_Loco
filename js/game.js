@@ -52,7 +52,7 @@ function runApp () {
 }
 
 function startGame() {      
-    saveSettings(APP_NAME); 
+    // saveSettings(APP_NAME); 
     loadStatusIcons();   
     loadSounds();
     document.body.style.backgroundImage = 'none';  
@@ -90,6 +90,7 @@ export async function gameOver () {
  * otherwise the game over-screen
  */
 export async function showIntroScreen (level) {
+    introScreen.removeClass('fade');
     if (level === false) {
         $('introH1').innerText = '';
         introScreen.element.style.backgroundImage = IMG_GAMEOVER; 

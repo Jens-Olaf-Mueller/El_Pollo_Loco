@@ -25,6 +25,7 @@ const SOUNDS = {
     found: "item found.mp3",
     coin: "coin click.mp3",
     money: "no money.mp3",
+    kaching: "ka ching.mp3",
     bees: "flying bees.mp3",
     gameover: "game over.mp3",
     jingle: "jingle.mp3",
@@ -37,7 +38,8 @@ const SOUNDS = {
     seed: "seeds.mp3",
     jump: "jump.mp3",
     gun: "pump gun.mp3",
-    shot: "shot gun.mp3"
+    shot: "shot gun.mp3",
+    ricochet: "ricochet.mp3"
 };
 
 export { FPS, CANVAS_HEIGHT, CANVAS_WIDTH, APP_NAME, PEPE, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, SOUNDS, IMG_GAMEOVER, IMG_START };

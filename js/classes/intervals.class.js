@@ -33,7 +33,7 @@ export default class IntervalListener {
         for (let i = 0; i < this.arrIntervals.length; i++) {
             if (this.arrIntervals[i].ID == interval) {
                 // we found it
-                this.arrIntervals[i].ID = clearInterval(id);
+                this.arrIntervals[i].ID = clearInterval(interval);
                 break;
             }
         }

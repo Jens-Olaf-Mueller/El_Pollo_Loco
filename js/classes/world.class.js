@@ -16,7 +16,7 @@ import IntervalListener from './intervals.class.js';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 import { showIntroScreen, updateGameStatus, arrIntervals, pauseGame, objAudio } from '../game.js';
 import { gameSettings } from '../settings_mod.js';
-import { playSound, random } from '../library.js';
+import { playSound, random, sleep } from '../library.js';
 
 export default class World { 
     Pepe;  
@@ -51,7 +51,7 @@ export default class World {
         this.cnv = canvas; // assigning the global canvas to a local variable
         this.ctx = canvas.getContext('2d');        
         this.keyboard = keyboard;
-        this.levelNo = 2;//gameSettings.lastLevel;
+        this.levelNo = gameSettings.lastLevel;
         this.Pepe = new Character(this);                
         this.initLevel (this.levelNo);
         this.draw();
@@ -77,13 +77,17 @@ export default class World {
         this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
         this.seed = new Seed('./img/Seed/seed1.png');
         if (gameSettings.debugMode) console.log('World created... ', this);
+        // debugger
     }
 
     async nextLevel () {
+        await sleep(3500);
         this.levelNo++;
         this.initLevel(this.levelNo);
         this.levelUp = false;
+        this.Pepe.X = 50;
         await showIntroScreen(this.levelNo);
+                
     }
 
     run () {
@@ -94,10 +98,14 @@ export default class World {
             this.checkObstracleCollisions();  
             this.checkBottelCollisions();
             this.checkSeedCollision();
+            this.checkForShopping();
             this.checkActions();  
             this.checkForPause();
             updateGameStatus (this.Pepe);
-            if (this.levelUp) this.nextLevel(); // set in checkBottelCollisions()        
+            // levelUp is set in checkBottelCollisions()
+            if (this.levelUp) {
+                this.nextLevel();
+            }         
         }, 250);
     }
 
@@ -164,13 +172,20 @@ export default class World {
     checkEnemyCollisions () {        
         this.level.Enemies.forEach((enemy) => {
             if (this.Pepe.isColliding(enemy) && enemy.isAlive()) {
+
+                if (this.Pepe.isFalling()) {
+                    console.log('Pepe kommt von oben...' );
+                    console.log('Delta: ', this.Pepe.delta.Y1 - this.Pepe.delta.Y0 )
+                }
+
                 if (this.Pepe.isAboveGround()) {
+                // if (this.Pepe.isFalling()) {
                     if (enemy instanceof Chicken || enemy instanceof Chicklet) {
                         // killed a friendly chicken ?!
                         if (enemy.isFriendly) {
                             for (let i = 0; i < this.levelNo * 2; i++) {
-                                this.level.createChicklets(1, enemy.X + random(70,250))
-                            }
+                                this.level.createChicklets(1, enemy.X + random(70,300))
+                            }                            
                         }
                         playSound(objAudio['chicken'], gameSettings.soundEnabled);
                         enemy.remove('dead');                        
@@ -195,8 +210,10 @@ export default class World {
                         if (!this.Pepe.isDead()) playSound(objAudio['ouch'], gameSettings.soundEnabled);
                     }                    
                 }   
-                if (enemy instanceof Bees) playSound(objAudio['bees'], gameSettings.soundEnabled);
-                if (enemy instanceof Snake) playSound(objAudio['snake'], gameSettings.soundEnabled);
+                // versuchen: 
+                playSound(objAudio[enemy.type], gameSettings.soundEnabled && !enemy.isFriendly);
+                // if (enemy instanceof Bees) playSound(objAudio['bees'], gameSettings.soundEnabled);
+                // if (enemy instanceof Snake) playSound(objAudio['snake'], gameSettings.soundEnabled);
             }
         });
     }
@@ -245,6 +262,14 @@ export default class World {
         });
     }
 
+    checkForShopping () {
+        this.level.Backgrounds.forEach((item) => {
+            if (this.Pepe.isInFrontOfShop(item) && this.keyboard.SPACE) {
+                this.Pepe.buyItems(); 
+            }            
+        });
+    }
+
     /**
      * checks for collision with obstracles:
      * - can we jump on a stone or a chest ?!
@@ -275,15 +300,19 @@ export default class World {
                     if (this.Pepe.hitSuccessful()) {
                         enemy.hit(this.Pepe.sharpness / 10);
                         playSound(objAudio['chicken'], gameSettings.soundEnabled);
-                        if (enemy.isDead()) {
-                            enemy.remove('dead');
-                        }
-                        console.log('World Zeile 277: check for other endbosses, go to next level!' )
-                        this.levelUp = true;                       
                     } else {
                         playSound(objAudio['glass'], gameSettings.soundEnabled);
                     }                   
                 }
+                // TODO: eigene Function: checkForEndbossKilled(enemy)
+                if (enemy.isDead()) {
+                    let timeElapsed = new Date().getTime();
+                    if (timeElapsed -this.diedAt > 3) {
+                        enemy.remove('dead');
+                        console.log('World Zeile 277: check for other endbosses, go to next level!' )
+                        this.levelUp = true;
+                    }                    
+                }                 
             }
         });
     }
@@ -310,12 +339,19 @@ export default class World {
      * - feeding chicken (throwing seed)
      */
     checkActions() {
-        // if (this.keyboard.SPACE && this.Pepe.isClose('endboss')) {
-        if (this.keyboard.CTRL_RIGHT) {
+        if (this.keyboard.SPACE && this.Pepe.isClose('endboss')) {
+        // if (this.keyboard.CTRL_RIGHT) {
             if (this.Pepe.bottles > 0) {                
                 this.Pepe.throwBottle();
             } else if (this.Pepe.canShoot()) {
                 this.Pepe.shoot();
+                if (this.Pepe.hitSuccessful()) {
+                    // this.Pepe.score += parseInt(this.levelNo * enemy.damage);
+                    // enemy.remove('dead');
+                    console.log('Endboss erschossen...' )
+                } else {
+                    playSound(objAudio['ricochet'], gameSettings.soundEnabled);
+                }
             }
         }
         // throw seed...
@@ -325,6 +361,8 @@ export default class World {
             this.Pepe.seeds--;
             this.Pepe.setNewTimeStamp();
         }
+        // commit suicide...
+        if (this.keyboard.Q_KEY) this.Pepe.energy = 0;
     }
 
     checkForPause() {

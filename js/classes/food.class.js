@@ -20,8 +20,10 @@ export default class Food extends Background {
     eastEnd;
     westEnd;
     X = Infinity;
-    Y = 350;  
+    Y = Infinity; //350; 
+    parent = undefined; 
 
+    // constructor(imgPath, name, level, parent) {
     constructor(imgPath, name, level) {
         super().loadImage(imgPath);
         this.name = name; 
@@ -29,13 +31,12 @@ export default class Food extends Background {
         this.type = name.replace(/[0-9]/g, '');
         this.level = level;
         this.eastEnd = level.eastEnd || CANVAS_WIDTH;
-        this.westEnd = -this.eastEnd || -CANVAS_WIDTH;     
+        this.westEnd = -this.eastEnd || -CANVAS_WIDTH; 
+        // this.parent = parent;    
         this.enabled(true); // calls this.initialize();
     }
 
     initialize () {
-        // funzt nicht, wenn level aus Parent-Klasse stammt...?
-        // console.log('LevelNo von ' + this.name + ' = ' + this.level.levelNo); 
         let range = 100 - this.level.levelNo * 10, rnd = random(1, 100);
         this.visible = (rnd <= range);
 
@@ -43,6 +44,7 @@ export default class Food extends Background {
             this.X = random (150, this.eastEnd - CANVAS_WIDTH * 0.8);
             // apply a 50:50 chance to place it in east or west
             this.X = Math.random() < 0.5 ? -this.X : this.X; 
+            this.Y = 300 + random(1, 50);
 
             // now tuning the food!
             if (this.type == 'chili') {
@@ -53,13 +55,17 @@ export default class Food extends Background {
                 this.jumpPower = this.value / 2;
                 this.energy = this.value;                
             } else if (this.type == 'drink') {
-                this.accuracy = (this.value - 2) * 5;
-                this.energy = this.value / 2;
+                this.accuracy = (this.value - 3) * 5;
+                this.energy = (10 - this.value) / 2;
                 this.price = this.value + 1;
-            }  else if (this.type == 'medicine') {
+            } else if (this.type == 'medicine') {
                 this.Y -= 160;
                 this.energy = (this.value + 1) * 10;
                 this.price = 4;
+            } else if (this.type == 'beehive') {
+                this.energy = this.value;
+                this.jumpPower = this.value / 4;
+                this.price = 0;
             }
         }
     }

@@ -26,11 +26,11 @@ export default class Character extends Mobile {
     sharpness = 40;
     accuracy = 50;
     coins = 0;
-    bottles = 100;
+    bottles = 0;
     bullets = 0;
     gun = false;
     keyForChest = 0;
-    seeds = 100;
+    seeds = 0;
     
     keyboard;
     cameraOffset = 150;
@@ -60,16 +60,23 @@ export default class Character extends Mobile {
 
     loadSettings () {
         this.score = gameSettings.score || 0;
-        this.energy = gameSettings.energy || 100;        
+        this.energy = gameSettings.energy || 50;        
         this.jumpPower = gameSettings.jumpPower || 70;
         this.sharpness = gameSettings.sharpness || 40;
         this.accuracy = gameSettings.accuracy || 50;
         this.coins = gameSettings.coins || 0;
-        this.bottles = gameSettings.bottles || 0;
+        this.bottles = gameSettings.bottles || 0;        
         this.bullets = gameSettings.bullets || 0;
         this.gun = gameSettings.gun || false;
         this.keyForChest = gameSettings.keyForChest || 0;
         this.seeds = gameSettings.seeds || 0;
+        if (gameSettings.debugMode) {
+            if (gameSettings.debugBottles) this.bottles = gameSettings.debugBottles;
+            if (gameSettings.debugSeeds) this.seeds = gameSettings.debugSeeds;
+            if (gameSettings.debugBullets) this.bullets = gameSettings.debugBullets;
+            if (gameSettings.debugGun) this.gun = true;
+        } 
+
     }
 
     animate () {
@@ -167,22 +174,43 @@ export default class Character extends Mobile {
     updateProperties (item) {
         if (item.visible) {
             // still enough money left?
-            if (this.coins - item.price >= 0) {
+            if (this.coins - item.price >= 0 || item.type == 'beehive') {
                 playSound(objAudio['plopp'], gameSettings.soundEnabled);
                 this.energy += parseInt(item.energy);
-                if (this.energy > 150) this.energy = 150;
                 this.accuracy += parseInt(item.accuracy);
-                if (this.accuracy > 100) this.accuracy = 100;
-                this.jumpPower += parseInt(item.jumpPower);            
-                this.sharpness += parseInt(item.sharpness); 
-                if (this.sharpness > 120) this.sharpness = 120;           
+                this.jumpPower += parseInt(item.jumpPower);
+                this.sharpness += parseInt(item.sharpness);            
                 this.coins -= item.price;
-                this.score ++;
+                this.adjustProperties(1);
                 item.enabled(false);
             } else {
                 playSound(objAudio['money'], gameSettings.soundEnabled);
             }   
         }
+    }
+
+    buyItems () {        
+        let price = parseInt((1 + Math.random() * 100) * this.environment.levelNo * 10),
+            succeed = false, amount;
+        if (this.energy < 50 && this.coins - price >= 0) {
+            amount = parseInt(120 - this.energy);
+            this.parseFoundItem('medicine' + amount);
+            succeed = true;
+        } else if (this.gun == false && this.coins >= this.environment.levelNo * 1000) {
+            this.parseFoundItem('gun');
+            succeed = true;
+        } else if (this.gun && this.bullets < 6) {
+            amount = parseInt(6 - this.bullets);
+            this.parseFoundItem('bullet' + amount);            
+            succeed = true;
+        }
+
+        if (succeed) {
+            playSound(objAudio['kaching'], gameSettings.soundEnabled);
+        } else {
+            price = 0;
+        }
+        this.coins -= price;
     }
 
     updateItems (item, bonus) {
@@ -192,7 +220,7 @@ export default class Character extends Mobile {
                 this.coins += item.value;
                 this.score ++;
                 item.enabled(false);
-            } else if (item.type == 'bottle') {
+            } else if (item.type == 'bottle' && this.bottles < 10) {
                 playSound (objAudio['bottle'], gameSettings.soundEnabled);
                 this.bottles++;
                 this.score += 2;
@@ -209,7 +237,7 @@ export default class Character extends Mobile {
                 if (this.keyForChest < 0) this.keyForChest = 0;
             }
             this.parseFoundItem (bonus);
-            console.log('Gefunden: ' + bonus);
+            console.log(bonus + ' gefunden...');
         }  
     }
 
@@ -235,11 +263,12 @@ export default class Character extends Mobile {
                 this.energy += value; 
                 break;
             case 'medicine':
-                this.energy += value * 10;
+                this.energy += value * 10;                
                 break;
             case 'drink':
                 this.accuracy += (value - 2) * 5;
-                this.energy += value / 2;        
+                this.energy += value / 2; 
+                    
                 break;
             case 'chili':
                 this.sharpness += (value - 2) * 5;
@@ -251,6 +280,14 @@ export default class Character extends Mobile {
             default:
                 break;
         } 
-        this.score += this.environment.levelNo * 10;
+        this.adjustProperties(this.environment.levelNo * 10);
+    }
+
+    adjustProperties(score) {
+        this.score += score;
+        if (this.energy > 120) this.energy = 120;
+        if (this.accuracy > 100) this.accuracy = 100; 
+        if (this.sharpness > 120) this.sharpness = 120;  
+        if (this.jumpPower > 105) this.jumpPower = 105;
     }
 }
