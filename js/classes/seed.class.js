@@ -1,6 +1,6 @@
 import Mobile from './mobile.class.js';
 import { FPS } from '../const.js';
-import { objAudio } from '../game.js';
+import { Sounds } from '../game.js';
 import { gameSettings } from '../settings_mod.js';
 import { playSound, loadArray } from '../library.js';
 
@@ -35,7 +35,7 @@ export default class Seed extends Mobile {
 
     throw (pX, pY, speed, mirrored = false) {
         if( this.moveID == undefined) {
-            playSound (objAudio['seed'], gameSettings.soundEnabled);
+            Sounds.play('seed');
             this.X = pX;
             this.Y = pY;
             this.speedY = -speed;

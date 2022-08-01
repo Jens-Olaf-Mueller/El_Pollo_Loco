@@ -11,6 +11,7 @@ export default class Enemy extends Mobile {
     width = 0;
     X = undefined;
     Y = undefined;
+    defaultSpeed = 0.15;
     eastEnd = undefined;
     westEnd = undefined;
     isBackground = false;
@@ -29,18 +30,13 @@ export default class Enemy extends Mobile {
         this.type = name.toLowerCase();
         this.level = level;
         this.eastEnd = level.eastEnd;
-        this.westEnd = level.westEnd;        
+        this.westEnd = level.westEnd;   
+        this.speed = this.defaultSpeed + Math.random() * 0.85;     
     }; 
 
     animate (animationKey) {
-        let speed = Math.random() * 0.25,
-            startFromX = CANVAS_WIDTH / 2 + Math.random() * this.eastEnd,
-            startFromY = 380 + Math.random() * 10;
-            // debugger
-
         if (this.isAlive) {
-            this.moveID = this.move('left', speed, startFromX, startFromY);
-
+            this.moveID = this.move('left');
             this.animationID = setInterval(() => {
                 this.playAnimation(this.arrAnimation, animationKey);                 
             }, 12000 / FPS);

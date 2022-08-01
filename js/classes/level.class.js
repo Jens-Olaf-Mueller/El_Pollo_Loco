@@ -4,7 +4,6 @@ import Endboss from './endboss.class.js';
 import Snake from './snake.class.js';
 import Spider from './spider.class.js';
 import Scorpion from './scorpion.class.js';
-
 import Bees from './bees.class.js';
 import Background from './background.class.js';
 import Obstracle from './obstracles.class.js';
@@ -44,10 +43,6 @@ export default class Level {
         this.initClouds();
         this.initFood();
         this.initItems();
-        // if (gameSettings.debugMode) {
-        //     console.log('LeveL: ' + this.levelNo + ' init...', this);
-        //     // debugger;
-        // }
     }
 
     initBackgrounds() {
@@ -69,10 +64,12 @@ export default class Level {
     */
     initObstracles () {
         // load the plants...
-        this.Obstracles = this.add(11, Obstracle, 'cactus', 'Obstracles/Plants');
+        let count = this.getLevelBalance(8,12,4,2);        
+        this.Obstracles = this.add(count, Obstracle, 'cactus', 'Obstracles/Plants');
         this.Obstracles.push(...this.add(4, Obstracle, 'grass', 'Obstracles/Plants'));        
         this.Obstracles.push(...this.add(2, Obstracle, 'tree', 'Obstracles/Plants'));
         // stones...
+        count = this.getLevelBalance(8,11,4);
         this.Obstracles.push(...this.add(11, Obstracle, 'stone', 'Obstracles/Stones'));
         this.Obstracles.push(...this.add(7, Obstracle, 'stone_big', 'Obstracles/Stones'));
         this.shiftPosition(this.Obstracles);
@@ -87,14 +84,10 @@ export default class Level {
         for (let i = 0; i < count; i++) {
             this.Items.push(...this.add (3, Item, 'bottle', 'Items/Bottles'));
         }
-            // this.Items.push(...this.add (2, Item, 'key', 'Items/Chest'));
-        this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));         
-            // this.Items.push(...this.add (1, Item, 'bullet', 'Items/Guns'));
-        // this.Items.push(...this.add (1, Item, 'beehive', 'Items/Misc'));
-        this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
-        this.Items.push(...this.add (16, Item, 'misc', 'Items/Misc'));
         this.Items.push(...this.add (1, Item, 'shop', 'Items/Misc'));
-            // this.Items.push(...this.add (4, Item, 'seedbag', 'Items/Seeds'));
+        this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
+        this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
+        this.Items.push(...this.add (16, Item, 'misc', 'Items/Misc'));        
         // make sure we got at least one key and gun in each level!
         this.hideItem('key','jar');
         this.hideItem('gun','chest');
@@ -117,7 +110,6 @@ export default class Level {
         }
     }
 
-    // Wolken evl. noch zufällig verteilen (Param: pX mit übergeben...)
     initClouds () {
         for (let i = 1; i < 3; i++) {
             this.Clouds.push(new Cloud(this));
@@ -125,14 +117,14 @@ export default class Level {
     }
 
     initFood () {
-        this.Food.push(...this.add(16, Food, 'food', 'Food'));
+        let count = (this.levelNo > 11) ? 10 : 21 - this.levelNo;
+        this.Food.push(...this.add(count, Food, 'food', 'Food'));
         this.Food.push(...this.add(17, Food, 'chili', 'Food/Chili'));
-        this.Food.push(...this.add(10, Food, 'drink', 'Food/Drinks'));
+        this.Food.push(...this.add(11, Food, 'drink', 'Food/Drinks'));
         this.Food.push(...this.add(6, Food, 'medicine', 'Food/Medicine'));
     }
 
     initEnemies() {
-        // let count = this.levelNo * 10 - this.levelNo * 3;
         let count = this.levelNo * 7;
         for (let i = 0; i < count; i++) {
             this.Enemies.push(new Chicken(this, i));
@@ -152,8 +144,6 @@ export default class Level {
             this.Enemies.push(new Spider(this, i + 1));        
             this.Enemies.push(new Scorpion(this, i + 1));        
         }
-
-        // this.Enemies.push(new Bees(this,0));
         this.shiftPosition(this.Enemies); 
     }
 
@@ -195,5 +185,27 @@ export default class Level {
                 this.Foregrounds.push(item);
             }         
         }
+    }
+
+    /**
+     * calculates the balance (amount) for the items, obstracles etc.
+     * to be created  for each level
+     * @param {number} limit minimum of level number to take effect
+     * @param {*} maxValue maximum value that is returned
+     * @param {*} minValue minimum value as fallback to be returned 
+     * @param {*} step counter backwards
+     * @returns 
+     */
+    getLevelBalance (limit, maxValue, minValue = 1, step = 1) {
+        while (limit > this.levelNo) {
+            maxValue -=step;
+            if (maxValue < minValue) {
+                maxValue = minValue;
+                break;
+            }
+            limit -= step;
+            if (limit <= 0) break;
+        }
+        return maxValue;
     }
 }

@@ -74,6 +74,10 @@ export default class Item extends Background {
         }
     }
 
+    /**
+     * hides several items in jar or chest
+     * @param {boolean} keyRequired determines if a 'key' MUST be in the list
+     */
     fillRepository (keyRequired) {
         let arrFound = ['key','coin','bullet','food','medicine','seed','chilli','drink', null];
         if (keyRequired) delete arrFound [0]; // remove the 'key' when we got a chest!

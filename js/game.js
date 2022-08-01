@@ -1,17 +1,17 @@
-// ####################################################################
-// ###  import all required functions from outer .js-files          ###
-// ###  such as: $          -   "document.getElementsByAnything"    ###
-// ###           playSound  -   sound output                        ###
-// ###  import all required classes                                 ###
-// ####################################################################
+/** 
+ * import all required functions & classes from outer .js-files
+ */
 import World from './classes/world.class.js';
-import Container from './classes/container.class.js';
+import Sound from './classes/sound.class.js';
+import IntervalListener from './classes/intervals.class.js';
 import $ from "./library.js";
 import { loadSettings, saveSettings, gameSettings } from './settings_mod.js';
-import { playSound, fadeSound, sleep, random } from "./library.js";
+import { sleep, random } from "./library.js";
 import Keyboard from './classes/keyboard.class.js';
-import { APP_NAME, ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, SOUNDS, IMG_GAMEOVER, IMG_START } from './const.js';
-
+import { APP_NAME, SOUNDS,
+         ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, IMG_GAMEOVER, IMG_START,
+         homeScreen, introScreen ,canvasDiv, navBar, statusBar
+        } from './const.js';
 /**
  * D E C L A R A T I O N S
  *  @param {class} world main class that contains all other objects
@@ -24,19 +24,12 @@ let canvas = $('canvas'),
     arrJumpIcons, 
     arrAccuracyIcons, 
     arrSharpIcons,
-    gameStarted,
-    currentSong;
+    gameStarted;
 
 export let arrIntervals = [];
-export let objAudio = {};
-
-const homeScreen = new Container('divHome'),
-      introScreen = new Container('divIntro'),
-      navBar = new Container('divNavbar'),
-      statusBar = new Container('divStatusbar'),
-      canvasDiv = new Container('divCanvas'),
-      keyboard = new Keyboard();
-
+export const Intervals = new IntervalListener();
+export const Sounds = new Sound('./sound/');
+const keyboard = new Keyboard(); 
 
 runApp();
 
@@ -53,8 +46,8 @@ function runApp () {
 
 function startGame() {      
     // saveSettings(APP_NAME); 
-    loadStatusIcons();   
-    loadSounds();
+    initStatusIcons();   
+    initSounds();
     document.body.style.backgroundImage = 'none';  
     homeScreen.hide();
     canvasDiv.show();
@@ -62,17 +55,18 @@ function startGame() {
     statusBar.show();
     introScreen.removeClass('fade');  
     if (gameSettings.showIntro) showIntroScreen(gameSettings.lastLevel);
-    if (gameSettings.musicEnabled) playMusic();
+    if (gameSettings.musicEnabled) Sounds.playList(gameSettings.lastSong, gameSettings.volume);
     world = new World(canvas, keyboard);
     if (gameSettings.debugMode) console.log('GAME STARTED...'); 
 }
 
 export async function gameOver () {
+    // document.exitFullscreen();
     stopIntervals();
-    saveSettings(APP_NAME, world.Pepe);
-    fadeSound (currentSong, false);    
+    saveSettings(APP_NAME, world.Pepe); 
+    Sounds.fade(gameSettings.lastSong, 0);
     await sleep(1000);
-    playSound(objAudio['gameover'], gameSettings.soundEnabled);
+    Sounds.play('gameover');
     world = undefined;   
     statusBar.hide();
     navBar.hide();
@@ -98,19 +92,13 @@ export async function showIntroScreen (level) {
         introScreen.show();        
         await sleep(5000);
     } else {
-        playSound(objAudio['jingle'], gameSettings.soundEnabled);
+        if (gameSettings.musicEnabled == false) Sounds.play('jingle');
         $('introH1').innerText = 'Level  ' + level;
         introScreen.element.style.backgroundImage = IMG_START[random(0,1)];       
         introScreen.show();
         await sleep(2000);
         introScreen.addClass('fade');
     }       
-}
-
-function playMusic () {
-    let key = gameSettings.lastSong.toLowerCase().includes('esmeralda') ? 'song0' : 'song1';
-    currentSong = objAudio[key];
-    playSound (currentSong, true, gameSettings.volume);
 }
 
 /**
@@ -137,7 +125,7 @@ export function pauseGame () {
         const interval = arrIntervals[i];
         clearInterval(interval);
     }
-    playSound(gameSettings.lastSong, false);
+    Sounds.stop(gameSettings.lastSong);
     arrIntervals = [];
 }
 
@@ -151,6 +139,9 @@ function setEventListeners () {
         console.log('Accuracy: ' + world.Pepe.accuracy);
         console.log('Sharpness: ' + world.Pepe.sharpness);
     });
+    window.addEventListener('resize', () => {
+        console.log('Fenstergrösse geändert...' )
+    });
 }
 
 // function removeEventListener (id) {
@@ -159,7 +150,6 @@ function setEventListeners () {
 // }
 
 export function updateGameStatus (pepe) {
-    // let j = Math.floor(pepe.jumpPower) > 10 ? 10 : Math.floor(pepe.jumpPower);
     ICON_JUMP.src = arrJumpIcons[getImageIndex(pepe.jumpPower)]; 
     ICON_ENERGY.src = arrEnergyIcons[getImageIndex(pepe.energy)];
     ICON_SHARPNESS.src = arrSharpIcons[getImageIndex(pepe.sharpness)];    
@@ -187,7 +177,7 @@ function getImageIndex (property) {
     return Math.floor(property / 10) > 10 ? 10 : Math.floor(property / 10);
 }
 
-function loadStatusIcons () {
+function initStatusIcons () {
     arrJumpIcons = [], arrEnergyIcons = [], arrAccuracyIcons = [], arrSharpIcons = [];
     for (let i = 0; i < 11; i++) {
         arrJumpIcons.push(`./img/Status/Jump/jmp${i*10}.png`);
@@ -197,25 +187,22 @@ function loadStatusIcons () {
     }        
 }
 
-function loadSounds () {
-    // let arrSongs = [];
-    for (let i = 0; i < SOUNDS['songs'].length; i++) {
-        const song = new Audio ('./sound/' + SOUNDS['songs'][i]);
-        // objAudio.songs.push(song); // GEHT NICHT!
-        // arrSongs.push(song);
-        objAudio[`song${i}`] = song;
-    }
-    // objAudio.songs.push.apply(arrSongs);
-
-    // now loading the sounds...
+/**
+ * loads all sounds and songs in the responsible class
+ */
+function initSounds () {
     for (const key in SOUNDS) {
         if (SOUNDS.hasOwnProperty(key)) {   
             if (!Array.isArray(SOUNDS[key])) {
-                const sound = new Audio('./sound/' + SOUNDS[key]);
-                objAudio[key] = sound;
-            }             
+                Sounds.add(SOUNDS[key], key, !gameSettings.soundEnabled);
+            } else {
+                let arrSongs = [];
+                for (let i = 0; i < SOUNDS[key].length; i++) {
+                    arrSongs.push(SOUNDS[key][i]);
+                }
+                Sounds.add(arrSongs, key, !gameSettings.soundEnabled);
+            }            
         }
     } 
-//   console.log( objAudio)
-//   debugger
+    if (gameSettings.debugMode) console.log('Class Sounds:', Sounds);
 }

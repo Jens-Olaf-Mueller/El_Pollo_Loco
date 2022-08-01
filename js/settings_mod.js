@@ -1,51 +1,27 @@
 import $ from './library.js';
+import { DEFAULT_SETTINGS, APP_NAME, SONG_TITLES } from './const.js';
 
-export let gameSettings = {
-    musicEnabled: true,
-    volume: 50,
-    soundEnabled: true,
-    debugMode: false,
-      debugBottles: 0,
-      debugBullets: 0,
-      debugGun: false,
-      debugSeeds: 0,
-    showIntro: true,
-    showHelpOnStart: true,
-    lastSong: 'Santa Esmeralda.mp3',
-    chickenEnlargement: 3,
-    sleepTime: 7,
-    lastLevel: 1,
-    highScore: 0,
-    energy: 100,
-    score: 0,
-    jumpPower: 70,
-    sharpness: 40,
-    accuracy: 50,
-    coins: 0,
-    bottles: 0,
-    bullets: 0,
-    gun: false,
-    keyForChest: 0,
-    seeds: 0
-}
+// "re-export" of variables or constants: 
+// export { DEFAULT_SETTINGS as gameSettings } from './const.js';
+export let gameSettings = DEFAULT_SETTINGS;
 
-export function loadSettings(key) { 
+export function loadSettings(key = APP_NAME, displaySettings = false) { 
     // Alternative:
     // let ls = localStorage.getItem('key') || 'default-settings'; 
     let ls = localStorage.getItem(key);
     if (ls) gameSettings = JSON.parse(ls);
+    if (displaySettings) setSettings();
 }
 
-// set values in form controls:
+/**
+ * display property values in form controls:
+ */
 export function setSettings () {
     $('chkMusic').checked = gameSettings.musicEnabled;
     $('volMusic').value = gameSettings.volume;
     $('volPercent').innerText = gameSettings.volume + '%';
-    if (gameSettings.lastSong.toLowerCase().includes('esmeralda')) {
-        $('optSong1').checked = true;
-    } else {
-        $('optSong2').checked = true;
-    }
+    $('songNo').value = gameSettings.lastSong;
+    $('songTitle').innerText = SONG_TITLES[gameSettings.lastSong];
     $('sleepTime').value = gameSettings.sleepTime;
     $('secSleep').innerText = gameSettings.sleepTime + ' sec';
     $('enlargeChicken').value = gameSettings.chickenEnlargement;
@@ -60,7 +36,7 @@ export function setSettings () {
     $('dbgBullets').innerText = gameSettings.debugBullets;
     $('debugSeeds').value = gameSettings.debugSeeds;
     $('dbgSeeds').innerText = gameSettings.debugSeeds;
-    
+    $('chkFrame').checked = gameSettings.showFrame;
 }
 
 export function saveSettings (key, pepe) {    

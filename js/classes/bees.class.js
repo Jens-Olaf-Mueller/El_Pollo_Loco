@@ -11,7 +11,7 @@ export default class Bees extends Enemy {
 
     constructor (level, index) {
         super (level,'Bees', index);
-        this.beehive = new Food('./img/Food/food16.png','beehive' + (index + 1) * 16, level);        
+        this.beehive = new Food('./img/Food/food21.png','beehive' + (index + 1) * 20, level);        
         this.initialize();       
         level.Food.push(this.beehive);
         this.fly();

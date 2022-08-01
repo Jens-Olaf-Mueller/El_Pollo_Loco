@@ -178,6 +178,29 @@ export function fadeSound (audio, fadeEnd = true) {
     }
 }
 
+// check if declaration is variable or constant...
+// call: 
+// const PI = 3.1415;
+// let str = "I am a string variable!";
+// isConst('PI'); // -> true
+// isConst('str'); // -> false
+
+let isConst = function(name, context) {
+    // does this thing even exist in context?
+    context = context || this;
+    if(typeof context[name] === "undefined") return false;
+    // if it does exist, a reassignment should fail, either
+    // because of a throw, or because reassignment does nothing.
+    try {
+      var _a = context[name];
+      context[name] = !context[name];
+      if (context[name] === _a) return true;
+      // make sure to restore after testing!
+      context[name] = _a;
+    } catch(e) { return true; }
+    return false;
+  }.bind(this);
+
 // export function todo (msgtext, title = 'Coming soon') {
 //     playSound('notify.mp3');
 //     msgBox(msgtext, title,'Ok',false,true);

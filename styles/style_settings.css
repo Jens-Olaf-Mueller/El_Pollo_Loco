@@ -97,6 +97,10 @@ h1 {
     margin-left: 2rem;
 }
 
+.indent label {
+    min-width: 3.5rem;
+}
+
 .slider {
     -webkit-appearance: none;
     height: 0.66rem;

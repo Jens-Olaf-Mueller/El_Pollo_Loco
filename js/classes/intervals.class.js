@@ -1,41 +1,37 @@
 export default class IntervalListener {
     arrIntervals = []; // as JSON !
-    mainID = -1;
-    constructor (id) {
+    mainID;
+    constructor (id = -1) {
         this.mainID = id;
     }
 
-    add (fnc, timeout, params, name) {
+    add (fnc, timeout, params = []) {
         debugger
         console.log('Fnc-Name: ' , fnc.name )
         let id = setInterval(fnc, timeout, params);
-        this.arrIntervals.push({
+        const interval = {
             ID: id,
             handler: fnc,
             timeout: timeout,
             args: params,   // optional for setInterval-function
             name: fnc.name  // optional name for the interval
-        });
+        };
+        this.arrIntervals.push(interval);
         return id;
     }
 
-    /**
-     * removes an interval with teh given id and / or name
-     * @param {number} id number of interval to be removed
-     * @param {string} name optional name of interval to be removed
-     */
-    remove (id, name) {
-
+    start (interval) {
+        let index = this.find(interval);
+        if (index) {
+            let jsonInt = this.arrIntervals[index];
+            jsonInt.ID = setInterval (jsonInt.handler, jsonInt.timeout, jsonInt.args);
+        }
     }
 
     stop (interval) {
-        // iterate over each element in the array
-        for (let i = 0; i < this.arrIntervals.length; i++) {
-            if (this.arrIntervals[i].ID == interval) {
-                // we found it
-                this.arrIntervals[i].ID = clearInterval(interval);
-                break;
-            }
+        let index = this.find(interval);
+        if (index) {
+            this.arrIntervals[index].ID = clearInterval(this.arrIntervals[index].ID);
         }
     }
 
@@ -49,21 +45,38 @@ export default class IntervalListener {
         this.arrIntervals = [];
     }
 
-    find (id) {
-// var obj = [
-//     {"name": "Afghanistan", "code": "AF"}, 
-//     {"name": "Åland Islands", "code": "AX"}, 
-//     {"name": "Albania", "code": "AL"}, 
-//     {"name": "Algeria", "code": "DZ"}
-//   ];
-
-        // iterate over each element in the array
-        for (let i = 0; i < this.arrIntervals.length; i++){
-            // look for the entry with a matching `code` value
-            if (this.arrIntervals[i].ID == id){
-            // we found it
-            // obj[i].name is the matched result
+    remove (interval) {
+        if (typeof (interval) === 'number') {
+            clearInterval(this.arrIntervals[interval].ID);
+            this.arrIntervals[interval].splice(interval, 1);
+        } else {
+            let index = this.find(interval);
+            if (index) {
+                clearInterval(this.arrIntervals[index].ID);
+                this.arrIntervals[index].splice(index, 1);
             }
+        }
+        
+    }
+
+    find (interval) {
+        // iterate over each element in the array
+        for (let i = 0; i < this.arrIntervals.length; i++) {
+            const int = this.arrIntervals[i]; 
+            if (int.ID === interval || int.name == interval){
+                return i;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * for debugging only
+     */
+    list () {
+        for (let i = 0; i < this.arrIntervals.length; i++) {
+            const int = this.arrIntervals[i]; 
+            console.log('Interval ' + int.name, int); 
         }
     }
 }

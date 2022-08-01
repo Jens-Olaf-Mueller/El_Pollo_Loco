@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" href="./fonts/Zabars/stylesheet.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="./styles/style_settings.css">
+    <link rel="stylesheet" href="./styles/style_tooltip.css">
 
     <script type="module" src="./js/settings.js"></script>
 </head>
@@ -37,23 +38,20 @@
                         </div>
 
                         <div class="control checkbox indent">
-                            <input id="optSong1" type="radio" name="song" value ="Santa Esmeralda.mp3" data-settings="song" checked disabled>
-                            <label for="optSong1" id="lblSong1" disabled>Santa Esmeralda</label>            
-                        </div>
-
-                        <div class="control checkbox indent">
-                            <input id="optSong2" type="radio" name="song" value ="Chicken song.mp3" data-settings="song" disabled>
-                            <label for="optSong2" id="lblSong2" disabled>Chicken song</label>            
+                            <label for="songNo" id="lblSong" disabled>Song:</label>
+                            <input id="songNo" class="slider" type="range" min="0" max="1" value="0" data-settings="song" disabled><span id="songTitle" disabled>Santa Esmeralda</span>
                         </div>
                     </div>                    
                 
-                <div class="control checkbox">
+                <div class="control checkbox tooltip" 
+                     data-tooltip="Legt fest, nach wieviel Sekunden Inaktivität Pepe einschläft">
                     <label for="sleepTime">Sleeping after</label>
                     <input id="sleepTime" class="slider" type="range" min="3" max="30" value="7" data-settings="sleep" name="sleeptime"><span id="secSleep" >7 sec</span> 
                 </div>
 
-                <div class="control checkbox">
-                    <label for="enlargeChicken">Chicken kill enlargement: </label>
+                <div class="control checkbox tooltip" 
+                    data-tooltip="Nachdem ein Huhn getötet wurde, werden die verbleibenden Hühner um diesen Wert grösser...">
+                    <label for="enlargeChicken" >Chicken enlargement: </label>
                     <input id="enlargeChicken" class="slider" type="range" min="3" max="10" value="3" data-settings="enlarge" name="enlarge"><span id="enlargePix">3 px</span> 
                 </div>
 
@@ -64,7 +62,7 @@
 
                 <div class="control checkbox">
                     <input  id="chkIntro" type="checkbox" data-settings="intro" checked>
-                    <label for="chkIntro">Show Intro</label>            
+                    <label for="chkIntro">Show intro</label>            
                 </div>
 
                 <!-------------------------------------------->
@@ -96,18 +94,19 @@
                     <div class="debug-right">
                         <div class="control checkbox">
                             <input  id="chkFrame" type="checkbox" data-settings="frame">
-                            <label for="chkFrame">Show Frame</label>            
+                            <label for="chkFrame">Show frames</label>            
                         </div>
 
-                        <button id="btnClearStorage" >Clear local storage</button>
+                        <button id="btnClearStorage" class="tooltip" data-tooltip="Löscht alle bisherigen Spielstände  und setzt alle Einstellungen zurück">Clear local storage</button>
                     </div>
 
                 </div>
             </div>
         </div>
 
-    <div class="home-navbar">
-        <a href="index.html"><div class="signpost"><h3>Home</h3></div></a>   
-    </div>
+        <div class="home-navbar">
+            <a href="index.html"><div class="signpost"><h3>Home</h3></div></a>   
+        </div>
+    </div>    
 </body>
 </html>

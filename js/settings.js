@@ -1,6 +1,6 @@
 import $ from './library.js';
-import { loadSettings, saveSettings, setSettings, gameSettings } from './settings_mod.js';
-import { APP_NAME } from './const.js'
+import { APP_NAME, SONG_TITLES } from './const.js';
+import { loadSettings, saveSettings, gameSettings } from './settings_mod.js';
 
 const arrControls = Array.from($('[data-settings'));
 const arrSliders = Array.from($('input[type=range]'));
@@ -20,14 +20,16 @@ arrSliders.forEach(slider => {
 
 $('btnClearStorage').addEventListener('click', () => {
     window.localStorage.removeItem(APP_NAME);
-    console.log(gameSettings);
+    restoreSettings();
+    location.reload();
 })
 
 window.onbeforeunload = function() {
     saveSettings(APP_NAME);
 }
-loadSettings(APP_NAME);
-setSettings();
+
+loadSettings(APP_NAME, true);
+// setSettings();
 enableControls('divMusic', gameSettings.musicEnabled);
 enableControls('divDebugmode', gameSettings.debugMode);
 
@@ -39,6 +41,9 @@ function displayValue(event) {
         case 'musicvol':
             $('volPercent').innerText = value + '%'; // show music volume 
             break;
+        case 'song':
+            $('songTitle').innerText = SONG_TITLES[value];
+            break;      
         case 'sleep':
             $('secSleep').innerText = value + ' sec';
             break;
@@ -97,7 +102,10 @@ function updateSettings (event) {
             break;
         case 'seeds':
             gameSettings.debugSeeds = value;
-            break;                
+            break;  
+        case 'frame':
+            gameSettings.showFrame = value;
+            break;              
                 
         default:
             gameSettings.debugMode = value;
@@ -127,4 +135,34 @@ function enableSubControls (element, state) {
             child.setAttribute('disabled','disabled');
         }
     }
+}
+
+function restoreSettings () {
+    gameSettings.musicEnabled = true;
+    gameSettings.volume = 50;
+    gameSettings.soundEnabled = true;
+    gameSettings.debugMode = false;
+      gameSettings.showFrame = false;
+      gameSettings.debugBottles = 0;
+      gameSettings.debugBullets = 0;
+      gameSettings.debugGun = false;
+      gameSettings.debugSeeds = 0;
+    gameSettings.showIntro = true;
+    gameSettings.showHelpOnStart = true;
+    gameSettings.lastSong = 0;
+    gameSettings.chickenEnlargement = 3;
+    gameSettings.sleepTime = 7;
+    gameSettings.lastLevel = 1;
+    gameSettings.highScore = 0;
+    gameSettings.energy = 100;
+    gameSettings.score = 0;
+    gameSettings.jumpPower = 70;
+    gameSettings.sharpness = 40;
+    gameSettings.accuracy = 50;
+    gameSettings.coins = 0;
+    gameSettings.bottles = 0;
+    gameSettings.bullets = 0;
+    gameSettings.gun = false;
+    gameSettings.keyForChest = 0;
+    gameSettings.seeds = 0;
 }

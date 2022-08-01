@@ -2,18 +2,20 @@
 import $ from "../library.js";
 
 export default class Keyboard {
-    constructor() {
-        this.setEventListeners();
-    }
     LEFT = false;
     RIGHT = false;
     UP = false;
     SPACE = false;
-    Q_KEY = false; // quit (suicide)
-    S_KEY = false; // save game
-    P_KEY = false; // pause game
-    CTRL_LEFT = false;
-    CTRL_RIGHT = false;
+    Q_KEY = false;      // quit game (suicide)
+    S_KEY = false;      // save game
+    P_KEY = false;      // pause game
+    F8_KEY = false;     // fullscreen
+    CTRL_LEFT = false;  // feed chicken
+    CTRL_RIGHT = false; // for further using
+
+    constructor() {
+        this.setEventListeners();
+    }
 
     setEventListeners () {
         window.addEventListener('keydown', (event) => {
@@ -25,6 +27,7 @@ export default class Keyboard {
             if (event.key == 's') this.S_KEY = true;
             if (event.key == 'q') this.Q_KEY = true;
             if (event.key == 'p') this.P_KEY = true;
+            if (event.key == 'F8') this.F8_KEY = true;
             if (event.code == 'ControlLeft') this.CTRL_LEFT = true;
             if (event.code == 'ControlRight')  this.CTRL_RIGHT = true;
         });
@@ -38,6 +41,7 @@ export default class Keyboard {
             if (event.key == 's') this.S_KEY = false;
             if (event.key == 'q') this.Q_KEY = false;
             if (event.key == 'p') this.P_KEY = false;
+            if (event.key == 'F8') this.F8_KEY = false;
             if (event.code == 'ControlLeft') this.CTRL_LEFT = false;
             if (event.code == 'ControlRight')  this.CTRL_RIGHT = false;
         });
@@ -47,6 +51,7 @@ export default class Keyboard {
             event.preventDefault();
             this.LEFT = true;
         });
+
         $('imgLeft').addEventListener('touchend', (event) => {
             event.preventDefault();
             this.LEFT = false;
@@ -56,6 +61,7 @@ export default class Keyboard {
             event.preventDefault();
             this.RIGHT = true;
         });
+
         $('imgRight').addEventListener('touchend', (event) => {
             event.preventDefault();
             this.RIGHT = false;
@@ -65,6 +71,7 @@ export default class Keyboard {
             event.preventDefault();
             this.UP = true;
         });
+
         $('imgUp').addEventListener('touchend', (event) => {
             event.preventDefault();
             this.UP = false;
@@ -74,6 +81,7 @@ export default class Keyboard {
             event.preventDefault();
             this.SPACE = true;
         });
+        
         $('imgAction').addEventListener('touchend', (event) => {
             event.preventDefault();
             this.SPACE = false;

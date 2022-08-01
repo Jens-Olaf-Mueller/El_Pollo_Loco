@@ -3,9 +3,9 @@
 * an extending or used class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { updateGameStatus, gameOver, arrIntervals, objAudio } from '../game.js';
+import { updateGameStatus, gameOver, arrIntervals, Sounds } from '../game.js';
 import { loadSettings, saveSettings, gameSettings } from '../settings_mod.js';
-import { playSound, loadArray, random } from '../library.js';
+import { loadArray, random } from '../library.js';
 import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Character extends Mobile {
@@ -81,8 +81,7 @@ export default class Character extends Mobile {
 
     animate () {
         arrIntervals.push(setInterval (() => { 
-            playSound (objAudio['walk'], false);
-            // playSound (objAudio['jump'], false);
+            Sounds.stop('walk');
             if (this.keyboard.RIGHT) this.walk('right');
             if (this.keyboard.LEFT) this.walk('left');
             if (this.keyboard.UP && !this.isAboveGround()) this.jump();
@@ -119,7 +118,7 @@ export default class Character extends Mobile {
     }
 
     walk (direction) {
-        playSound (objAudio['walk'], gameSettings.soundEnabled);
+        Sounds.play('walk');
         let step = (direction == 'right') ? 18 : -18;
         if (direction == 'right') {
             if (this.X < this.environment.eastEnd - CANVAS_WIDTH + this.cameraOffset - 10) this.X += step;
@@ -131,7 +130,7 @@ export default class Character extends Mobile {
     }
 
     jump () {
-        playSound (objAudio['jump'], gameSettings.soundEnabled);
+        Sounds.play('jump');
         let power = Math.round(this.jumpPower / 6.75);
         if (power > 15) power = 15;
         this.speedY = -power;
@@ -156,8 +155,8 @@ export default class Character extends Mobile {
     }    
 
     shoot () {
-        playSound(objAudio['gun'], gameSettings.soundEnabled);
-        playSound(objAudio['shot'], gameSettings.soundEnabled);
+        Sounds.play('gun');
+        Sounds.play('shot');
         this.bullets--;
         this.setNewTimeStamp();
         // hier Accuracy und Trefferquote berechnen & returnieren...!!!
@@ -175,7 +174,7 @@ export default class Character extends Mobile {
         if (item.visible) {
             // still enough money left?
             if (this.coins - item.price >= 0 || item.type == 'beehive') {
-                playSound(objAudio['plopp'], gameSettings.soundEnabled);
+                Sounds.play('plopp');
                 this.energy += parseInt(item.energy);
                 this.accuracy += parseInt(item.accuracy);
                 this.jumpPower += parseInt(item.jumpPower);
@@ -184,7 +183,7 @@ export default class Character extends Mobile {
                 this.adjustProperties(1);
                 item.enabled(false);
             } else {
-                playSound(objAudio['money'], gameSettings.soundEnabled);
+                Sounds.play('money');
             }   
         }
     }
@@ -206,7 +205,7 @@ export default class Character extends Mobile {
         }
 
         if (succeed) {
-            playSound(objAudio['kaching'], gameSettings.soundEnabled);
+            Sounds.play('kaching');
         } else {
             price = 0;
         }
@@ -216,12 +215,12 @@ export default class Character extends Mobile {
     updateItems (item, bonus) {
         if (item.visible) {
             if (item.type == 'coin') {
-                playSound (objAudio['coin'], gameSettings.soundEnabled);
+                Sounds.play('coin');
                 this.coins += item.value;
                 this.score ++;
                 item.enabled(false);
             } else if (item.type == 'bottle' && this.bottles < 10) {
-                playSound (objAudio['bottle'], gameSettings.soundEnabled);
+                Sounds.play('bottle');
                 this.bottles++;
                 this.score += 2;
                 item.enabled(false);                
@@ -229,14 +228,14 @@ export default class Character extends Mobile {
         }
 
         if (bonus) {
-            playSound (objAudio['found'], gameSettings.soundEnabled);
+            Sounds.play('found');
             this.environment.bonus.animate(item.X, item.Y);
             item.contains = null;
             if (item.type == 'chest') {
                 this.keyForChest--;
                 if (this.keyForChest < 0) this.keyForChest = 0;
             }
-            this.parseFoundItem (bonus);
+            this.parseFoundItem(bonus);
             console.log(bonus + ' gefunden...');
         }  
     }
@@ -267,8 +266,7 @@ export default class Character extends Mobile {
                 break;
             case 'drink':
                 this.accuracy += (value - 2) * 5;
-                this.energy += value / 2; 
-                    
+                this.energy += value / 2;                     
                 break;
             case 'chili':
                 this.sharpness += (value - 2) * 5;

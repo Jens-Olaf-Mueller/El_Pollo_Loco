@@ -1,6 +1,7 @@
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 import { getFilename } from '../library.js';
 import { gameSettings } from '../settings_mod.js';
+import { Intervals } from '../game.js';
 
 export default class Mobile {
     X = undefined;
@@ -34,36 +35,22 @@ export default class Mobile {
             let img = new Image(), key = getFilename(path, false);
             img.src = path;
             this.imageCache[name + '_' + key] = img;
-            // console.log('Key: ' + key, 'Path: ' + path )
             z++;
         });
     }
 
     /**
      * moves an object into the given direction
-     * @param {string} direction where we move to [ left | right ]
-     * @param {integer} randomSpeed additional integer value for moving speed
-     * @param {integer} startX only used when loop = true, start loop from X
-     * @param {integer} startY only used when loop = true, start loop from Y
-     * @param {boolean} loop repeat the move or not [ true | false]
      */
-    move (direction, randomSpeed, startX, startY, loop) { 
-        let moveLeft = (direction == 'left'),             // do we move to left or right?
-            pixels = moveLeft ? -this.speed : this.speed; // if left, then negate the speed
-
-        // if a random speed is provided, we add it to the normal speed
-        if (randomSpeed) {
-            if (moveLeft) randomSpeed = -randomSpeed;
-            pixels += randomSpeed;
-        }
-
+    move (direction, loop = true) { 
+        // do we move to the left side...?
+        // if so, then negate the speed
+        let speed = (direction == 'left') ? this.speed * -1 : this.speed; 
         return setInterval(() => {
-            this.X += pixels;
+            this.X += speed;
             if (loop) {
-                if (moveLeft && this.X <= -this.width || !moveLeft && this.X > CANVAS_WIDTH) { 
-                    this.X = startX;
-                    this.Y = startY;
-                }
+                if (speed < 0 && this.X < this.westEnd) this.X = this.eastEnd;
+                if (speed > 0 && this.X > this.eastEnd) this.X = this.westEnd;
             }
         }, 1000 / FPS);
     };
@@ -215,11 +202,9 @@ export default class Mobile {
         return this.delta.Y1 - this.delta.Y0 < 0;
     }
 
-    isClose (enemyType) {
-        // find all endbosses in the current level...
-        const bosses = this.environment.arrEnemies.filter(e => {
-            return (e.type == enemyType);
-        });        
+    isCloseEnemy (enemyType) {
+        // get all endbosses in the current level...
+        const bosses = this.environment.getAllEndbosses();       
         // now check, if one of them is close enough for a hit
         let retVal = false;
         bosses.forEach(boss => {            
@@ -227,7 +212,7 @@ export default class Mobile {
                 distance = PepeIsLeft ? boss.X - (this.X + this.width) : this.X - (boss.X + boss.width);
             if (PepeIsLeft && !this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 1.5 || 
                 !PepeIsLeft && this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 4) {
-                    retVal = true;
+                    retVal = boss;
                     return;
             }
         });
