@@ -177,7 +177,7 @@ export default class World {
     checkEnemyCollisions () {        
         this.level.Enemies.forEach((enemy) => {
             if (enemy.isAlive()) {   
-                let collision = this.Pepe.isColliding(enemy);       
+                let collision = this.Pepe.isColliding(enemy); 
                 if (collision == COLL_TOP) {
                     if (enemy instanceof Chicken || enemy instanceof Chicklet) {
                         Sounds.play(enemy.type);

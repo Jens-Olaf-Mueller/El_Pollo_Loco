@@ -257,9 +257,9 @@ export default class Mobile {
      * @returns false | null for no collision; 12 | 3 | 6 | 9 for clockwise side
      */
     isColliding (obj) {
-        if (!(this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width) && 
+        if (!((this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width) && 
              (this.Y + this.offsetY + this.height) >= obj.Y &&
-             (this.Y + this.offsetY) <= (obj.Y + obj.height) && obj.onCollisionCourse) {
+             (this.Y + this.offsetY) <= (obj.Y + obj.height) && obj.onCollisionCourse)) {
             return false;
         }
         return this.getCollisionSide(obj);             
