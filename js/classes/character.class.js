@@ -190,21 +190,22 @@ export default class Character extends Mobile {
 
     buyItems () {        
         let price = parseInt((1 + Math.random() * 100) * this.environment.levelNo * 10),
-            succeed = false, amount;
-        if (this.energy < 50 && this.coins - price >= 0) {
+            enoughMoney = false, amount;
+        if (this.energy < 50) {
             amount = parseInt(120 - this.energy);
-            this.parseFoundItem('medicine' + amount);
-            succeed = true;
-        } else if (this.gun == false && this.coins >= this.environment.levelNo * 1000) {
-            this.parseFoundItem('gun');
-            succeed = true;
+            enoughMoney = (this.coins >= price);
+            if (enoughMoney) this.parseFoundItem('medicine' + amount);
+        } else if (this.gun == false) {
+            price = this.environment.levelNo * 1000;
+            enoughMoney = (this.coins >= price);
+            if (enoughMoney) this.parseFoundItem('gun');
         } else if (this.gun && this.bullets < 6) {
             amount = parseInt(6 - this.bullets);
-            this.parseFoundItem('bullet' + amount);            
-            succeed = true;
+            enoughMoney = (this.coins >= price);
+            if (enoughMoney) this.parseFoundItem('bullet' + amount); 
         }
 
-        if (succeed) {
+        if (enoughMoney) {
             Sounds.play('kaching');
         } else {
             price = 0;

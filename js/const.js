@@ -15,6 +15,12 @@ const CANVAS_WIDTH = 720;
 // const CANVAS_HEIGHT = document.getElementById('canvas').getBoundingClientRect().height;
 // const CANVAS_WIDTH = document.getElementById('canvas').getBoundingClientRect().width;
 
+// collision constants clockwise (or binary: 1, 2, 4, 8... ?)
+const COLL_TOP = 12,
+      COLL_RIGHT = 3,
+      COLL_BOTTOM = 6,
+      COLL_LEFT = 9;
+
 // icons for tatusbar
 const ICON_ENERGY = document.getElementById('imgEnergy'),
       ICON_JUMP = document.getElementById('imgJump'),
@@ -87,10 +93,11 @@ export const DEFAULT_SETTINGS = {
 }
 
 export { APP_NAME, PEPE, 
-         SOUNDS, SONG_TITLES,
-         FPS, 
-         CANVAS_HEIGHT, CANVAS_WIDTH,  
-         ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS,          
-         IMG_GAMEOVER, 
-         IMG_START };
+        SOUNDS, SONG_TITLES,
+        FPS, 
+        CANVAS_HEIGHT, CANVAS_WIDTH,  
+        ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS,          
+        IMG_GAMEOVER, 
+        IMG_START,
+        COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT };
 export { canvasParent, homeScreen, introScreen ,canvasDiv, navBar, statusBar };

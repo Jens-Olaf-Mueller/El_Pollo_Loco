@@ -13,7 +13,7 @@ import Bottle from './bottle.class.js';
 import Seed from './seed.class.js';
 import IntervalListener from './intervals.class.js';
 
-import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent } from '../const.js';
+import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
 import { showIntroScreen, updateGameStatus, arrIntervals, pauseGame, Sounds, Intervals } from '../game.js';
 import { saveSettings, gameSettings } from '../settings_mod.js';
 import { random, sleep } from '../library.js';
@@ -147,9 +147,10 @@ export default class World {
     plot (object) {
         if (Array.isArray(object)) {
             object.forEach(obj => {
-                if (obj.isMirrored) this.flipImage(obj);
-                obj.draw(this.ctx, gameSettings.showFrame && gameSettings.debugMode);
-                if (obj.isMirrored) this.flipImage(obj, true);
+                this.plot(obj); // recursive call!
+                // if (obj.isMirrored) this.flipImage(obj);
+                // obj.draw(this.ctx, gameSettings.showFrame && gameSettings.debugMode);
+                // if (obj.isMirrored) this.flipImage(obj, true);
             });
         } else { // just to avoid confusions: we got a single object here!
             if (object.isMirrored) this.flipImage(object);
@@ -175,48 +176,46 @@ export default class World {
      */
     checkEnemyCollisions () {        
         this.level.Enemies.forEach((enemy) => {
-            if (this.Pepe.isColliding(enemy) && enemy.isAlive()) {
-
-                // if (this.Pepe.isFalling()) {
-                //     console.log('Pepe kommt von oben...' );
-                //     console.log('Delta: ', this.Pepe.delta.Y1 - this.Pepe.delta.Y0 )
-                // }
-
-                if (this.Pepe.isAboveGround()) {
-                // if (this.Pepe.isFalling()) {
+            if (enemy.isAlive()) {   
+                let collision = this.Pepe.isColliding(enemy);       
+                if (collision == COLL_TOP) {
                     if (enemy instanceof Chicken || enemy instanceof Chicklet) {
+                        Sounds.play(enemy.type);
+                        enemy.remove('dead');                        
+                        this.enlargeChickens(parseInt(gameSettings.chickenEnlargement)); 
+                        let score = this.levelNo * 10;                      
                         // killed a friendly chicken ?!
                         if (enemy.isFriendly) {
+                            score = score * -2;
                             for (let i = 0; i < this.levelNo * 2; i++) {
                                 this.level.createChicklets(1, enemy.X + random(70,300))
                             }                            
-                        }
-                        Sounds.play(enemy.type);
-                        enemy.remove('dead');                        
-                        this.enlargeChickens(parseInt(gameSettings.chickenEnlargement));
-                        this.Pepe.score += this.levelNo * 10;
-                        
+                        }                         
+                        this.Pepe.score += score;
                     } else if (enemy instanceof Spider || enemy instanceof Scorpion) { 
                         Sounds.play('splat');
                         this.Pepe.score += parseInt(this.levelNo * enemy.damage);
                         enemy.remove('dead');
                     }
-                } else if (!enemy.isFriendly) {
-                    // if we met a snake and can shoot it...
-                    if (enemy instanceof Snake && this.keyboard.SPACE && this.Pepe.canShoot()) {
-                        this.Pepe.shoot();
-                        if (this.Pepe.hitSuccessful()) {
-                            this.Pepe.score += parseInt(this.levelNo * enemy.damage);
-                            enemy.remove('dead');
-                        }
-                    } else {
-                        this.Pepe.hit(enemy.damage);
-                        if (!this.Pepe.isDead()) Sounds.play('ouch');
-                    }                    
+                } else if (collision) { // any other collision, no matter from what side
+                     if (!enemy.isFriendly) {
+                        // if we met a snake and can shoot it...
+                        if (enemy instanceof Snake && this.keyboard.SPACE && this.Pepe.canShoot()) {
+                            this.Pepe.shoot();
+                            if (this.Pepe.hitSuccessful()) {
+                                this.Pepe.score += parseInt(this.levelNo * enemy.damage);
+                                enemy.remove('dead');
+                            } else {
+                                Sounds.play('ricochet');
+                            }
+                        } else {
+                            this.Pepe.hit(enemy.damage);
+                            if (!this.Pepe.isDead()) Sounds.play('ouch');
+                        }                    
+                    }
+                    // play sounds of bees and snakes... 
+                    if (enemy instanceof Bees || enemy instanceof Snake) Sounds.play(enemy.type);
                 }
-                // play sounds of bees and snakes... 
-                if (enemy instanceof Bees || enemy instanceof Snake) Sounds.play(enemy.type);
-                // if (!enemy.isFriendly) Sounds.play(enemy.type);
             }
         });
     }

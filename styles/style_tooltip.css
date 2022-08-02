@@ -9,7 +9,7 @@
 .tooltip::before,
 .tooltip::after {
     --scale: 0;
-    --arrow-size: 10px;
+    --arrow-size: 16px;
     --tooltip-color: #4f2816; /* #333;*/
     --text-color: #c49961;
   

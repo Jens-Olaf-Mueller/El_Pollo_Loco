@@ -1,4 +1,4 @@
-import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
+import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
 import { getFilename } from '../library.js';
 import { gameSettings } from '../settings_mod.js';
 import { Intervals } from '../game.js';
@@ -6,6 +6,8 @@ import { Intervals } from '../game.js';
 export default class Mobile {
     X = undefined;
     Y = undefined;
+    width = undefined;
+    height = undefined;
     speed = 0.15;           // default speed
     speedY = 0;             // gravity acceleration
     delta = {t0: null,      // to determine if we are falling (for check collision from above)
@@ -250,15 +252,49 @@ export default class Mobile {
     }
 
     /**
-     * detects if the given objects collides with the caracter.
+     * detects if the given object collides with the caracter.
      * @param {class} object to check collision with
-     * @returns true | false
+     * @returns false | null for no collision; 12 | 3 | 6 | 9 for clockwise side
      */
     isColliding (obj) {
-        return  (this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width) && 
-                (this.Y + this.offsetY + this.height) >= obj.Y &&
-                (this.Y + this.offsetY) <= (obj.Y + obj.height) && obj.onCollisionCourse;
-                
+        if (!(this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width) && 
+             (this.Y + this.offsetY + this.height) >= obj.Y &&
+             (this.Y + this.offsetY) <= (obj.Y + obj.height) && obj.onCollisionCourse) {
+            return false;
+        }
+        return this.getCollisionSide(obj);             
+    }
+
+    /**
+     * helper function for  => isColliding.
+     * determines, from which side a collision takes place
+     * @param {object} obj 
+     * @returns COLL_TOP(12), COLL_RIGHT(3), COLL_BOTTOM(6), COLL_LEFT(9)
+     */
+    getCollisionSide (obj) {
+        // Calculate the distance between centers
+        let diffX = this.center().left - obj.center().left,
+            diffY = this.center().top - obj.center().top;
+        // Calculate the minimum distance to separate along X and Y
+        let minDistX = this.width / 2 + obj.width / 2,
+            minDistY = this.height / 2 + obj.height / 2;    
+        // Calculate the depth of collision for both the X and Y axis
+        let depthX = diffX > 0 ? minDistX - diffX : -minDistX - diffX,
+            depthY = diffY > 0 ? minDistY - diffY : -minDistY - diffY;
+    
+        // having the depth, pick the smaller depth and move along that axis
+        if (depthX != 0 && depthY != 0) {
+            // Collision along the X-axis...
+            if (Math.abs(depthX) < Math.abs(depthY)) {                
+                if (depthX > 0) return COLL_LEFT;
+                return COLL_RIGHT;
+            // Collision along the Y-axis...    
+            } else { 
+                if (depthY > 0) return COLL_TOP;
+                return COLL_BOTTOM;
+            }
+        }
+        return null;
     }
 
     isInFrontOfShop (obj) {
@@ -270,9 +306,7 @@ export default class Mobile {
         this.gravarityID = clearInterval (this.gravarityID);
         this.animationID = clearInterval (this.animationID);
         this.moveID = clearInterval (this.moveID);
-        this.Y = CANVAS_HEIGHT * -1; // move the object out of the screen
-
-        // console.log(`Animation von ${this.name} ausgeschaltet...`)      
+        this.Y = CANVAS_HEIGHT * -1; // move the object out of the screen     
     }
 
     top () {
@@ -289,5 +323,12 @@ export default class Mobile {
 
     right () {
         return this.X + this.width;
+    }
+
+    center () {
+        return {
+            top: this.Y + this.height / 2,
+            left: this.X + this.width / 2            
+        }
     }
 }
