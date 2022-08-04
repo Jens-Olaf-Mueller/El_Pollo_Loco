@@ -1,7 +1,7 @@
 import Enemy from './enemy.class.js';
 import { loadArray, random } from '../library.js';
-import { FPS, CANVAS_WIDTH } from '../const.js';
-import { arrIntervals } from "../game.js";
+import { FPS } from '../const.js';
+import { Intervals } from "../game.js";
 
 export default class Scorpion extends Enemy {
     height = 40;
@@ -12,7 +12,6 @@ export default class Scorpion extends Enemy {
         super (level,'Scorpion', index);
         this.damage = 2 + Math.random() * level.levelNo;
         this.initialize();
-        this.animate('scorpion');
     }
 
     initialize () {
@@ -21,15 +20,14 @@ export default class Scorpion extends Enemy {
         this.arrAnimation.push('./img/Obstracles/Animals/Spiders/dead.png');
         this.loadImageCache (this.arrAnimation, this.name);
         this.setPosition(random(1, 30));
+        this.scorpionAnimation(this, 'scorpion', 60000);
     }
 
-    animate (animationKey) {
-        if (this.isAlive) {
-
-            this.animationID = setInterval(() => {
-                this.playAnimation(this.arrAnimation, animationKey);                 
-            }, 60000 / FPS);
-            arrIntervals.push(this.animationID);
-        } 
+    scorpionAnimation (context, subkey, milliseconds) {
+        Intervals.add (
+            function scorpionAnimation() {
+                context.playAnimation(context.arrAnimation, subkey)
+            }, milliseconds / FPS, [context]
+        );
     }
 }

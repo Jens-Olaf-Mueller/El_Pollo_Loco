@@ -11,7 +11,7 @@ export default class Chicken extends Enemy {
     constructor (level, index) { 
         super(level, 'Chicken', index);
         this.initialize();
-        this.animate('wlk');
+        this.animate('wlk', this);
     };  
 
     initialize () {

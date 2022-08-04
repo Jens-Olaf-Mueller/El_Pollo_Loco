@@ -1,5 +1,5 @@
 import Mobile from './mobile.class.js';
-import { arrIntervals } from "../game.js";
+import { arrIntervals, Intervals } from "../game.js";
 import { FPS, CANVAS_WIDTH } from '../const.js';
 import { random } from '../library.js';
 
@@ -24,7 +24,7 @@ export default class Enemy extends Mobile {
     animationID = undefined;
     moveID = undefined;
 
-    constructor (level, name, index = 0) { 
+    constructor (level, name, index) { 
         super();
         this.name = name + ' ' + index; // ' ' = SHIFTSPACE [ALT+0160]
         this.type = name.toLowerCase();
@@ -34,13 +34,23 @@ export default class Enemy extends Mobile {
         this.speed = this.defaultSpeed + Math.random() * 0.85;     
     }; 
 
-    animate (animationKey) {
+    animate (animationKey, context, milliseconds = 12000) {
         if (this.isAlive) {
-            this.moveID = this.move('left');
-            this.animationID = setInterval(() => {
-                this.playAnimation(this.arrAnimation, animationKey);                 
-            }, 12000 / FPS);
-            arrIntervals.push(this.moveID, this.animationID);
+            // this.moveID = this.move('left');
+
+            this.moving (this,'left');
+
+            // this.animationID = setInterval(() => {
+            //     this.playAnimation(this.arrAnimation, animationKey);                 
+            // }, 12000 / FPS);
+
+            // arrIntervals.push(this.moveID);
+
+            Intervals.add (
+                function enemyAnimation() {
+                    context.playAnimation(context.arrAnimation, animationKey)
+                }, milliseconds / FPS, [context]
+            );
         } 
     }
 
@@ -68,6 +78,9 @@ export default class Enemy extends Mobile {
         if (this.type == 'bees') return;
         this.animationID = clearInterval(this.animationID);
         this.moveID = clearInterval(this.moveID);
+
+        Intervals.remove(this.name);
+
         this.damage = 0;
         this.energy = 0;
         this.speed = 0; 

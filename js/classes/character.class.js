@@ -3,7 +3,7 @@
 * an extending or used class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { updateGameStatus, gameOver, arrIntervals, Sounds } from '../game.js';
+import { updateGameStatus, gameOver, arrIntervals, Sounds, Intervals } from '../game.js';
 import { loadSettings, saveSettings, gameSettings } from '../settings_mod.js';
 import { loadArray, random } from '../library.js';
 import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
@@ -97,7 +97,7 @@ export default class Character extends Mobile {
     runAnimationInterval () {
         return setInterval (() => {
             if (this.isDead()) {
-                if (this.timeElapsed(this.diedAt) < 2.5) {    
+                if (this.timeElapsed(this.diedAt) < 2.25) {    
                     this.playAnimation (this.arrAnimation,'die');
                 } else {
                     gameOver();

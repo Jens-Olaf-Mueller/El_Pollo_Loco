@@ -14,7 +14,7 @@ import Seed from './seed.class.js';
 import IntervalListener from './intervals.class.js';
 
 import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
-import { showIntroScreen, updateGameStatus, arrIntervals, pauseGame, Sounds, Intervals } from '../game.js';
+import { showIntroScreen, updateGameStatus, arrIntervals, pauseGame, resumeGame, Sounds, Intervals } from '../game.js';
 import { saveSettings, gameSettings } from '../settings_mod.js';
 import { random, sleep } from '../library.js';
 
@@ -29,7 +29,7 @@ export default class World {
     eastEnd;
     westEnd;
     groundY = 150;
-    gamePaused = false;
+    gamePaused = undefined;
     levelUp = false;
     fullscreen = false;
 
@@ -53,7 +53,8 @@ export default class World {
         this.ctx = canvas.getContext('2d');        
         this.keyboard = keyboard;
         this.levelNo = gameSettings.lastLevel;
-        this.Pepe = new Character(this);                
+        this.Pepe = new Character(this); 
+        this.gamePaused = undefined;               
         this.initLevel (this.levelNo);
         this.draw();
         this.mainID = this.run();
@@ -102,13 +103,14 @@ export default class World {
             this.checkForShopping();
             this.checkActions();  
             this.checkKeyboard();
+            // this.checkForPause();
             updateGameStatus (this.Pepe);
             // levelUp is set in checkBottelCollisions()
             if (this.levelUp) {
                 this.levelUp = false;
                 this.nextLevel();
             }         
-        }, 250);
+        }, 200);
     }
 
     /**
@@ -187,9 +189,7 @@ export default class World {
                         // killed a friendly chicken ?!
                         if (enemy.isFriendly) {
                             score = score * -2;
-                            for (let i = 0; i < this.levelNo * 2; i++) {
-                                this.level.createChicklets(1, enemy.X + random(70,300))
-                            }                            
+                            this.level.createChicklets(this.levelNo * 2 + 1, enemy.X + random(70,300))           
                         }                         
                         this.Pepe.score += score;
                     } else if (enemy instanceof Spider || enemy instanceof Scorpion) { 
@@ -305,7 +305,7 @@ export default class World {
                         Sounds.play('glass');
                     }                   
                 }
-                this.levelUp = this.checkForEndbossKilled (enemy);
+                this.levelUp = this.allEndbossesKilled (enemy);
                 if (this.levelUp) return;
             }
         });
@@ -321,7 +321,7 @@ export default class World {
         return allBosses;
     }
 
-    checkForEndbossKilled (boss) {
+    allEndbossesKilled (boss) {
         if (boss.isDead()) {
             let timeElapsed = new Date().getTime();
             if (timeElapsed - boss.diedAt > 3) {
@@ -349,7 +349,7 @@ export default class World {
     /**
      * checks for several actions with SPACE-key:
      * - throwing a bottle
-     * - shooting
+     * - shooting (if no bottles available but a loaded gun)
      */
     checkActions() {
         if (this.keyboard.SPACE) {
@@ -361,7 +361,7 @@ export default class World {
                     this.Pepe.shoot();
                     if (this.Pepe.hitSuccessful()) {
                         boss.energy = 0;
-                        this.levelUp = this.checkForEndbossKilled(boss);
+                        this.levelUp = this.allEndbossesKilled(boss);
                     } else {
                         Sounds.play('ricochet');
                     }
@@ -386,9 +386,15 @@ export default class World {
             this.Pepe.seeds--;
             this.Pepe.setNewTimeStamp();
         } else if (this.keyboard.P_KEY) {
-        // pause game...       
-            this.gamePaused = !this.gamePaused;
-            pauseGame();
+        // pause game...
+            // on game start we set the flag explicit...
+            if (this.gamePaused === undefined) {
+                this.gamePaused = true;
+                Intervals.stop();
+            } else if (this.gamePaused == true) { // ... then we toggle it!
+                this.gamePaused = undefined;
+                Intervals.start();
+            }           
         } else if (this.keyboard.S_KEY) {
         // save game...
             saveSettings(APP_NAME,this.Pepe)
@@ -399,13 +405,23 @@ export default class World {
         } else if (this.keyboard.F8_KEY) {
         // fullscreen mode...
             this.fullscreen = !this.fullscreen;
-            if (this.fullscreen) {
+            // if (this.fullscreen) {
                 canvasParent.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
+            // } else {
+            //     document.exitFullscreen();
+            // }
         }         
     }
+
+    // checkForPause () {
+    //     if (this.gamePaused === true) {
+    //         Intervals.stop();
+    //         pauseGame();
+    //     } else if (this.gamePaused === false) { // important: NOT 'undefined' !!!
+    //         debugger
+    //         resumeGame();
+    //     }   
+    // }
 
     showPauseScreen() {
         this.ctx.fillStyle = 'navy';

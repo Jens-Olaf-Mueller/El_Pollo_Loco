@@ -112,7 +112,7 @@ export default class Level {
 
     initClouds () {
         for (let i = 1; i < 3; i++) {
-            this.Clouds.push(new Cloud(this));
+            this.Clouds.push(new Cloud(this, i));
         }
     }
 

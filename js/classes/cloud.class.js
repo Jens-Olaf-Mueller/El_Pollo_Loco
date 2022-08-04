@@ -3,10 +3,11 @@
 * the extending class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { arrIntervals, Intervals } from '../game.js';
+import { Intervals } from '../game.js';
 import { FPS } from '../const.js';
 
-export default class Cloud extends Mobile { 
+export default class Cloud extends Mobile {
+    name = ''; 
     type = 'cloud';
     height = 300;
     width = 500;
@@ -16,39 +17,27 @@ export default class Cloud extends Mobile {
     eastEnd = undefined;
     westEnd = undefined;
 
-    constructor (level) {
+    constructor (level, index) {
         super().loadImage('./img/Background/layers/clouds/2.png');
+        this.name = 'cloud' + index;
         this.eastEnd = level.eastEnd;
         this.westEnd = level.westEnd; 
-        this.initialize();
-        this.animate();
+        this.initialize();        
     };   
 
     initialize() {
         this.X = Math.random() > 0.5 ? Math.random() * this.eastEnd : Math.random() * this.westEnd;
         this.Y = 1 + Math.random() * 16;
-        this.speed = Math.random() * -0.125;
+        this.speed = 0.125 + Math.random() * 0.25;
+        this.moveLeft(this);
     }
 
-    animate () {
-        arrIntervals.push(this.move('left',true));
-        // this.moveLeft(this.X, this.speed, this.eastEnd);
-    }
-
-    moveLeft (pX, speed, eastend) {
+    moveLeft (context) {
         Intervals.add(
-            function moveLeft(pX, speed, eastend) {
-                pX += speed;
-                if (pX < -eastend) pX = eastend;
-                console.log('X ist: ' , pX );
-            }, 1000 / FPS, [pX, speed, eastend, this]
-        )
+            function moveLeft() {
+                context.X -= context.speed;
+                if (context.X < context.westEnd) context.X = context.eastEnd;
+            }, 1000 / FPS, [context]
+        );
     }
-
-    // setInterval(function moveLeft(pX, speed, eastend){
-    //     console.log(a + b +c); 
-    // }, 500, 1,2,3);
-
-    // note the console will  print 6
-    // here we are passing 1,2,3 for a,b,c arguments
 }

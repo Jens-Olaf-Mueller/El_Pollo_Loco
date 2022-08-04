@@ -1,7 +1,7 @@
 import Enemy from './enemy.class.js';
 import { loadArray, random } from '../library.js';
-import { FPS, CANVAS_WIDTH } from '../const.js';
-import { arrIntervals } from "../game.js";
+import { FPS } from '../const.js';
+import { Intervals } from "../game.js";
 
 export default class Spider extends Enemy {
     height = 40;
@@ -11,8 +11,7 @@ export default class Spider extends Enemy {
     constructor (level, index = 1) {
         super (level,'Spider', index);
         this.damage = 2 + Math.random() * level.levelNo;
-        this.initialize();
-        this.animate('spider');
+        this.initialize();        
     }
 
     initialize () {
@@ -21,15 +20,14 @@ export default class Spider extends Enemy {
         this.arrAnimation.push('./img/Obstracles/Animals/Spiders/dead.png');
         this.loadImageCache (this.arrAnimation, this.name);
         this.setPosition(random(1, 30));
+        this.spiderAnimation(this, 'spider', 60000);
     }
 
-    animate (animationKey) {
-        if (this.isAlive) {
-
-            this.animationID = setInterval(() => {
-                this.playAnimation(this.arrAnimation, animationKey);                 
-            }, 60000 / FPS);
-            arrIntervals.push(this.animationID);
-        } 
+    spiderAnimation (context, subkey, milliseconds) {
+        Intervals.add (
+            function spiderAnimation() {
+                context.playAnimation(context.arrAnimation, subkey)
+            }, milliseconds / FPS, [context]
+        );
     }
 }

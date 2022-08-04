@@ -65,6 +65,7 @@ export async function gameOver () {
     stopIntervals();
     saveSettings(APP_NAME, world.Pepe); 
     Sounds.fade(gameSettings.lastSong, 0);
+    Sounds.stop('walk', true);
     await sleep(1000);
     Sounds.play('gameover');
     world = undefined;   
@@ -111,6 +112,8 @@ function stopIntervals (interval) {
         clearInterval(interval);
         return;
     }
+
+
     for (let i = 0; i < arrIntervals.length; i++) {
         const interval = arrIntervals[i];
         clearInterval(interval);
@@ -121,12 +124,18 @@ function stopIntervals (interval) {
 }
 
 export function pauseGame () {
-    for (let i = 0; i < arrIntervals.length; i++) {
-        const interval = arrIntervals[i];
-        clearInterval(interval);
-    }
+    // for (let i = 0; i < arrIntervals.length; i++) {
+    //     const interval = arrIntervals[i];
+    //     clearInterval(interval);
+    // }
     Sounds.stop(gameSettings.lastSong);
-    arrIntervals = [];
+    // arrIntervals = [];
+
+    Intervals.stop();
+}
+
+export function resumeGame() {
+    Intervals.start();
 }
 
 function setEventListeners () {
@@ -139,15 +148,14 @@ function setEventListeners () {
         console.log('Accuracy: ' + world.Pepe.accuracy);
         console.log('Sharpness: ' + world.Pepe.sharpness);
     });
+    
     window.addEventListener('resize', () => {
         console.log('Fenstergrösse geändert...' )
+        // // $('divCanvas')
+        // canvas.width = canvasDiv.clientWidth;
+        // canvas.height = canvasDiv.clientHeight;
     });
 }
-
-// function removeEventListener (id) {
-    // comes later
-    // id must be given in 'setEventListeners' function, say as variable
-// }
 
 export function updateGameStatus (pepe) {
     ICON_JUMP.src = arrJumpIcons[getImageIndex(pepe.jumpPower)]; 

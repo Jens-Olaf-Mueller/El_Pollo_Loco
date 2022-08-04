@@ -44,18 +44,43 @@ export default class Mobile {
     /**
      * moves an object into the given direction
      */
-    move (direction, loop = true) { 
-        // do we move to the left side...?
-        // if so, then negate the speed
-        let speed = (direction == 'left') ? this.speed * -1 : this.speed; 
-        return setInterval(() => {
-            this.X += speed;
-            if (loop) {
-                if (speed < 0 && this.X < this.westEnd) this.X = this.eastEnd;
-                if (speed > 0 && this.X > this.eastEnd) this.X = this.westEnd;
-            }
-        }, 1000 / FPS);
-    };
+    // move (direction, loop = true) { 
+    //     // do we move to the left side...?
+    //     // if so, then negate the speed
+    //     let speed = (direction == 'left') ? this.speed * -1 : this.speed; 
+    //     return setInterval(() => {
+    //         this.X += speed;
+    //         if (loop) {
+    //             if (speed < 0 && this.X < this.westEnd) this.X = this.eastEnd;
+    //             if (speed > 0 && this.X > this.eastEnd) this.X = this.westEnd;
+    //         }
+    //     }, 1000 / FPS);
+    // };
+
+    moving (context, direction, milliseconds = 1000, loop = true) {
+        Intervals.add (
+            function move() {
+                let speed = (direction == 'left') ? Math.abs(context.speed) * -1 : Math.abs(context.speed);
+                context.X += speed;
+                // if (context.name.includes('Chicken')) debugger
+                if (loop) {
+                    if (speed < 0 && context.X < context.westEnd) context.X = context.eastEnd;
+                    if (speed > 0 && context.X > context.eastEnd) context.X = context.westEnd;
+                }
+
+            }, milliseconds / FPS, [context], direction, loop
+        );
+    }
+
+
+    // moveLeft (context) {
+    //     Intervals.add(
+    //         function moveLeft() {
+    //             context.X -= context.speed;
+    //             if (context.X < context.westEnd) context.X = context.eastEnd;
+    //         }, 1000 / FPS, [context]
+    //     )
+    // }
 
     moveUp (startX, speed = 1) {
         return setInterval(() => {
@@ -121,8 +146,7 @@ export default class Mobile {
     /**
      * plays an animation from the given array of pictures     * 
      * @param {string} arrImages string array containing the path for the images
-     * @param {string} subkey creates together with name and index the key of the image in 'imageCache'
-     * @var {string} key for the json-array 'imageCache', created from name and image-index number  
+     * @param {string} subkey creates together with name and index the key of the image in 'imageCache' 
      */
     playAnimation (arrImages, subkey = 'wlk') {  
         const arr = arrImages.filter(img => {return img.includes(subkey)});      
@@ -130,8 +154,6 @@ export default class Mobile {
         if (this.imgIndex >= arr.length) this.imgIndex = 0;
         let key = this.name + '_' + subkey + this.imgIndex;        
         this.image = this.imageCache[key];
-
-        // if (this.type == 'bees' && this.isMirrored) console.log('Bienen fliegen nach rechts...'  )
         
         // for debugging only !!
         if (this.image == undefined) {
