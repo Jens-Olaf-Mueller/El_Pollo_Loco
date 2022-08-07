@@ -152,7 +152,7 @@ export function updateGameStatus (pepe) {
     $('#divCoin >label').innerText = pepe.coins;
     $('#divBottle >label').innerText = pepe.bottles;        
     $('divScore').innerText = 'Score: ' + parseInt(pepe.score);
-    $('imgLevel').src = `./img/Status/Level/${world.levelNo}.png`;
+    $('divLevel').innerText = pepe.environment.levelNo;
     $('divBullet').classList.toggle('hidden',(!pepe.bullets && !pepe.gun));
     $('#divBullet >label').innerText = pepe.bullets;
     $('imgKey').classList.toggle('hidden', !pepe.keyForChest);    

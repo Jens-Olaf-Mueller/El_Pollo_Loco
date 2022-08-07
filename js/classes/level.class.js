@@ -87,6 +87,8 @@ export default class Level {
         this.Items.push(...this.add (1, Item, 'shop', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
         this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
+
+        count = this.getLevelBalance(2,16,4); 
         this.Items.push(...this.add (16, Item, 'misc', 'Items/Misc'));        
         // make sure we got at least one key and gun in each level!
         this.hideItem('key','jar');
@@ -190,21 +192,21 @@ export default class Level {
     /**
      * calculates the balance (amount) for the items, obstracles etc.
      * to be created  for each level
-     * @param {number} limit minimum of level number to take effect
+     * @param {number} minLevel minimum of level number to take effect
      * @param {*} maxValue maximum value that is returned
      * @param {*} minValue minimum value as fallback to be returned 
      * @param {*} step counter backwards
      * @returns 
      */
-    getLevelBalance (limit, maxValue, minValue = 1, step = 1) {
-        while (limit > this.levelNo) {
+    getLevelBalance (minLevel, maxValue, minValue = 1, step = 1) {
+        while (minLevel > this.levelNo) {
             maxValue -=step;
             if (maxValue < minValue) {
                 maxValue = minValue;
                 break;
             }
-            limit -= step;
-            if (limit <= 0) break;
+            minLevel -= step;
+            if (minLevel <= 0) break;
         }
         return maxValue;
     }

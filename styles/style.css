@@ -217,7 +217,7 @@ canvas {
     background-color: var(--ctrl-color);    
 }
 
-#imgLevel {
+#divLevel {
     position: absolute;
     top: 0.33rem;
     right: 0.33rem;
@@ -226,7 +226,13 @@ canvas {
     border: 4px double black;
     border-radius: 100%;
     padding: 0.15rem;
+    font-size: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: tomato;
 }
+
 
 .mobile-navbar {
     display: flex;
