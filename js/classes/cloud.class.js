@@ -36,7 +36,7 @@ export default class Cloud extends Mobile {
         Intervals.add(
             function moveLeft() {
                 context.X -= context.speed;
-                if (context.X < context.westEnd) context.X = context.eastEnd;
+                if (context.X + context.width < context.westEnd) context.X = context.eastEnd;
             }, 1000 / FPS, [context]
         );
     }

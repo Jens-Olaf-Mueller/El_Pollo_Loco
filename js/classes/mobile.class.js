@@ -10,11 +10,6 @@ export default class Mobile {
     height = undefined;
     speed = 0.15;           // default speed
     speedY = 0;             // gravity acceleration
-    delta = {t0: null,      // to determine if we are falling (for check collision from above)
-             Y0: 0,
-             t1: null,
-             Y1: 0
-    }
     acceleration = 0.5;
 
     image = undefined;
@@ -28,7 +23,7 @@ export default class Mobile {
 
     loadImage(path) {
         if (this.image === undefined) this.image = new Image();
-        this.image.src = path;
+        this.image.src = (path === undefined) ? '' : path;
     }
 
     loadImageCache (arr, name) {
@@ -44,59 +39,21 @@ export default class Mobile {
     /**
      * moves an object into the given direction
      */
-    // move (direction, loop = true) { 
-    //     // do we move to the left side...?
-    //     // if so, then negate the speed
-    //     let speed = (direction == 'left') ? this.speed * -1 : this.speed; 
-    //     return setInterval(() => {
-    //         this.X += speed;
-    //         if (loop) {
-    //             if (speed < 0 && this.X < this.westEnd) this.X = this.eastEnd;
-    //             if (speed > 0 && this.X > this.eastEnd) this.X = this.westEnd;
-    //         }
-    //     }, 1000 / FPS);
-    // };
-
-    moving (context, direction, milliseconds = 1000, loop = true) {
+    move (context, direction, milliseconds = 1000, loop = true) {
         Intervals.add (
             function move() {
                 let speed = (direction == 'left') ? Math.abs(context.speed) * -1 : Math.abs(context.speed);
                 context.X += speed;
-                // if (context.name.includes('Chicken')) debugger
-                if (loop) {
-                    if (speed < 0 && context.X < context.westEnd) context.X = context.eastEnd;
+                if (loop == true) {
+                    if (speed < 0 && context.X + context.width < context.westEnd) context.X = context.eastEnd;
                     if (speed > 0 && context.X > context.eastEnd) context.X = context.westEnd;
                 }
-
             }, milliseconds / FPS, [context], direction, loop
         );
     }
 
-
-    // moveLeft (context) {
-    //     Intervals.add(
-    //         function moveLeft() {
-    //             context.X -= context.speed;
-    //             if (context.X < context.westEnd) context.X = context.eastEnd;
-    //         }, 1000 / FPS, [context]
-    //     )
-    // }
-
-    moveUp (startX, speed = 1) {
-        return setInterval(() => {
-            this.X = startX;
-            this.Y -= speed;
-            if (this.Y + this.height < 0) this.hide(); // hide when top of the screen is reached
-        }, 1000 / FPS);
-    }
-
     draw (ctx, showframe) {
         try {
-            if(this.image.src.toString().includes('undefined')  ) {
-                debugger;
-            }
-            // console.log('Image.src = ' + this.image.src )
-
             ctx.drawImage(this.image, this.X, this.Y, this.width, this.height);
             if (this.type == 'chicken') this.displayHeart(ctx);
             if (showframe) this.displayFrame (ctx);
@@ -118,29 +75,40 @@ export default class Mobile {
      */
     displayFrame (ctx) {
         if (this.name) {
-            let isPepe = this.name == 'Pepe',
-                name = isPepe ? '' : this.name + ' ',
-                offsetY = isPepe ? this.offsetY : 0,
-                showTop = isPepe ? `    Top: ${this.Y + offsetY}` : '';
-            if (isPepe || this.type == 'chicken' || this.type == 'endboss' || this.type == 'seed') {
+            if (this.name == 'Pepe' || this.type == 'chicken' || this.type == 'endboss') {
+                let offsetY = this.name == 'Pepe' ? this.offsetY : 0,
+                    cordsRequired = this.name == 'Pepe' || ((this.type == 'chicken' || this.type == 'endboss') && this.isAlive());
                 ctx.beginPath();
                 ctx.lineWidth = '3';
-                ctx.setLineDash([5, 5]);
                 ctx.strokeStyle = 'navy';
+                ctx.setLineDash([5, 5]);                
                 ctx.rect(this.X, this.Y + offsetY, this.width, this.height - offsetY);
-                ctx.stroke();
-                // show the coordinates and names
-                ctx.font = "16px Arial";
-                ctx.fillStyle = 'navy';
-                if (this.isMirrored) this.environment.flipImage(this, true);
-                ctx.fillText(`${name}`,this.X-20, this.Y-32 + offsetY);                
-                ctx.fillText(`[X:${parseInt(this.X)},Y:${parseInt(this.Y)}]${showTop}`, this.X-20, this.Y-10 + offsetY);
-                if (isPepe) {
-                    ctx.fillText(`Bottom: ${parseInt(this.bottom())} Right: ${parseInt(this.right())}`,this.right()-100, this.bottom()+20);
-                }                
-                if (this.isMirrored) this.environment.flipImage(this, false);
+                ctx.stroke();                
+                if (cordsRequired) this.displayCoordinates(ctx, this.name, offsetY);
             }
         }      
+    }
+    // show the coordinates and names
+    displayCoordinates (ctx, name, offsetY) {
+        let isPepe = name == 'Pepe',
+            showTop = isPepe ? `    Top: ${this.Y + offsetY}` : '';
+        name = isPepe ? '' : name + ' ';
+        
+        ctx.font = "12px Verdana";
+        ctx.fillStyle = 'navy';
+        if (this.isMirrored) this.environment.flipImage(this, true);
+        ctx.fillText(`${name}`,this.X-20, this.Y-32 + offsetY);                
+        ctx.fillText(`[X:${parseInt(this.X)},Y:${parseInt(this.Y)}]${showTop}`, this.X-20, this.Y-10 + offsetY);
+        if (isPepe) {
+            ctx.fillText(`Bottom: ${parseInt(this.bottom())} Right: ${parseInt(this.right())}`,this.right()-100, this.bottom()+20);
+        }                
+        if (this.isMirrored) this.environment.flipImage(this, false);
+    }
+
+    printCanvasText (ctx, pX, pY, text, color = 'navy') {
+        ctx.font = "16px Verdana";
+        ctx.fillStyle = color;
+        ctx.fillText(text, pX, pY);
     }
 
     /**
@@ -152,13 +120,13 @@ export default class Mobile {
         const arr = arrImages.filter(img => {return img.includes(subkey)});      
         this.imgIndex++;     
         if (this.imgIndex >= arr.length) this.imgIndex = 0;
-        let key = this.name + '_' + subkey + this.imgIndex;        
+        let key = this.name + '_' + subkey + this.imgIndex;   // i.e key = Pepe_wlk0     
         this.image = this.imageCache[key];
         
         // for debugging only !!
-        if (this.image == undefined) {
+        if (this.image === undefined) {
             console.warn(`Image "${key}" von ${this.name} undefined!`, this);
-            console.log('Filter-arr: ', arr);
+            console.log('Filtered arr: ', arr);
             debugger;
         }
     }
@@ -167,43 +135,20 @@ export default class Mobile {
      * Applies the gravity for the current object, if it is in the air.
      * Therefor we increase the Y-coordinate by the acceleration speed
      */
-    applyGravity () {
-        return setInterval(() => {            
-            if (this.isAboveGround() || this.speedY < 0 ) {
-                this.Y += this.speedY;
-                this.speedY += this.acceleration; 
-                if (this.delta.t0 == null) {
-                    this.setDelta(0);
-                } else {
-                    this.setDelta(1);
-                }           
-             } else {
-                this.Y = this.groundY;
-                this.speedY = 0;
-                this.setDelta(false);
-            }           
-        }, 1000 / FPS);
+    applyGravity (Me) {
+        // returns the interval-ID! (for seed and bonus class)
+        return Intervals.add (
+            function gravity () {
+                if (Me.isAboveGround() || Me.speedY < 0 ) {
+                    Me.Y += Me.speedY;
+                    Me.speedY += Me.acceleration; 
+                 } else {
+                    Me.Y = Me.groundY;
+                    Me.speedY = 0;
+                } 
+            }, 1000 / FPS, [Me]
+        )
     }
-
-    /**
-     * sets or resets the delta-json
-     * @param {number} t = 0 sets the 1st time point X, t = 1 sets the 2nd,
-     * t = false => reset both points
-     */
-    setDelta (t) {
-        if (t === false) {
-            this.delta.t0 = null;
-            this.delta.t1 = null;
-            this.delta.Y0 = 0;
-            this.delta.Y1 = 0;
-        } else if (t == 0) {
-            this.delta.t0 = new Date().getTime();
-            this.delta.Y0 = this.Y;
-        } else if (t == 1) {
-            this.delta.t1 = new Date().getTime();
-            this.delta.Y1 = this.Y;
-        }
-    } 
 
     /**
      * helper function for fnc 'applyGravity': determines if object is in the air
@@ -215,15 +160,6 @@ export default class Mobile {
         // if (this.Y != this.groundY) debugger
 
         return this.Y < (this.groundY - height);
-    }
-
-    /**
-     * determines, if an object is falling or not (gravity)
-     * @returns true || false
-     */
-    isFalling () {
-        // return this.delta < 0;
-        return this.delta.Y1 - this.delta.Y0 < 0;
     }
 
     isCloseEnemy (enemyType) {
@@ -323,11 +259,11 @@ export default class Mobile {
         return obj.isShop && (this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width);
     }
 
-    hide () {
-        this.visible = false; 
-        this.gravarityID = clearInterval (this.gravarityID);
-        this.animationID = clearInterval (this.animationID);
-        this.moveID = clearInterval (this.moveID);
+    hide (intervalKey) {
+        Intervals.remove(intervalKey);
+        this.gravarityID = undefined;
+        this.animationID = undefined;
+        this.moveID = undefined;
         this.Y = CANVAS_HEIGHT * -1; // move the object out of the screen     
     }
 

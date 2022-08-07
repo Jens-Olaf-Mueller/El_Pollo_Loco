@@ -1,5 +1,5 @@
 import Mobile from './mobile.class.js';
-import { arrIntervals, Intervals } from "../game.js";
+import { Intervals } from "../game.js";
 import { FPS, CANVAS_WIDTH } from '../const.js';
 import { random } from '../library.js';
 
@@ -26,7 +26,7 @@ export default class Enemy extends Mobile {
 
     constructor (level, name, index) { 
         super();
-        this.name = name + ' ' + index; // ' ' = SHIFTSPACE [ALT+0160]
+        this.name = name + index; 
         this.type = name.toLowerCase();
         this.level = level;
         this.eastEnd = level.eastEnd;
@@ -36,16 +36,7 @@ export default class Enemy extends Mobile {
 
     animate (animationKey, context, milliseconds = 12000) {
         if (this.isAlive) {
-            // this.moveID = this.move('left');
-
-            this.moving (this,'left');
-
-            // this.animationID = setInterval(() => {
-            //     this.playAnimation(this.arrAnimation, animationKey);                 
-            // }, 12000 / FPS);
-
-            // arrIntervals.push(this.moveID);
-
+            this.move (this, 'left');
             Intervals.add (
                 function enemyAnimation() {
                     context.playAnimation(context.arrAnimation, animationKey)
@@ -80,6 +71,8 @@ export default class Enemy extends Mobile {
         this.moveID = clearInterval(this.moveID);
 
         Intervals.remove(this.name);
+        // Intervals.remove(this.name + '_move');
+        // Intervals.remove(this.name + '_enemyAnimation');
 
         this.damage = 0;
         this.energy = 0;

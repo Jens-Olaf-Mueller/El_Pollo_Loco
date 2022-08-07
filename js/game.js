@@ -26,16 +26,17 @@ let canvas = $('canvas'),
     arrSharpIcons,
     gameStarted;
 
-export let arrIntervals = [];
 export const Intervals = new IntervalListener();
 export const Sounds = new Sound('./sound/');
 const keyboard = new Keyboard(); 
+const fontZabars = new FontFace('Zabars', 'url(./fonts/Zabars/zabars-webfont.woff2)');
 
 runApp();
 
 function runApp () {
     setEventListeners();
     loadSettings(APP_NAME);
+    loadFont(fontZabars);
      // check for the very first start and show help if wanted
     gameStarted = sessionStorage.getItem(APP_NAME + '_IsRunning');
     if (!gameStarted) {
@@ -45,7 +46,7 @@ function runApp () {
 }
 
 function startGame() {      
-    // saveSettings(APP_NAME); 
+    saveSettings(APP_NAME); 
     initStatusIcons();   
     initSounds();
     document.body.style.backgroundImage = 'none';  
@@ -62,13 +63,11 @@ function startGame() {
 
 export async function gameOver () {
     // document.exitFullscreen();
-    stopIntervals();
-    saveSettings(APP_NAME, world.Pepe); 
-    Sounds.fade(gameSettings.lastSong, 0);
-    Sounds.stop('walk', true);
+    Sounds.fade(parseInt(gameSettings.lastSong), 0);
+    Sounds.stop('walk', true);    
+    worldTerminate();
     await sleep(1000);
     Sounds.play('gameover');
-    world = undefined;   
     statusBar.hide();
     navBar.hide();
     canvasDiv.hide();        
@@ -103,39 +102,16 @@ export async function showIntroScreen (level) {
 }
 
 /**
- * clears a single interval or all intervals in the main intervals-array
- * @param {number} interval 
- * @returns 
+ * reset the old instance of the world class for restart!
  */
-function stopIntervals (interval) {
-    if (interval) {
-        clearInterval(interval);
-        return;
-    }
-
-
-    for (let i = 0; i < arrIntervals.length; i++) {
-        const interval = arrIntervals[i];
-        clearInterval(interval);
-    }
-    arrIntervals = [];
-    window.cancelAnimationFrame(world.requestID);
-    world.requestID = undefined;
-}
-
-export function pauseGame () {
-    // for (let i = 0; i < arrIntervals.length; i++) {
-    //     const interval = arrIntervals[i];
-    //     clearInterval(interval);
-    // }
-    Sounds.stop(gameSettings.lastSong);
-    // arrIntervals = [];
-
-    Intervals.stop();
-}
-
-export function resumeGame() {
-    Intervals.start();
+ function worldTerminate () {
+    Intervals.remove('Pepe'); // MUST be executed first!
+    clearInterval(world.mainID);
+    Intervals.clear();
+    if (world.levelNo > gameSettings.lastLevel) saveSettings(APP_NAME, world.Pepe);
+    window.cancelAnimationFrame(world.reqAnimationFrameID);
+    world.reqAnimationFrameID = undefined;
+    world = undefined;    
 }
 
 function setEventListeners () {
@@ -150,10 +126,20 @@ function setEventListeners () {
     });
     
     window.addEventListener('resize', () => {
-        console.log('Fenstergrösse geändert...' )
-        // // $('divCanvas')
-        // canvas.width = canvasDiv.clientWidth;
-        // canvas.height = canvasDiv.clientHeight;
+        canvas.width = canvasDiv.element.clientWidth;
+        canvas.height = canvasDiv.element.clientHeight;
+    });
+}
+
+/**
+ * installs a font to the current document
+ * @param {object} newFont font-object to be installed
+ */
+function loadFont (newFont) {
+    newFont.load().then(function(font){
+        // with canvas, if this is ommited won't work
+        document.fonts.add(font);
+        if(gameSettings.debugMode) console.log('Font "' + font.family + '" loaded...'); 
     });
 }
 
@@ -199,6 +185,7 @@ function initStatusIcons () {
  * loads all sounds and songs in the responsible class
  */
 function initSounds () {
+    Sounds.clear();
     for (const key in SOUNDS) {
         if (SOUNDS.hasOwnProperty(key)) {   
             if (!Array.isArray(SOUNDS[key])) {

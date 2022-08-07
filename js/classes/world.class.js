@@ -11,10 +11,9 @@ import Level from './level.class.js';
 import Bonus from './bonus.class.js';
 import Bottle from './bottle.class.js';
 import Seed from './seed.class.js';
-import IntervalListener from './intervals.class.js';
 
 import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
-import { showIntroScreen, updateGameStatus, arrIntervals, pauseGame, resumeGame, Sounds, Intervals } from '../game.js';
+import { showIntroScreen, updateGameStatus, Sounds, Intervals } from '../game.js';
 import { saveSettings, gameSettings } from '../settings_mod.js';
 import { random, sleep } from '../library.js';
 
@@ -33,7 +32,6 @@ export default class World {
     levelUp = false;
     fullscreen = false;
 
-    Intervals;
     arrBackgrounds;
     arrForegrounds;
     arrFood;
@@ -41,26 +39,27 @@ export default class World {
     arrEnemies;
     arrClouds;
     arrItems;
+
     bottle;
     bonus;
     seed;
     
-    requestID = undefined; // ID for requestAnimationFrame
+    reqAnimationFrameID = undefined; 
     mainID = undefined;
+    gameSaved = false;
+    lastSaved = 0;
 
     constructor (canvas, keyboard) {
-        this.cnv = canvas; // assigning the global canvas to a local variable
+        this.cnv = canvas; // assigning the global canvas to a local reference variable
         this.ctx = canvas.getContext('2d');        
         this.keyboard = keyboard;
         this.levelNo = gameSettings.lastLevel;
+        Intervals.clear(); // must be executed BEFORE new Character!!!
         this.Pepe = new Character(this); 
-        this.gamePaused = undefined;               
+        this.gamePaused = undefined;                       
         this.initLevel (this.levelNo);
-        this.draw();
+        this.draw();        
         this.mainID = this.run();
-        arrIntervals.push(this.mainID);
-        // this.Intervals = new IntervalListener();
-        // this.Intervals.add(this.run,250)
     }
 
     initLevel (levelNo) {
@@ -79,8 +78,7 @@ export default class World {
         this.seed = new Seed('./img/Seed/seed1.png');
         if (gameSettings.debugMode) {
             console.log('World created... ', this);
-            console.log('Intervals...', Intervals.list());
-            // debugger
+            Intervals.list();
         }        
     }
 
@@ -88,10 +86,17 @@ export default class World {
         this.levelNo++;
         this.initLevel(this.levelNo);
         this.Pepe.X = 50;
+        this.Pepe.bottles = 0;
+        if (this.Pepe.accuracy > 100) this.Pepe.accuracy -= this.levelNo * 10;
+        if (this.Pepe.sharpness > 100) this.Pepe.sharpness -= this.levelNo * 10;
         await showIntroScreen(this.levelNo);    
         await sleep(3500);            
     }
 
+    /**
+     * this is the main interval to check all actions and events
+     * @returns id of the main interval
+     */
     run () {
         return setInterval(() => {
             this.checkEnemyCollisions();
@@ -103,8 +108,8 @@ export default class World {
             this.checkForShopping();
             this.checkActions();  
             this.checkKeyboard();
-            // this.checkForPause();
             updateGameStatus (this.Pepe);
+            this.gameSaved = ((new Date().getTime() - this.lastSaved) / 1000 < 4);
             // levelUp is set in checkBottelCollisions()
             if (this.levelUp) {
                 this.levelUp = false;
@@ -134,25 +139,28 @@ export default class World {
         this.plot (this.arrFood);
         this.plot (this.bottle);
         this.plot (this.seed);
-        this.plot (this.bonus);   
-        if (this.gamePaused) this.showPauseScreen();     
+        this.plot (this.bonus);      
+        if (this.gamePaused) {
+            this.printText(this.Pepe.X + this.Pepe.width - 60, 180, 'Game paused ...',72, 'goldenrod');
+        } 
+        if (this.gameSaved) {
+            this.printText (this.Pepe.X + this.Pepe.width - 60, 100, 'Game saved', 48, 'navy');
+        }
         
         this.ctx.translate(-this.camera_X, 0); // move the camera scope by 100px back to right after drawing the context
         let Me = this;
-        this.requestID = window.requestAnimationFrame(() => {Me.draw()});
+        this.reqAnimationFrameID = window.requestAnimationFrame(() => {Me.draw()});
     }
     
     /**
      * draws the passed object(image) on the canvas
+     * if an array is passed as parameter the method calls itself recursively
      * @param {class} object either a single object or an array of objects to be drawn
      */
     plot (object) {
         if (Array.isArray(object)) {
             object.forEach(obj => {
                 this.plot(obj); // recursive call!
-                // if (obj.isMirrored) this.flipImage(obj);
-                // obj.draw(this.ctx, gameSettings.showFrame && gameSettings.debugMode);
-                // if (obj.isMirrored) this.flipImage(obj, true);
             });
         } else { // just to avoid confusions: we got a single object here!
             if (object.isMirrored) this.flipImage(object);
@@ -161,6 +169,11 @@ export default class World {
         }                
     }
 
+    /**
+     * flips an image or restores it
+     * @param {class} object to be flipped
+     * @param {boolean} restore true means we restore the original direction
+     */
     flipImage (object, restore = false) {
         if (restore) {
             object.X = object.X * -1;
@@ -174,7 +187,13 @@ export default class World {
     }
 
     /**
-     * handle all enemy-collisions ANCHOR Enemycollision
+     * handle all ANCHOR enemy-collisions and possible reactions. (killing etc.)
+     * checks for:
+     * - chicklets & chicken
+     * - killed friendly chicken (if so creates new chicklets!)
+     * - spiders & scorpions
+     * - snakes (and if they can be shot)
+     * - bees (sound output only)
      */
     checkEnemyCollisions () {        
         this.level.Enemies.forEach((enemy) => {
@@ -208,7 +227,7 @@ export default class World {
                             } else {
                                 Sounds.play('ricochet');
                             }
-                        } else {
+                        } else { // Pepe was simply hit by an enemy...
                             this.Pepe.hit(enemy.damage);
                             if (!this.Pepe.isDead()) Sounds.play('ouch');
                         }                    
@@ -264,6 +283,9 @@ export default class World {
         });
     }
 
+    /**
+     * checks if we are in front of a shop and if we can buy items there
+     */
     checkForShopping () {
         this.level.Backgrounds.forEach((item) => {
             if (this.Pepe.isInFrontOfShop(item) && this.keyboard.SPACE) {
@@ -282,7 +304,6 @@ export default class World {
                 // can we jump on the obstracle?
                 if (barrier.canJumpOn) {
                     if (this.Pepe.isAboveGround(barrier.Y)) {
-                        // debugger
                         this.Pepe.Y -= barrier.height;
                     } else {
                         // this.Pepe.energy -=barrier.damage;
@@ -293,14 +314,21 @@ export default class World {
         });
     }
 
+    /**
+     * checks for collision between endboss and bottle.
+     * a possible hit also depends on the character's
+     * accuracy and sharpness-values!
+     * if all enbosses are killed, we level up!
+     */
     checkBottelCollisions () {
         this.level.Enemies.forEach((enemy) => {
             if (enemy instanceof Endboss) {
                 if (this.bottle.isColliding(enemy)) {
                     this.bottle.hide();
                     if (this.Pepe.hitSuccessful()) {
+                        Sounds.play('endboss');
                         enemy.hit(this.Pepe.sharpness / 10);
-                        Sounds.play('chicken');
+                        this.Pepe.score += parseInt(this.Pepe.sharpness / 10 + gameSettings.endbossAttackingTime);
                     } else {
                         Sounds.play('glass');
                     }                   
@@ -321,6 +349,12 @@ export default class World {
         return allBosses;
     }
 
+    /**
+     * checks if the given endboss is killed. 
+     * if so we look, if there are still other endbosses in this level!
+     * @param {object} boss the endboss to be checked if it is killed
+     * @returns true | false
+     */
     allEndbossesKilled (boss) {
         if (boss.isDead()) {
             let timeElapsed = new Date().getTime();
@@ -379,7 +413,7 @@ export default class World {
      * - enabling fullscreen mode
      */
     checkKeyboard() {        
-        if (this.keyboard.CTRL_LEFT && this.Pepe.seeds > 0) {
+        if (this.keyboard.CTRL_LEFT && !this.gamePaused && this.Pepe.seeds > 0) {
         // throw seed...
             this.seed.throw(this.Pepe.X + this.Pepe.width / 2, 
             this.Pepe.Y + this.Pepe.height * 0.666, 3, this.Pepe.isMirrored);
@@ -391,18 +425,24 @@ export default class World {
             if (this.gamePaused === undefined) {
                 this.gamePaused = true;
                 Intervals.stop();
+                Sounds.stop(gameSettings.lastSong);
             } else if (this.gamePaused == true) { // ... then we toggle it!
                 this.gamePaused = undefined;
                 Intervals.start();
+                Sounds.playList(gameSettings.lastSong);
             }           
         } else if (this.keyboard.S_KEY) {
         // save game...
-            saveSettings(APP_NAME,this.Pepe)
-        } else if (this.keyboard.Q_KEY) {
+            if (this.gameSaved == false) {
+                saveSettings(APP_NAME,this.Pepe)
+                this.lastSaved = new Date().getTime();
+                this.gameSaved = true;
+            }
+        } else if (this.keyboard.Q_KEY && !this.gamePaused) {
         // quit game (commit suicide)...
             Sounds.play('suicide');
             this.Pepe.energy = 0;
-        } else if (this.keyboard.F8_KEY) {
+        } else if (this.keyboard.F8_KEY && !this.gamePaused) {
         // fullscreen mode...
             this.fullscreen = !this.fullscreen;
             // if (this.fullscreen) {
@@ -413,20 +453,46 @@ export default class World {
         }         
     }
 
-    // checkForPause () {
-    //     if (this.gamePaused === true) {
-    //         Intervals.stop();
-    //         pauseGame();
-    //     } else if (this.gamePaused === false) { // important: NOT 'undefined' !!!
-    //         debugger
-    //         resumeGame();
-    //     }   
-    // }
+    /**
+     * prints a text with given parameters on canvas
+     */
+    printText (pX, pY, text, fontsize = 72, color = '#c49961', fade = false) {
+        let arrRGB = this.hexToRGB(color), alpha = 1.0;   // full opacity
+        if (Array.isArray(arrRGB) && fade) {
+            this.ctx.fillStyle = `'rgba(${arrRGB[0]}, ${arrRGB[1]}, ${arrRGB[2]}, ${alpha})'`;
+        } else {
+            this.ctx.fillStyle = color;
+            fade = false;
+        } 
+        
+        if (fade == true) {
+            let ctx = this.ctx, canvasInt = this.cnv,
+            fadeID = setInterval(function () {
+                canvasInt.width = canvasInt.width; // Clears the canvas
 
-    showPauseScreen() {
-        this.ctx.fillStyle = 'navy';
-        this.ctx.font = '60px san-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('Game paused...', this.cnv.width  / 2, 210);
+                ctx.fillStyle = `'rgba(${arrRGB[0]}, ${arrRGB[1]}, ${arrRGB[2]}, ${alpha})'`;
+                ctx.font = fontsize + 'px Zabars';
+                ctx.fillText(text, pX, pY);
+                alpha = alpha - 0.05; // decrease opacity (fade out)
+                if (alpha < 0) {
+                    canvasInt.width = canvasInt.width;
+                    clearInterval(fadeID);
+                }
+            }, 50, ctx, canvasInt);
+        } else {
+            this.ctx.font = fontsize + 'px Zabars';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(text, pX, pY);
+        }
+    }
+
+    /**
+     * converts a hex-color to an RGB-array
+     * @param {string} hex hexadecimal value of a color
+     * @returns an array for colors [red, green, blue]
+     */
+     hexToRGB (hex) {
+        if (!hex.startsWith('#')) return hex;
+        return hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i,(m, r, g, b) => '#' + r + r + g + g + b + b).substring(1).match(/.{2}/g).map(x => parseInt(x, 16));
     }
 }

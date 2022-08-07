@@ -167,6 +167,7 @@ canvas {
 /* #################################################################### */
 .canvas {
     position: relative;
+    height: 100vh;
 }
 
 .canvas .statusbar {

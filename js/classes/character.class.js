@@ -3,7 +3,7 @@
 * an extending or used class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { updateGameStatus, gameOver, arrIntervals, Sounds, Intervals } from '../game.js';
+import { updateGameStatus, gameOver, Sounds, Intervals } from '../game.js';
 import { loadSettings, saveSettings, gameSettings } from '../settings_mod.js';
 import { loadArray, random } from '../library.js';
 import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
@@ -11,7 +11,7 @@ import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 export default class Character extends Mobile {
     name = 'Pepe';
     type = 'character';
-    environment; // reference to the world
+    environment;                     // reference to the world
     lastMove = new Date().getTime(); // time elapsed since Pepe has moved (requ. for sleep animation)
     X = 50;
     Y = 150;
@@ -42,9 +42,7 @@ export default class Character extends Mobile {
         this.keyboard = environment.keyboard;
         this.groundY = environment.groundY;
         this.Y = environment.groundY;
-        this.initialize();           
-        arrIntervals.push(this.applyGravity());
-        this.animate();
+        this.initialize();  
     };
 
     initialize () {
@@ -56,6 +54,8 @@ export default class Character extends Mobile {
         this.arrAnimation.push(...loadArray('./img/Pepe/killed/die',30));
         this.loadImageCache (this.arrAnimation, this.name);
         this.loadSettings();
+        this.startIntervals(this);
+        this.applyGravity(this);
     }
 
     loadSettings () {
@@ -76,50 +76,61 @@ export default class Character extends Mobile {
             if (gameSettings.debugBullets) this.bullets = gameSettings.debugBullets;
             if (gameSettings.debugGun) this.gun = true;
         } 
-
     }
 
-    animate () {
-        arrIntervals.push(setInterval (() => { 
-            Sounds.stop('walk');
-            if (this.keyboard.RIGHT) this.walk('right');
-            if (this.keyboard.LEFT) this.walk('left');
-            if (this.keyboard.UP && !this.isAboveGround()) this.jump();
-
-            this.environment.camera_X = -this.X + this.cameraOffset;
-            // if (this.X > this.environment.westEnd - this.cameraOffset) {
-            //     this.environment.camera_X = -this.X + this.cameraOffset;
-            // }           
-        }, 1000 / FPS)); // 16 ms
-        arrIntervals.push(this.runAnimationInterval()); 
-    }
-
-    runAnimationInterval () {
-        return setInterval (() => {
-            if (this.isDead()) {
-                if (this.timeElapsed(this.diedAt) < 2.25) {    
-                    this.playAnimation (this.arrAnimation,'die');
+    /**
+     * adds the 'move' and 'animation'-interval to the interval-listener class.
+     * since 'this' would not work inside another class, 
+     * we pass the current class as 'Me'
+     * @param {object} Me ist the instance of 'this'
+     */
+    startIntervals (Me) {
+        Intervals.add (
+            function move() {
+                Sounds.stop('walk');
+                if (Me.keyboard.RIGHT) Me.walk('right');
+                if (Me.keyboard.LEFT) Me.walk('left');
+                if (Me.keyboard.UP && !Me.isAboveGround()) Me.jump();
+    
+                Me.environment.camera_X = -Me.X + Me.cameraOffset;
+                // if (Me.X > Me.environment.westEnd - Me.cameraOffset) {
+                //     Me.environment.camera_X = -Me.X + Me.cameraOffset;
+                // } 
+            }, 1000 / FPS, [Me] // = 16 ms
+        )
+        
+        Intervals.add (
+            function animate () {
+                if (Me.isDead()) {
+                    if (Me.timeElapsed(Me.diedAt) < 2.25) {    
+                        Me.playAnimation (Me.arrAnimation,'die');
+                    } else {
+                        gameOver();
+                    }  
+                } else if (Me.isHurt()) {
+                    Me.playAnimation (Me.arrAnimation,'hurt');
+                    Me.setNewTimeStamp();
+                } else if (Me.isAboveGround() || Me.speedY > 0) {
+                    Me.playAnimation (Me.arrAnimation,'jmp');
+                } else if (Me.keyboard.RIGHT || Me.keyboard.LEFT) {
+                    Me.playAnimation (Me.arrAnimation,'wlk');    
+                } else if (Me.isSleeping()) {
+                    Me.playAnimation(Me.arrAnimation,'slp');              
                 } else {
-                    gameOver();
-                }  
-            } else if (this.isHurt()) {
-                this.playAnimation (this.arrAnimation,'hurt');
-                this.setNewTimeStamp();
-            } else if (this.isAboveGround() || this.speedY > 0) {
-                this.playAnimation (this.arrAnimation,'jmp');
-            } else if (this.keyboard.RIGHT || this.keyboard.LEFT) {
-                this.playAnimation (this.arrAnimation,'wlk');    
-            } else if (this.isSleeping()) {
-                this.playAnimation(this.arrAnimation,'slp');              
-            } else {
-                this.playAnimation(this.arrAnimation,'wait');
-            }
-        }, 6000 / FPS); // 60 ms
+                    Me.playAnimation(Me.arrAnimation,'wait');
+                }
+            }, 6000 / FPS, [Me] // = 100 ms
+        )
     }
 
-    walk (direction) {
+  /**
+   * executes a walk of the character
+   * @param {string} direction  determines if we walk to left or right
+   * @param {number} step pixels to be moved in 'direction'
+   */
+    walk (direction, step = 18) {
         Sounds.play('walk');
-        let step = (direction == 'right') ? 18 : -18;
+        step = (direction == 'right') ? step : -step;
         if (direction == 'right') {
             if (this.X < this.environment.eastEnd - CANVAS_WIDTH + this.cameraOffset - 10) this.X += step;
         } else if (direction == 'left') {
@@ -140,27 +151,40 @@ export default class Character extends Mobile {
         this.setNewTimeStamp();        
     }
 
+    /**
+     * determine if a hit was succesful, depending on the character's current accuracy
+     * @returns true | false
+     */
     hitSuccessful () {
-        return random(1,100) <= this.accuracy;
+        return random(1, 100) <= this.accuracy;
     }
 
+    /**
+     * executes a bottle-throw and reduces the character's bottles
+     */
     throwBottle () {
         this.environment.bottle.throw(this.X + this.width / 2, this.Y + this.height / 2, 15, this.isMirrored);
         this.bottles--;
         this.setNewTimeStamp();
     }
 
+    /**
+     * check if we can execute a shot.
+     * must be a gun and bullets available
+     * @returns true | false
+     */
     canShoot () {
         return this.gun && this.bullets > 0;
     }    
 
+    /**
+     * executes a shot, reduces the character's bullets and plays the concerning sounds
+     */
     shoot () {
         Sounds.play('gun');
         Sounds.play('shot');
         this.bullets--;
         this.setNewTimeStamp();
-        // hier Accuracy und Trefferquote berechnen & returnieren...!!!
-        return 10;
     }
 
     /**
@@ -170,6 +194,11 @@ export default class Character extends Mobile {
         this.lastMove = new Date().getTime();
     }
 
+    /**
+     * update the caracter's properties, depending on the given item.
+     * plays the correspondending sound
+     * @param {object} item 
+     */
     updateProperties (item) {
         if (item.visible) {
             // still enough money left?
@@ -188,6 +217,10 @@ export default class Character extends Mobile {
         }
     }
 
+    /**
+     * character buys either medicine, a gun or bullets, 
+     * according to the priotity list of the shop
+     */
     buyItems () {        
         let price = parseInt((1 + Math.random() * 100) * this.environment.levelNo * 10),
             enoughMoney = false, amount;
@@ -213,6 +246,11 @@ export default class Character extends Mobile {
         this.coins -= price;
     }
 
+    /**
+     * update the character's collected bottles and coins
+     * @param {object} item bottle or coin item
+     * @param {object} bonus item found in a jar or chest
+     */
     updateItems (item, bonus) {
         if (item.visible) {
             if (item.type == 'coin') {
@@ -227,7 +265,7 @@ export default class Character extends Mobile {
                 item.enabled(false);                
             }
         }
-
+        // handling an eventual bonus item
         if (bonus) {
             Sounds.play('found');
             this.environment.bonus.animate(item.X, item.Y);
@@ -237,10 +275,14 @@ export default class Character extends Mobile {
                 if (this.keyForChest < 0) this.keyForChest = 0;
             }
             this.parseFoundItem(bonus);
-            console.log(bonus + ' gefunden...');
+            if (gameSettings.debugMode) console.log(bonus + ' found...');
         }  
     }
 
+    /**
+     * parses a found item and updates the character's belongings or properties
+     * @param {string} itemName the name of the found item including it's value
+     */
     parseFoundItem (itemName) {
         let value = parseInt(itemName.replace(/[^0-9]/g,'')),
             name = itemName.replace(/[0-9]/g, '');
@@ -282,6 +324,11 @@ export default class Character extends Mobile {
         this.adjustProperties(this.environment.levelNo * 10);
     }
 
+    /**
+     * make sure the character's properties are in the correct range
+     * and updates the scores
+     * @param {number} score update player's score
+     */
     adjustProperties(score) {
         this.score += score;
         if (this.energy > 120) this.energy = 120;

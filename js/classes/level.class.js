@@ -70,7 +70,7 @@ export default class Level {
         this.Obstracles.push(...this.add(2, Obstracle, 'tree', 'Obstracles/Plants'));
         // stones...
         count = this.getLevelBalance(8,11,4);
-        this.Obstracles.push(...this.add(11, Obstracle, 'stone', 'Obstracles/Stones'));
+        this.Obstracles.push(...this.add(count, Obstracle, 'stone', 'Obstracles/Stones'));
         this.Obstracles.push(...this.add(7, Obstracle, 'stone_big', 'Obstracles/Stones'));
         this.shiftPosition(this.Obstracles);
     }
@@ -78,11 +78,11 @@ export default class Level {
     initItems () {
          // amount of bottles and coins depend on the level number        
         for (let i = 0; i < this.levelNo * 2; i++) {
-            this.Items.push(...this.add (10, Item, 'coin', 'Items/Coins'));
+            this.Items.push(...this.add (11, Item, 'coin', 'Items/Coins'));
         }
-        let count = this.levelNo < 2 ? 4 : 2 + this.levelNo;
+        let count = this.levelNo < 2 ? 5 : 2 + this.levelNo;
         for (let i = 0; i < count; i++) {
-            this.Items.push(...this.add (3, Item, 'bottle', 'Items/Bottles'));
+            this.Items.push(...this.add (3, Item,'bottle', 'Items/Bottles'));
         }
         this.Items.push(...this.add (1, Item, 'shop', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
@@ -135,11 +135,11 @@ export default class Level {
                 this.Enemies.push(new Bees(this, i));
             }            
         }
-        count = this.levelNo + (3 + Math.random() * this.levelNo);
+        count = this.levelNo + (1 + Math.random() * this.levelNo);
         for (let i = 0; i < count; i++) {
             this.Enemies.push(new Snake(this, i + 1));        
         }
-        count = this.levelNo + (5 + Math.random() * this.levelNo);
+        count = this.levelNo + (3 + Math.random() * this.levelNo);
         for (let i = 0; i < count; i++) {
             this.Enemies.push(new Spider(this, i + 1));        
             this.Enemies.push(new Scorpion(this, i + 1));        

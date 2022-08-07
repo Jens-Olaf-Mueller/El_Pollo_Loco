@@ -50,9 +50,15 @@
                 </div>
 
                 <div class="control checkbox tooltip" 
-                    data-tooltip="Nachdem ein Huhn getötet wurde, werden die verbleibenden Hühner um diesen Wert grösser...">
+                    data-tooltip="Zeit, die Seniora Galina dich attakiert, wenn du sie mit Salsaflaschen bewirfst. Je grösser der Wert, desto mehr Punkte bekommst du!">
+                    <label for="endbossTime" >Endboss attacks: </label>
+                    <input id="endbossTime" class="slider" type="range" min="1" max="10" value="3" data-settings="endboss"><span id="secEndboss">3 sec</span> 
+                </div>                 
+
+                <div class="control checkbox tooltip" 
+                    data-tooltip="Nachdem ein Huhn getötet wurde, werden die verbleibenden Hühner um diesen Wert grösser... und aggressiver!">
                     <label for="enlargeChicken" >Chicken enlargement: </label>
-                    <input id="enlargeChicken" class="slider" type="range" min="3" max="10" value="3" data-settings="enlarge" name="enlarge"><span id="enlargePix">3 px</span> 
+                    <input id="enlargeChicken" class="slider" type="range" min="3" max="10" value="3" data-settings="enlarge"><span id="enlargePix">3 px</span> 
                 </div>
 
                 <div class="control checkbox">

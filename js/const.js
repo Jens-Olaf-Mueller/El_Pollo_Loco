@@ -38,6 +38,7 @@ const SONG_TITLES = ['Santa Esmeralda','Chicken Song'];
 
 const SOUNDS = {
     songs: ['Santa Esmeralda.mp3','Chicken Song.mp3'],
+    echo: "echo el_pollo_loco.mp3",
     jingle: "jingle.mp3",
     ouch: "ouch.mp3",
     suicide: "Pepe dies.mp3",
@@ -53,6 +54,7 @@ const SOUNDS = {
     glass: "glass.mp3",
     chicken: "chicken alert.mp3",
     chicklet: "chicklet chirp.mp3",
+    endboss: "endboss hurt.mp3",
     snake: "rattle snake.mp3",
     walk: "walk.mp3",
     seed: "seeds.mp3",
@@ -77,6 +79,7 @@ export const DEFAULT_SETTINGS = {
     lastSong: 0,
     chickenEnlargement: 3,
     sleepTime: 7,
+    endbossAttackingTime: 3,
     lastLevel: 1,
     highScore: 0,
     energy: 100,

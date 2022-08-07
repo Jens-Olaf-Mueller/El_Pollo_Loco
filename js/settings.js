@@ -47,6 +47,9 @@ function displayValue(event) {
         case 'sleep':
             $('secSleep').innerText = value + ' sec';
             break;
+        case 'endboss':
+            $('secEndboss').innerText = value + ' sec';
+            break;
         case 'enlarge':
             $('enlargePix').innerText = value + ' px';
             break;
@@ -84,6 +87,9 @@ function updateSettings (event) {
         case 'sleep':
             gameSettings.sleepTime = value;
             break;
+        case 'endboss':
+            gameSettings.endbossAttackingTime = value;
+            break;            
         case 'enlarge':
             gameSettings.chickenEnlargement = value;
             break;            

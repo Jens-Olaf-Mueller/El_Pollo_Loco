@@ -24,6 +24,8 @@ export function setSettings () {
     $('songTitle').innerText = SONG_TITLES[gameSettings.lastSong];
     $('sleepTime').value = gameSettings.sleepTime;
     $('secSleep').innerText = gameSettings.sleepTime + ' sec';
+    $('endbossTime').value = gameSettings.endbossAttackingTime;
+    $('secEndboss').innerText = gameSettings.endbossAttackingTime + ' sec';
     $('enlargeChicken').value = gameSettings.chickenEnlargement;
     $('enlargePix').innerText = gameSettings.chickenEnlargement + ' px';
     $('chkSound').checked = gameSettings.soundEnabled;

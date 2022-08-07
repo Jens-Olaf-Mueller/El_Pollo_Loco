@@ -22,7 +22,6 @@ export default class Item extends Background {
     contains = null;
 
     constructor (imgPath, name, level) { 
-        if (!imgPath) debugger
         super().loadImage(imgPath);       
         this.name = name;
         // returns only a number from string: 'food4' => 4
