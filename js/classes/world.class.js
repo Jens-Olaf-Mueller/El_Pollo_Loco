@@ -30,7 +30,6 @@ export default class World {
     groundY = 150;
     gamePaused = undefined;
     levelUp = false;
-    fullscreen = false;
 
     arrBackgrounds;
     arrForegrounds;
@@ -144,7 +143,8 @@ export default class World {
             this.printText(this.Pepe.X + this.Pepe.width - 60, 180, 'Game paused ...',72, 'goldenrod');
         } 
         if (this.gameSaved) {
-            this.printText (this.Pepe.X + this.Pepe.width - 60, 100, 'Game saved', 48, 'navy');
+            let msg = gameSettings.debugMode ? `No saving in debug mode!` : 'Game saved';
+            this.printText (this.Pepe.X + this.Pepe.width - 60, 100, msg , 48, 'navy');
         }
         
         this.ctx.translate(-this.camera_X, 0); // move the camera scope by 100px back to right after drawing the context
@@ -260,6 +260,7 @@ export default class World {
      * checks collision with foot, and if we got enough money...
      */
     checkFoodCollisions() {
+        if (this.Pepe.isDead()) return;
         this.level.Food.forEach((food) => {
             if (this.Pepe.isColliding(food) && this.keyboard.SPACE) {
                 this.Pepe.updateProperties(food);
@@ -272,6 +273,7 @@ export default class World {
      * and update the items in character
      */
     checkItemCollisions() {
+        if (this.Pepe.isDead()) return;
         this.level.Items.forEach((item) => {
             if (this.Pepe.isColliding(item) && this.keyboard.SPACE) {
                 let foundBonus;
@@ -287,6 +289,7 @@ export default class World {
      * checks if we are in front of a shop and if we can buy items there
      */
     checkForShopping () {
+        if (this.Pepe.isDead()) return;
         this.level.Backgrounds.forEach((item) => {
             if (this.Pepe.isInFrontOfShop(item) && this.keyboard.SPACE) {
                 this.Pepe.buyItems(); 
@@ -386,6 +389,7 @@ export default class World {
      * - shooting (if no bottles available but a loaded gun)
      */
     checkActions() {
+        if (this.Pepe.isDead()) return;
         if (this.keyboard.SPACE) {
             const boss = this.Pepe.isCloseEnemy('endboss');
             if (boss) {
@@ -426,17 +430,18 @@ export default class World {
                 this.gamePaused = true;
                 Intervals.stop();
                 Sounds.stop(gameSettings.lastSong);
-            } else if (this.gamePaused == true) { // ... then we toggle it!
-                this.gamePaused = undefined;
+            } else if (this.gamePaused == true) { 
+                this.gamePaused = undefined; 
                 Intervals.start();
                 Sounds.playList(gameSettings.lastSong);
             }           
         } else if (this.keyboard.S_KEY) {
         // save game...
             if (this.gameSaved == false) {
-                saveSettings(APP_NAME,this.Pepe)
+                // saving in debug not allowed because of cheating!
+                if (gameSettings.debugMode == false) saveSettings(APP_NAME,this.Pepe);
                 this.lastSaved = new Date().getTime();
-                this.gameSaved = true;
+                // this.gameSaved = true;
             }
         } else if (this.keyboard.Q_KEY && !this.gamePaused) {
         // quit game (commit suicide)...
@@ -444,12 +449,9 @@ export default class World {
             this.Pepe.energy = 0;
         } else if (this.keyboard.F8_KEY && !this.gamePaused) {
         // fullscreen mode...
-            this.fullscreen = !this.fullscreen;
-            // if (this.fullscreen) {
+            if (document.fullscreenElement == null && document.fullscreenEnabled) {
                 canvasParent.requestFullscreen();
-            // } else {
-            //     document.exitFullscreen();
-            // }
+            }
         }         
     }
 

@@ -87,15 +87,17 @@ export default class Character extends Mobile {
     startIntervals (Me) {
         Intervals.add (
             function move() {
-                Sounds.stop('walk');
-                if (Me.keyboard.RIGHT) Me.walk('right');
-                if (Me.keyboard.LEFT) Me.walk('left');
-                if (Me.keyboard.UP && !Me.isAboveGround()) Me.jump();
-    
-                Me.environment.camera_X = -Me.X + Me.cameraOffset;
-                // if (Me.X > Me.environment.westEnd - Me.cameraOffset) {
-                //     Me.environment.camera_X = -Me.X + Me.cameraOffset;
-                // } 
+                if (!Me.isDead()) {
+                    Sounds.stop('walk');
+                    if (Me.keyboard.RIGHT) Me.walk('right');
+                    if (Me.keyboard.LEFT) Me.walk('left');
+                    if (Me.keyboard.UP && !Me.isAboveGround()) Me.jump();
+        
+                    Me.environment.camera_X = -Me.X + Me.cameraOffset;
+                    // if (Me.X > Me.environment.westEnd - Me.cameraOffset) {
+                    //     Me.environment.camera_X = -Me.X + Me.cameraOffset;
+                    // }                     
+                }
             }, 1000 / FPS, [Me] // = 16 ms
         )
         

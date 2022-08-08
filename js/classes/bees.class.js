@@ -15,7 +15,6 @@ export default class Bees extends Enemy {
         this.beehive = new Food('./img/Food/food21.png','beehive' + (index + 1) * 20, level);        
         this.initialize();       
         level.Food.push(this.beehive);
-        // this.fly();
         this.fly (this, 750);
         this.beeAnimation(this, 'bees', 12000);
     }
@@ -36,33 +35,33 @@ export default class Bees extends Enemy {
         this.damage = this.level.levelNo * 1.75;
     }
 
-    fly (context, milliseconds) {
+    fly (Me, milliseconds) {
         Intervals.add (
             function fly() {
-                context.X += context.speed;
-                context.Y += context.speedY;
+                Me.X += Me.speed;
+                Me.Y += Me.speedY;
                 let distance = random(50,100);
-                if (context.beehive.visible) {                
-                    if (context.X < context.beehive.X - distance || context.X > context.beehive.X + distance) {
-                        context.speed = context.speed * -1;
+                if (Me.beehive.visible) {                
+                    if (Me.X < Me.beehive.X - distance || Me.X > Me.beehive.X + distance) {
+                        Me.speed = Me.speed * -1;
                     }                   
-                } else if (context.X < context.westEnd || context.X > context.eastEnd) {
-                     context.speed = context.speed * -1;
+                } else if (Me.X < Me.westEnd || Me.X > Me.eastEnd) {
+                     Me.speed = Me.speed * -1;
                 }
     
-                if (context.Y < context.beehive.Y - distance || context.Y > context.beehive.Y + distance ) {
-                    context.speedY = context.speedY * -1;
+                if (Me.Y < Me.beehive.Y - distance || Me.Y > Me.beehive.Y + distance ) {
+                    Me.speedY = Me.speedY * -1;
                 } 
-                context.isMirrored = (context.speed > 0);
-            }, milliseconds / FPS, [context]
+                Me.isMirrored = (Me.speed > 0);
+            }, milliseconds / FPS, [Me]
         );
     }
 
-    beeAnimation (context, subkey, milliseconds) {
+    beeAnimation (Me, subkey, milliseconds) {
         Intervals.add (
             function beeAnimation() {
-                context.playAnimation(context.arrAnimation, subkey)
-            }, milliseconds / FPS, [context]
+                Me.playAnimation(Me.arrAnimation, subkey)
+            }, milliseconds / FPS, [Me]
         );
     }
 }

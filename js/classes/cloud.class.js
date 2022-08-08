@@ -18,7 +18,8 @@ export default class Cloud extends Mobile {
     westEnd = undefined;
 
     constructor (level, index) {
-        super().loadImage('./img/Background/layers/clouds/2.png');
+        let no = 1 + parseInt(Math.random() * 1);
+        super().loadImage(`./img/Background/layers/clouds/${no}.png`);
         this.name = 'cloud' + index;
         this.eastEnd = level.eastEnd;
         this.westEnd = level.westEnd; 

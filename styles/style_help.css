@@ -42,6 +42,7 @@ summary::-webkit-details-marker {display: none; }
 summary {
     list-style: none;
     color: black;    
+    max-width: 11.5rem;
     margin-top: 0.5rem;
     font-size: 1.5rem;
     cursor: pointer;

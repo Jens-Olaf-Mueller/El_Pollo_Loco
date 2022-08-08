@@ -56,6 +56,7 @@ export default class Mobile {
         try {
             ctx.drawImage(this.image, this.X, this.Y, this.width, this.height);
             if (this.type == 'chicken') this.displayHeart(ctx);
+            if (this.type == 'endboss') this.displayEnergy(ctx);
             if (showframe) this.displayFrame (ctx);
         } catch (err) {
             console.warn(`ERROR in Object ${this.name}: ` + err);
@@ -69,31 +70,41 @@ export default class Mobile {
         }        
     }
 
+    displayEnergy (ctx) {
+        if (this.energy < 100) {
+            let color = this.energy >= 66 ? 'green' : this.energy >= 33 ? 'gold' : 'tomato';
+            ctx.beginPath();            
+            ctx.lineWidth = '1';
+            ctx.strokeStyle = color;
+            ctx.rect(this.X + 50, this.Y + 40, 100, 10);
+            ctx.stroke();
+            ctx.fillStyle = color;
+            ctx.fillRect(this.X + 50, this.Y + 41, this.energy, 8);
+        }
+    }
+
     /**
      * helper function, to be executed only in debug mode !!!
      * @param {canvas context} ctx the given context to draw
      */
     displayFrame (ctx) {
-        if (this.name) {
-            if (this.name == 'Pepe' || this.type == 'chicken' || this.type == 'endboss') {
-                let offsetY = this.name == 'Pepe' ? this.offsetY : 0,
-                    cordsRequired = this.name == 'Pepe' || ((this.type == 'chicken' || this.type == 'endboss') && this.isAlive());
-                ctx.beginPath();
-                ctx.lineWidth = '3';
-                ctx.strokeStyle = 'navy';
-                ctx.setLineDash([5, 5]);                
-                ctx.rect(this.X, this.Y + offsetY, this.width, this.height - offsetY);
-                ctx.stroke();                
-                if (cordsRequired) this.displayCoordinates(ctx, this.name, offsetY);
-            }
+        if (this.name && (this.name == 'Pepe' || this.type == 'chicken' || this.type == 'endboss')) {
+            let offsetY = this.name == 'Pepe' ? this.offsetY : 0,
+                cordsRequired = this.name == 'Pepe' || ((this.type == 'chicken' || this.type == 'endboss') && this.isAlive());
+            ctx.beginPath();
+            ctx.lineWidth = '3';
+            ctx.strokeStyle = 'navy';
+            ctx.setLineDash([5, 5]);                
+            ctx.rect(this.X, this.Y + offsetY, this.width, this.height - offsetY);
+            ctx.stroke();                
+            if (cordsRequired) this.displayCoordinates(ctx, this.name, offsetY);            
         }      
     }
     // show the coordinates and names
     displayCoordinates (ctx, name, offsetY) {
         let isPepe = name == 'Pepe',
             showTop = isPepe ? `    Top: ${this.Y + offsetY}` : '';
-        name = isPepe ? '' : name + ' ';
-        
+        name = isPepe ? '' : name + ' ';        
         ctx.font = "12px Verdana";
         ctx.fillStyle = 'navy';
         if (this.isMirrored) this.environment.flipImage(this, true);
@@ -103,12 +114,6 @@ export default class Mobile {
             ctx.fillText(`Bottom: ${parseInt(this.bottom())} Right: ${parseInt(this.right())}`,this.right()-100, this.bottom()+20);
         }                
         if (this.isMirrored) this.environment.flipImage(this, false);
-    }
-
-    printCanvasText (ctx, pX, pY, text, color = 'navy') {
-        ctx.font = "16px Verdana";
-        ctx.fillStyle = color;
-        ctx.fillText(text, pX, pY);
     }
 
     /**

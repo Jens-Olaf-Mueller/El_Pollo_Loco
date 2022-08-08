@@ -84,7 +84,7 @@ export default class Level {
         for (let i = 0; i < count; i++) {
             this.Items.push(...this.add (3, Item,'bottle', 'Items/Bottles'));
         }
-        this.Items.push(...this.add (1, Item, 'shop', 'Items/Misc'));
+        this.Items.push(...this.add (1, Item, 'shop_closed', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
         this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
 
@@ -127,8 +127,7 @@ export default class Level {
     }
 
     initEnemies() {
-        let count = this.levelNo * 7;
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < this.levelNo * 7; i++) {
             this.Enemies.push(new Chicken(this, i));
         }
         for (let i = 0; i < this.levelNo; i++) {
@@ -137,12 +136,10 @@ export default class Level {
                 this.Enemies.push(new Bees(this, i));
             }            
         }
-        count = this.levelNo + (1 + Math.random() * this.levelNo);
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < (3 + Math.random() * this.levelNo); i++) {
             this.Enemies.push(new Snake(this, i + 1));        
         }
-        count = this.levelNo + (3 + Math.random() * this.levelNo);
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < (4 + Math.random() * this.levelNo); i++) {
             this.Enemies.push(new Spider(this, i + 1));        
             this.Enemies.push(new Scorpion(this, i + 1));        
         }

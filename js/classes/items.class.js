@@ -11,6 +11,7 @@ export default class Item extends Background {
     visible = true;
     isBackground = false;
     isShop = false;
+    isOpen = false;
     onCollisionCourse = true;
     value;
     height = 70;
@@ -54,7 +55,7 @@ export default class Item extends Background {
             this.width = 50;
             this.Y = 390;            
             this.fillRepository ();
-        } else if (this.type == 'shop') {
+        } else if (this.type == 'shop_closed') {
             this.height = 270;
             this.width = 220;
             this.Y = 150;
