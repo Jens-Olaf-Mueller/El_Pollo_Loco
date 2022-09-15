@@ -17,7 +17,6 @@
  * - find()     --> searches an interval by ID, name or key, 
  *                  returns it's index or 'null' if not found
  * - list()     --> lists all intervals in the browser's console
- *  
  */
 
 export default class IntervalListener {
@@ -35,7 +34,6 @@ export default class IntervalListener {
      * @param {number} timeout for interval
      * @param {object} params parent class
      * @returns the id of the started interval
-     * 
      * @example classvariable.add (
      *              function myFunctionName() {
      *                      // interval code here...
@@ -46,11 +44,11 @@ export default class IntervalListener {
         let id = setInterval(fnc, timeout, params);
         const interval = {
             ID: id,
-            handler: fnc,
+            handler: fnc,                       // setInterval-function
             timeout: timeout,
-            context: params,                    // setInterval-function
+            context: params,                    // calling class
             name: params[0].name || this.name,  // name for the interval (or default)
-            key: params[0].name || this.name + '_' + fnc.name
+            key: params[0].name || this.name + '_' + fnc.name // created by class- or default name + function name
         };
         this.arrIntervals.push(interval);
         this.count = this.arrIntervals.length;
