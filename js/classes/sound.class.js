@@ -35,11 +35,11 @@ export default class Sound {
         }
     }
 
-    clear () {
-        this.arrAudio = {}; 
-        // for (const key in this.arrAudio) {
-        //     delete this.arrAudio[key];
-        // }
+    clear () {         
+        for (const key in this.arrAudio) {
+            delete this.arrAudio[key];
+        }
+        this.arrAudio = {};
     }
 
     play (key, vol = 1) {        
@@ -125,8 +125,7 @@ export default class Sound {
                 } catch (error) {
                     this.#fadeEnd(sound, fadeID);
                 }                
-            }
-            
+            }            
             if (sound.volume <= 0.01) this.#fadeEnd(sound, fadeID);
         }, 250);
     }

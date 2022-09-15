@@ -98,13 +98,13 @@ canvas {
 }
 
 .home-icons.home-settings {
-    background-image: url('../img/Status/wheel0.png');
-    
+    background-image: url('../img/Status/wheel0.png');    
 }
-.home-icons.home-settings:hover {
+
+.home-icons.home-settings:hover, .loading {
     background-image: url('../img/Status/wheel.png');
     animation-name: spin;
-    animation-duration: 5000ms;
+    animation-duration: 5s;
     animation-iteration-count: infinite;
     animation-timing-function: linear; 
 }
@@ -115,6 +115,11 @@ canvas {
     to {
         transform:rotate(360deg);
     }
+}
+
+.h3-loading {
+    margin-top: 1rem;
+    margin-left: 1.75rem;
 }
 
 .home-icons.help {
@@ -198,6 +203,27 @@ canvas {
     font-weight: 100;
     color: aliceblue;
 }
+
+/* flash-animation-class */
+.flash {
+    -moz-transition: all 250ms ease-in-out;
+    -webkit-transition: all 250ms ease-in-out;
+    -o-transition: all 250ms ease-in-out;
+    -ms-transition: all 250ms ease-in-out;
+    transition: all 250ms ease-in-out;
+    /* order: name, direction, duration, iteration-count, timing-function */  
+    -moz-animation: blink normal 750ms infinite ease-in-out; /* Firefox */
+    -webkit-animation: blink normal 750ms infinite ease-in-out; /* Webkit */
+    -ms-animation: blink normal 750ms infinite ease-in-out; /* IE */
+    animation: blink normal 750ms infinite ease-in-out; /* Opera and prob css3 final iteration */
+    animation-iteration-count: 3;
+}
+
+@-moz-keyframes blink {0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}} /* Firefox */
+@-webkit-keyframes blink {0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}} /* Webkit */
+@-ms-keyframes blink {0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}} /* IE */
+@keyframes blink {0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}} /* Opera and prob css3 final iteration */
+/* end + + +  flash-animation-class + + + */
 
 #divScore {
     display: flex;

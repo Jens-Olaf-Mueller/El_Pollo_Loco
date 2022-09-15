@@ -32,12 +32,14 @@ export function setSettings () {
     $('chkHelp').checked = gameSettings.showHelpOnStart;
     $('chkIntro').checked = gameSettings.showIntro
     $('chkDebugger').checked = gameSettings.debugMode;
-    $('debugBottles').value = gameSettings.debugBottles;
-    $('dbgBottles').innerText = gameSettings.debugBottles;
-    $('debugBullets').value = gameSettings.debugBullets;
-    $('dbgBullets').innerText = gameSettings.debugBullets;
-    $('debugSeeds').value = gameSettings.debugSeeds;
-    $('dbgSeeds').innerText = gameSettings.debugSeeds;
+    $('debugCoins').value = gameSettings.dbgCoins;
+    $('dbgCoins').innerText = gameSettings.dbgCoins;
+    $('debugBottles').value = gameSettings.dbgBottles;
+    $('dbgBottles').innerText = gameSettings.dbgBottles;
+    $('debugBullets').value = gameSettings.dbgBullets;
+    $('dbgBullets').innerText = gameSettings.dbgBullets;
+    $('debugSeeds').value = gameSettings.dbgSeeds;
+    $('dbgSeeds').innerText = gameSettings.dbgSeeds;
     $('chkFrame').checked = gameSettings.showFrame;
 }
 

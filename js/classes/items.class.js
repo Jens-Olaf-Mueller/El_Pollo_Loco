@@ -7,7 +7,8 @@ export default class Item extends Background {
     name = '';
     type = '';
     level;
-    image;
+    // image;
+    imagePath = '';
     visible = true;
     isBackground = false;
     isShop = false;
@@ -23,7 +24,8 @@ export default class Item extends Background {
     contains = null;
 
     constructor (imgPath, name, level) { 
-        super().loadImage(imgPath);       
+        super().loadImage(imgPath);
+        this.imagePath = imgPath;       
         this.name = name;
         // returns only a number from string: 'food4' => 4
         this.value = parseInt(name.replace(/[^0-9]/g,'')) || 0; 
@@ -55,12 +57,14 @@ export default class Item extends Background {
             this.width = 50;
             this.Y = 390;            
             this.fillRepository ();
-        } else if (this.type == 'shop_closed') {
+        } else if (this.type == 'shop') {
             this.height = 270;
             this.width = 220;
             this.Y = 150;
             this.isBackground = true;
             this.isShop = true;
+            let bgFile = this.imagePath.substring(0, this.imagePath.lastIndexOf('/')) + '/shop1.png';
+            this.loadBackgroundImage(bgFile);
         } else if (this.type == 'misc') {
             this.Y = 400 + Math.random() * 20;
             this.isBackground = Math.random() < 0.5;
@@ -86,6 +90,19 @@ export default class Item extends Background {
             value = random (1, this.level.levelNo * 3),
             index = random (1, arrFound.length);                 
         if (chance <= range && arrFound[index] != null) this.contains = (arrFound[index] + value);
+    }
+
+    swapImages (setBackgroundImage = true) {
+        let tmpImg;
+        if (setBackgroundImage) {
+            tmpImg = this.image;
+            this.image = this.imageBG;
+            this.imageBG = this.image;
+        } else {
+            tmpImg = this.imageBG;
+            this.imageBG = this.image;
+            this.image = tmpImg;
+        }
     }
 
     enabled (state) {

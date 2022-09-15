@@ -1,10 +1,32 @@
+/**
+ * This class is a collection class in order to manage differents intervals.
+ * A registered interval can be addressed in 3 ways:
+ *      > by the ID assigned by setInterval-function,
+ *      > by it's name, assigned during registration with add-method,
+ *      > by it's key, alike the name-selector
+ * 
+ * It has got 2 properties: .name   --> default name of the class (used to create unique interval key)
+ *                          .count  --> number of registered intervals
+ * 
+ * and 7 methods:
+ * - add()      --> registers an interval and starts it
+ * - start()    --> (re)starts ONE or ALL registered intervals
+ * - stop()     --> stops ONE or ALL registered intervals
+ * - clear()    --> removes ALL intervals
+ * - remove()   --> removes a SINGLE interval
+ * - find()     --> searches an interval by ID, name or key, 
+ *                  returns it's index or 'null' if not found
+ * - list()     --> lists all intervals in the browser's console
+ *  
+ */
+
 export default class IntervalListener {
-    arrIntervals = []; // as JSON !
-    mainID;
+    arrIntervals = []; // JSON array!
+    name = 'interval';
     count = 0;
 
-    constructor (id = -1) {
-        this.mainID = id;
+    constructor (name) {
+        if (typeof name == 'string') this.name = name;
     }
 
     /**
@@ -13,6 +35,12 @@ export default class IntervalListener {
      * @param {number} timeout for interval
      * @param {object} params parent class
      * @returns the id of the started interval
+     * 
+     * @example classvariable.add (
+     *              function myFunctionName() {
+     *                      // interval code here...
+     *                  }, 1000, context
+     *              );
      */
     add (fnc, timeout, params = []) {        
         let id = setInterval(fnc, timeout, params);
@@ -20,9 +48,9 @@ export default class IntervalListener {
             ID: id,
             handler: fnc,
             timeout: timeout,
-            context: params,   // optional for setInterval-function
-            name: params[0].name, // optional name for the interval
-            key: params[0].name + '_' + fnc.name
+            context: params,                    // setInterval-function
+            name: params[0].name || this.name,  // name for the interval (or default)
+            key: params[0].name || this.name + '_' + fnc.name
         };
         this.arrIntervals.push(interval);
         this.count = this.arrIntervals.length;
@@ -31,14 +59,15 @@ export default class IntervalListener {
 
     /**
      * restarts a registered (existing!) interval
-     * @param {number | string} interval id, key or name of the interval to be re-started  
+     * @param {number | string | undefined} interval id, key or name of the interval to be re-started  
      */
     start (interval) {
         if (interval !== undefined) {
             let index = this.find(interval);
-            if (index !== null) {
-                const jsonInt = this.arrIntervals[index];
-                jsonInt.ID = setInterval (jsonInt.handler, jsonInt.timeout, jsonInt.context);
+            while (index !== null) {
+                const objInt = this.arrIntervals[index];
+                objInt.ID = setInterval (objInt.handler, objInt.timeout, objInt.context);
+                index = this.find(interval);
             }
         } else { // start all(!) intervals
             for (let i = 0; i < this.arrIntervals.length; i++) {
@@ -50,16 +79,19 @@ export default class IntervalListener {
 
     /**
      * stops an existing interval
-     * @param {number | string} interval id, key or name of the interval to be stopped
+     * @param {number | string | undefined} interval ID, key or name of the interval to be stopped.
+     * If interval is 'undefined', ALL intervals will be stopped.
      */
     stop (interval) {
         if (interval !== undefined) {
-            let index = this.find(interval);
-            if (index !== null) {
+            let index = this.find(interval);        
+            // loop through the array in order to find all intervals of the context!
+            while (index !== null) {
                 // clearInterval-method sets ID to undefined!
                 this.arrIntervals[index].ID = clearInterval(this.arrIntervals[index].ID);
+                index = this.find(interval);
             }
-        } else { // stop all(!) intervals by recursive call
+        } else { // param interval not provided, so stop all(!) intervals by recursive call
             for (let i = 0; i < this.arrIntervals.length; i++) {
                 const int = this.arrIntervals[i];
                 if (int.ID !== undefined) this.stop(int.ID);
@@ -112,7 +144,7 @@ export default class IntervalListener {
     }
 
     /**
-     * for debugging only: logs out all intervals on console
+     * for debugging purposes: logs out all intervals on console
      */
     list () {
         for (let i = 0; i < this.arrIntervals.length; i++) {

@@ -181,6 +181,14 @@ function initStatusIcons () {
     }        
 }
 
+export function flashImg(id, timeout = 2250) {
+    let image = document.getElementById(id);
+    image.classList.add('flash');
+    setTimeout(() => {
+        image.classList.remove('flash');
+    }, timeout);            
+}
+
 /**
  * loads all sounds and songs in the responsible class
  */

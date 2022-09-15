@@ -29,7 +29,6 @@ window.onbeforeunload = function() {
 }
 
 loadSettings(APP_NAME, true);
-// setSettings();
 enableControls('divMusic', gameSettings.musicEnabled);
 enableControls('divDebugmode', gameSettings.debugMode);
 
@@ -52,6 +51,9 @@ function displayValue(event) {
             break;
         case 'enlarge':
             $('enlargePix').innerText = value + ' px';
+            break;
+        case 'coins':
+            $('dbgCoins').innerText = value;
             break;
         case 'bottles':
             $('dbgBottles').innerText = value;
@@ -99,15 +101,18 @@ function updateSettings (event) {
         case 'intro':
             gameSettings.showIntro = value;
             break;
+        case 'coins':
+            gameSettings.dbgCoins = value;
+            break;
         case 'bottles':
-            gameSettings.debugBottles = value;
+            gameSettings.dbgBottles = value;
             break;
         case 'bullets':
-            gameSettings.debugBullets = value;
-            gameSettings.debugGun = value > 0;
+            gameSettings.dbgBullets = value;
+            gameSettings.dbgGun = value > 0;
             break;
         case 'seeds':
-            gameSettings.debugSeeds = value;
+            gameSettings.dbgSeeds = value;
             break;  
         case 'frame':
             gameSettings.showFrame = value;
@@ -149,10 +154,11 @@ function restoreSettings () {
     gameSettings.soundEnabled = true;
     gameSettings.debugMode = false;
       gameSettings.showFrame = false;
-      gameSettings.debugBottles = 0;
-      gameSettings.debugBullets = 0;
-      gameSettings.debugGun = false;
-      gameSettings.debugSeeds = 0;
+      gameSettings.dbgCoins = 0;
+      gameSettings.dbgBottles = 0;
+      gameSettings.dbgBullets = 0;
+      gameSettings.dbgGun = false;
+      gameSettings.dbgSeeds = 0;
     gameSettings.showIntro = true;
     gameSettings.showHelpOnStart = true;
     gameSettings.lastSong = 0;

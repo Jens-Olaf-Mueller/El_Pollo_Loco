@@ -23,6 +23,16 @@
         <div class="settings-top flx-row1">
             <div class="flx-col">
                 <div class="control checkbox">
+                    <input  id="chkHelp" type="checkbox" data-settings="help" checked>
+                    <label for="chkHelp">Show help on start</label>            
+                </div>
+                
+                <div class="control checkbox">
+                    <input  id="chkIntro" type="checkbox" data-settings="intro" checked>
+                    <label for="chkIntro">Show intro</label>            
+                </div>
+
+                <div class="control checkbox">
                     <input  id="chkSound" type="checkbox" data-settings="sound" checked>
                     <label for="chkSound">Sound enabled</label>            
                 </div>
@@ -61,16 +71,6 @@
                     <input id="enlargeChicken" class="slider" type="range" min="3" max="10" value="3" data-settings="enlarge"><span id="enlargePix">3 px</span> 
                 </div>
 
-                <div class="control checkbox">
-                    <input  id="chkHelp" type="checkbox" data-settings="help" checked>
-                    <label for="chkHelp">Show help on start</label>            
-                </div>
-
-                <div class="control checkbox">
-                    <input  id="chkIntro" type="checkbox" data-settings="intro" checked>
-                    <label for="chkIntro">Show intro</label>            
-                </div>
-
                 <!-------------------------------------------->
                 <!--          D E B U G  -  M O D E         -->
                 <!-------------------------------------------->
@@ -80,20 +80,25 @@
                             <input  id="chkDebugger" type="checkbox" data-settings="debug">
                             <label for="chkDebugger">Debugmode</label>            
                         </div>
+
+                        <div class="control checkbox indent">
+                            <label for="debugCoins" id="lblCoins" disabled>Coins</label>
+                            <input id="debugCoins" class="slider" type="range" min="0" max="10000" value="5000" data-settings="coins" disabled><span id="dbgCoins" disabled>0</span> 
+                        </div>
         
                         <div class="control checkbox indent">
                             <label for="debugBottles" id="lblBottles" disabled>Bottles</label>
-                            <input id="debugBottles" class="slider" type="range" min="0" max="30" value="0" data-settings="bottles" name="bottles" disabled><span id="dbgBottles" disabled>0</span> 
+                            <input id="debugBottles" class="slider" type="range" min="0" max="30" value="0" data-settings="bottles" disabled><span id="dbgBottles" disabled>0</span> 
                         </div>
         
                         <div class="control checkbox indent">
                             <label for="debugBullets" id="lblBullets" disabled>Bullets</label>
-                            <input id="debugBullets" class="slider" type="range" min="0" max="30" value="0" data-settings="bullets" name="bullets" disabled><span id="dbgBullets" disabled>0</span> 
+                            <input id="debugBullets" class="slider" type="range" min="0" max="30" value="0" data-settings="bullets" disabled><span id="dbgBullets" disabled>0</span> 
                         </div>
         
                         <div class="control checkbox indent">
                             <label for="debugSeeds" id="lblSeeds" disabled>Seeds</label>
-                            <input id="debugSeeds" class="slider" type="range" min="0" max="100" value="10" data-settings="seeds" name="seeds" disabled><span id="dbgSeeds" disabled>10</span> 
+                            <input id="debugSeeds" class="slider" type="range" min="0" max="100" value="10" data-settings="seeds" disabled><span id="dbgSeeds" disabled>10</span> 
                         </div>                        
                     </div>
 

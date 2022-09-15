@@ -38,6 +38,7 @@ export default class World {
     arrEnemies;
     arrClouds;
     arrItems;
+    arrEndbossLastX = [];
 
     bottle;
     bonus;
@@ -361,8 +362,9 @@ export default class World {
     allEndbossesKilled (boss) {
         if (boss.isDead()) {
             let timeElapsed = new Date().getTime();
-            if (timeElapsed - boss.diedAt > 3) {
+            if (timeElapsed - boss.diedAt > 6) {
                 boss.remove('dead');
+                this.arrEndbossLastX.push(boss.X); // save for display in next level as food!
                 return (this.getAllEndbosses().length == 0);
             }                    
         }  

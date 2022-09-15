@@ -9,6 +9,7 @@ import Background from './background.class.js';
 import Obstracle from './obstracles.class.js';
 import Cloud from './cloud.class.js';
 import Item from './items.class.js';
+import Shop from './shop.class.js';
 import Food from './food.class.js';
 
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
@@ -84,7 +85,8 @@ export default class Level {
         for (let i = 0; i < count; i++) {
             this.Items.push(...this.add (3, Item,'bottle', 'Items/Bottles'));
         }
-        this.Items.push(...this.add (1, Item, 'shop_closed', 'Items/Misc'));
+        // this.Items.push(new Shop('../img/Items/Misc/shop0.png',this));
+        this.Items.push(...this.add (1, Item, 'shop', 'Items/Misc'));
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
         this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
 

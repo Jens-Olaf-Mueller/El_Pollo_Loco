@@ -12,7 +12,8 @@ export default class Mobile {
     speedY = 0;             // gravity acceleration
     acceleration = 0.5;
 
-    image = undefined;
+    image = undefined;    
+    imageBG = undefined;
     imgIndex = 0;
     imageCache = {};        // as image cache we use a jsonArray: {pictureKey: picturePath}
     isMirrored = false;     // = 'otherDirection'    
@@ -24,6 +25,11 @@ export default class Mobile {
     loadImage(path) {
         if (this.image === undefined) this.image = new Image();
         this.image.src = (path === undefined) ? '' : path;
+    }
+
+    loadBackgroundImage(path) {
+        if (this.imageBG === undefined) this.imageBG = new Image();
+        this.imageBG.src = (path === undefined) ? '' : path;
     }
 
     loadImageCache (arr, name) {

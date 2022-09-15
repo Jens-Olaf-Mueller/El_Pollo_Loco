@@ -3,7 +3,7 @@
 * an extending or used class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { updateGameStatus, gameOver, Sounds, Intervals } from '../game.js';
+import { updateGameStatus, gameOver, Sounds, Intervals, flashImg } from '../game.js';
 import { loadSettings, saveSettings, gameSettings } from '../settings_mod.js';
 import { loadArray, random } from '../library.js';
 import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
@@ -71,10 +71,11 @@ export default class Character extends Mobile {
         this.keyForChest = gameSettings.keyForChest || 0;
         this.seeds = gameSettings.seeds || 0;
         if (gameSettings.debugMode) {
-            if (gameSettings.debugBottles) this.bottles = gameSettings.debugBottles;
-            if (gameSettings.debugSeeds) this.seeds = gameSettings.debugSeeds;
-            if (gameSettings.debugBullets) this.bullets = gameSettings.debugBullets;
-            if (gameSettings.debugGun) this.gun = true;
+            if (gameSettings.dbgCoins) this.coins = gameSettings.dbgCoins;
+            if (gameSettings.dbgBottles) this.bottles = gameSettings.dbgBottles;
+            if (gameSettings.dbgSeeds) this.seeds = gameSettings.dbgSeeds;
+            if (gameSettings.dbgBullets) this.bullets = gameSettings.dbgBullets;
+            if (gameSettings.dbgGun) this.gun = true;
         } 
     }
 
@@ -215,6 +216,7 @@ export default class Character extends Mobile {
                 item.enabled(false);
             } else {
                 Sounds.play('money');
+                flashImg('imgCoin');
             }   
         }
     }
