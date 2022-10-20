@@ -1,25 +1,30 @@
 export default class Container {
     docID;
     element;
-    thisHTML;
+    #arrEvents = [];
     constructor (id) {
         this.docID = id;
         this.element = document.getElementById(id);
     }
 
-    show () {
+    show() {
         this.element.classList.remove('hidden');
     }
 
-    hide (){
+    hide() {
         this.element.classList.add('hidden');
     }
 
-    addClass (classname) {
+    setEventListener(type, handler) {
+        this.#arrEvents.push(handler.name);
+        this.element.addEventListener(type, handler);
+    }
+
+    addClass(classname) {
         this.element.classList.add(classname);
     }
 
-    removeClass (classname) {
+    removeClass(classname) {
         this.element.classList.remove(classname);
     }
 }

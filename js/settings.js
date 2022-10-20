@@ -116,7 +116,10 @@ function updateSettings (event) {
             break;  
         case 'frame':
             gameSettings.showFrame = value;
-            break;              
+            break;   
+        case 'enemies':
+            gameSettings.enemiesOff = value;
+            break;           
                 
         default:
             gameSettings.debugMode = value;
@@ -154,6 +157,7 @@ function restoreSettings () {
     gameSettings.soundEnabled = true;
     gameSettings.debugMode = false;
       gameSettings.showFrame = false;
+      gameSettings.enemiesOff = false;
       gameSettings.dbgCoins = 0;
       gameSettings.dbgBottles = 0;
       gameSettings.dbgBullets = 0;

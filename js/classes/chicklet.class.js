@@ -15,7 +15,7 @@ export default class Chicklet extends Enemy {
         this.X = pX === undefined ? CANVAS_WIDTH / 2 + Math.random() * this.eastEnd : pX;
         this.Y = pY;
         this.initialize();
-        this.applyGravity();
+        this.applyGravity(this);
         this.animate('wlk', this);
     };  
 
@@ -25,6 +25,6 @@ export default class Chicklet extends Enemy {
         this.arrAnimation.push('./img/Chicken/chicklets/dead.png');
         this.loadImageCache (this.arrAnimation, this.name); 
         this.speed = 0.4 + Math.random();
-        this.damage = this.level.levelNo * 2;        
+        this.damage = this.level.levelNo * 0.5;        
     }
 }

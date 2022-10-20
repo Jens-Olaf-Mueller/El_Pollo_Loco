@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Pollo Loco</title>
+    <title>El Pollo Loco - Ultimate V1.1</title>
 
     <link rel="icon" type="image/x-icon" href="./img/Chicken/adult/wlk0.png">
     <!-- <link href="https://fonts.cdnfonts.com/css/red-hot-chili" rel="stylesheet"> -->
     <link rel="stylesheet" href="./fonts/Zabars/stylesheet.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="./styles/style.css">
+    <link rel="stylesheet" href="./styles/style_tooltip.css">
 
     <script type="module" defer src="./js/game.js"></script>
 
@@ -19,52 +20,88 @@
     <!-------------------------------------------->
     <!--              C A N V A S               -->
     <!-------------------------------------------->    
-    <div id="divCanvas" class="canvas hidden">
-        <div id="divStatusbar" class="statusbar">
-            <img id="imgEnergy" class="status-icon" src="./img/Status/Energy/battery100.png"> 
-            <img id="imgJump" class="status-icon" src="./img/Status/Jump/jmp50.png">
-            <img id="imgAccuracy" class="status-icon" src="./img/Status/Accuracy/accuracy50.png">
+    <div id="divCanvas" class="canvas-frame hidden">
+        <div class="statusbar">
+            <div id="divStatusbar" class="statusbar-left">
+                <img id="imgEnergy" class="status-icon" src="./img/Status/Energy/battery100.png"> 
+                <img id="imgJump" class="status-icon" src="./img/Status/Jump/jmp50.png">
+                <img id="imgAccuracy" class="status-icon" src="./img/Status/Accuracy/accuracy50.png">
 
-            <div id="divBottle" class="status-icon-text">
-                <img id="imgSharpness" class="status-icon" src="./img/Status/Sharpness/sharp40.png">
-                <label id="lblBottles">0</label>
+                <div id="divBottle" class="status-icon-text">
+                    <img id="imgSharpness" class="status-icon" src="./img/Status/Sharpness/sharp40.png">
+                    <label id="lblBottles">0</label>
+                </div>
+
+                <!-- <img id="imgGun" class="status-icon hidden" src="./img/Status/Bullets/gun0.png"> -->
+                <img id="imgKey" class="status-icon hidden" src="./img/Items/Chest/key1.png">
+                
+                <div id="divBullet" class="status-icon-text hidden">
+                    <img id="imgGun" class="status-icon" src="./img/Status/Bullets/gun1.png">
+                    <img id="imgBullet" class="status-icon" src="./img/Status/Bullets/bullet1.png">
+                    <label id="lblBullets">0</label>
+                </div>
+                <div id="divCoin" class="status-icon-text">
+                    <img id="imgCoin" class="status-icon" src="./img/Items/Coins/coin0.png">
+                    <label id="lblCoins">0</label>
+                </div>
+                <div id="divSeed" class="status-icon-text">
+                    <img id="imgSeed" class="status-icon" src="./img/Items/Seeds/seedbag1.png">
+                    <label id="lblSeed">0</label>
+                </div>                     
             </div>
 
-            <!-- <img id="imgGun" class="status-icon hidden" src="./img/Status/Bullets/gun0.png"> -->
-            <img id="imgKey" class="status-icon hidden" src="./img/Items/Chest/key1.png">
-            
-            <div id="divBullet" class="status-icon-text hidden">
-                <img id="imgGun" class="status-icon" src="./img/Status/Bullets/gun1.png">
-                <img id="imgBullet" class="status-icon" src="./img/Status/Bullets/bullet1.png">
-                <label id="lblBullets">0</label>
+            <div class="statusbar-right">
+                <div id="divScore" class="status-icon">Score: 1000</div>
+                <div id="divLevel"  class="status-icon">1</div>
             </div>
-            <div id="divCoin" class="status-icon-text">
-                <img id="imgCoin" class="status-icon" src="./img/Items/Coins/coin0.png">
-                <label id="lblCoins">0</label>
-            </div>
-            <div id="divSeed" class="status-icon-text">
-                <img id="imgSeed" class="status-icon" src="./img/Items/Seeds/seedbag1.png">
-                <label id="lblSeed">0</label>
-            </div>                     
         </div>
 
-        <div id="divScore" class="status-icon">Score: 1000</div>
-        <div id="divLevel"  class="status-icon">1</div>
+        <div class="home-icons progress-bar hidden">
+            <div id="aniLoad" class="home-icons loading"></div>
+            <h3 class="h3-loading">Loading... 100%</h3>
+        </div>  
 
         <canvas id="canvas" width="720px" height="480px"> </canvas>
         <!-------------------------------------------->
         <!--     M O B I L E  N A V - B A R         -->
         <!-------------------------------------------->
+        <div id="divOrientationbar" class="orientationbar">
+            <div id="divCursor" class="cursor"></div>
+        </div>
         <div id="divNavbar" class="mobile-navbar hidden">
             <div class="nav-edge">
-                <img id="imgLeft" src="./img/Status/Mobile/arrow-left.png">
-                <img id="imgUp" src="./img/Status/Mobile/arrow-up.png">            
+                <img id="imgLeft" class ="navbar-icon" src="./img/Status/Mobile/arrow left.png">
+                <img id="imgUp" class ="navbar-icon" src="./img/Status/Mobile/arrow up.png">            
+                <img id="imgHeart" class ="navbar-icon " src="./img/Status/Mobile/heart.png">            
             </div>
             <div class="nav-edge">            
-                <img id="imgAction" src="./img/Status/Mobile/take.png"> 
-                <img id="imgRight" src="./img/Status/Mobile/arrow-right.png">
+                <img id="imgBuy" class ="navbar-icon " src="./img/Status/Mobile/buy.png"> 
+                <img id="imgAction" class ="navbar-icon" src="./img/Status/Mobile/ok.png"> 
+                <img id="imgRight" class ="navbar-icon" src="./img/Status/Mobile/arrow right.png">
             </div>
+        </div>        
+
+        <div id="divSidebar" class="sidebar">
+            <a href="#">
+                <img id="imgHome" class ="navbar-icon" src="./img/Status/Mobile/home.png">
+            </a>
+            
+            <a href="settings.html">
+                <img id="imgSettings" class ="navbar-icon" src="./img/Status/Mobile/settings.png">
+            </a>
+
+            <a href="help.html">
+                <img id="imgHelp" class ="navbar-icon" src="./img/Status/Mobile/help.png">
+            </a>
+            
+            <img id="imgSound" class ="navbar-icon" src="./img/Status/Mobile/sound on.png">
+            <img id="imgMusic" class ="navbar-icon" src="./img/Status/Mobile/music off.png">
+            <img id="imgPause" class ="navbar-icon" src="./img/Status/Mobile/pause.png">
         </div>
+        <div class="quit tooltip" data-tooltip="Quit ?">
+            <img id="imgQuit" class ="navbar-icon" src="./img/Status/Mobile/cancel.png">
+        </div>
+        
     </div>  
     <!-------------------------------------------->
     <!--                H O M E                 -->
@@ -76,10 +113,10 @@
             <a href="settings.html"><div class="home-icons home-settings"><h3>Settings</h3></div></a>        
             <a href="help.html"><div class="home-icons help"><h3>Help</h3></div></a>
             <div id="btnStart" class="home-icons start"><h3>Start</h3></div>
-            <div class="home-icons hidden">
+            <!-- <div class="home-icons hidden">
                 <div id="aniLoad" class="home-icons loading"></div>
                 <h3 class="h3-loading">Loading... 100%</h3>
-            </div>           
+            </div>            -->
         </div>        
     </div>
     <div id="divIntro" class="intro hidden">

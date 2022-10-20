@@ -10,7 +10,7 @@ export default class Scorpion extends Enemy {
 
     constructor (level, index = 1) {
         super (level,'Scorpion', index);
-        this.damage = 2 + Math.random() * level.levelNo;
+        this.damage = (2 + Math.random() * level.levelNo) * 0.666;
         this.initialize();
     }
 

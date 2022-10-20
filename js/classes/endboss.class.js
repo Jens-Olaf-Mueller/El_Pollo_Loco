@@ -14,7 +14,8 @@ export default class Endboss extends Enemy {
 
     constructor (level, index = 0) { 
         super(level, 'Endboss', index)
-        this.bossNo = index; // to set different X-positions
+        this.bossNo = index;        // to set different X-positions
+        this.isFriendly = false;    // always!
         this.initialize();
     };
 
@@ -27,30 +28,38 @@ export default class Endboss extends Enemy {
         this.arrAnimation.push(...loadArray('./img/Endboss/attack/alert/alt', 8));
         this.arrAnimation.push('./img/Endboss/dead/dead.png');
         this.loadImageCache (this.arrAnimation, this.name);
-        this.X = this.eastEnd + this.bossNo * CANVAS_WIDTH / 2; 
+        this.X = this.eastEnd - (this.bossNo + 1) * CANVAS_WIDTH / 2; 
         this.speed = this.defaultSpeed;
         this.damage = this.level.levelNo * 5;
         this.runAnimation(this);
         this.move(this, 'left');
     }
 
-    runAnimation (context) {
+    runAnimation(object) {
         Intervals.add(
             function animation() {
-                if (context.isDead()) {
-                    context.playAnimation (context.arrAnimation,'die');
-                } else if (context.isHurt()) {
-                    context.lastAttack = new Date().getTime(); // saving time stamp since last attack
-                    context.playAnimation (context.arrAnimation,'hurt');
-                    console.log('Endboss energy...' + context.energy)
-                } else if (context.isAttacking()) {
-                    context.speed = 2.75; // 3 ?
-                    context.playAnimation (context.arrAnimation,'atk');     
+                if (object.isDead) {
+                    object.speed = 0;
+                    if (object.timeElapsed(object.diedAt) < 3.5) {    
+                        object.playAnimation (object.arrAnimation,'die');
+                        object.width -=20;
+                        object.height -=20;
+                        object.Y +=20;                        
+                    } else {
+                        object.remove();                        
+                    }  
+                } else if (object.isHurt) {
+                    object.lastAttack = new Date().getTime(); // saving time stamp since last attack
+                    object.playAnimation (object.arrAnimation,'hurt');
+                    // console.log('Endboss energy...' + object.energy)
+                } else if (object.isAttacking()) {
+                    object.speed = 2.75; // 3 ?
+                    object.playAnimation (object.arrAnimation,'atk');     
                 } else {
-                    context.speed = context.defaultSpeed;
-                    context.playAnimation (context.arrAnimation,'wlk');                
+                    object.speed = object.defaultSpeed;
+                    object.playAnimation (object.arrAnimation,'wlk');                
                 }
-            }, 250, [context] 
+            }, 250, [object] 
         )
     }  
 

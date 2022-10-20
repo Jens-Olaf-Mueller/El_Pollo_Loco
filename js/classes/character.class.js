@@ -88,7 +88,7 @@ export default class Character extends Mobile {
     startIntervals (Me) {
         Intervals.add (
             function move() {
-                if (!Me.isDead()) {
+                if (!Me.isDead) {
                     Sounds.stop('walk');
                     if (Me.keyboard.RIGHT) Me.walk('right');
                     if (Me.keyboard.LEFT) Me.walk('left');
@@ -104,20 +104,20 @@ export default class Character extends Mobile {
         
         Intervals.add (
             function animate () {
-                if (Me.isDead()) {
+                if (Me.isDead) {
                     if (Me.timeElapsed(Me.diedAt) < 2.25) {    
                         Me.playAnimation (Me.arrAnimation,'die');
                     } else {
                         gameOver();
                     }  
-                } else if (Me.isHurt()) {
+                } else if (Me.isHurt) {
                     Me.playAnimation (Me.arrAnimation,'hurt');
                     Me.setNewTimeStamp();
                 } else if (Me.isAboveGround() || Me.speedY > 0) {
                     Me.playAnimation (Me.arrAnimation,'jmp');
                 } else if (Me.keyboard.RIGHT || Me.keyboard.LEFT) {
                     Me.playAnimation (Me.arrAnimation,'wlk');    
-                } else if (Me.isSleeping()) {
+                } else if (Me.isSleeping) {
                     Me.playAnimation(Me.arrAnimation,'slp');              
                 } else {
                     Me.playAnimation(Me.arrAnimation,'wait');
@@ -144,7 +144,7 @@ export default class Character extends Mobile {
     }
 
     jump () {
-        Sounds.play('jump');
+        if (this.jumpPower > 20) Sounds.play('jump');
         let power = Math.round(this.jumpPower / 6.75);
         if (power > 15) power = 15;
         this.speedY = -power;

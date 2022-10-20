@@ -2,14 +2,15 @@
     --ctrl-color: #f9ca24; /* #ffa600;*/
     --bg-yellow: #f6e58d;
     --txt-color: #4f2816;
+    --frame-color:  rgba(139, 69, 19, 0.478);
+    --icon-size: 2rem;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* font-family: 'Red Hot Chili', sans-serif;
-    font-size: xx-large; */
+    /* font-family: 'Red Hot Chili', sans-serif; */
     font-family: 'zabarsregular', arial;
     font-size: 1.33rem;
     font-weight: 100;
@@ -23,13 +24,17 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-image: url('../img/Intro_Outro/start_screen/screen1.png');
+    justify-content: center;
+    /* background-image: url('../img/Intro_Outro/start_screen/screen1.png'); */
+    background-image: url('../img/Intro_Outro/desert2_1920x1080.jpg');
     /* background-position: center; */
+    min-height: 100vh;
     overflow: hidden;
 }
 
 canvas {
     background-color: black;
+    margin-top: 0.75rem;
 }
 
 /* #################################################################### */
@@ -44,7 +49,7 @@ canvas {
     height: 100%;
     overflow: auto;
     position: relative;
-    background-image: url('../img/Intro_Outro/desert1920.png');
+    background-image: url('../img/Intro_Outro/desert1_1920.png');
     padding: 2rem 4rem;
     background-color: var(--bg-yellow);
     opacity: 0.95;
@@ -136,6 +141,11 @@ canvas {
     transition: ease-in-out 333ms;
 }
 
+.progress-bar {
+    position: absolute;
+    margin: 0;
+}
+
 .desktop, .mobile {
     font-size: 5rem;
     text-align: center;
@@ -170,25 +180,55 @@ canvas {
 /* #################################################################### */
 /*                             C A N V A S                              */
 /* #################################################################### */
-.canvas {
+.canvas-frame {
     position: relative;
-    height: 100vh;
+    width: 956px; /* 1020px; */
+    height: 700px; /* 680px; */    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    /* gap: 1rem; */
+    background-image: url('../img/Status/frame0_984x720.png');
+    background-color: var(--frame-color);
+    background-repeat: no-repeat;
+    background-size: cover;
+    box-shadow: 12px 12px 24px var(--frame-color);
+    border-radius: 12px;
 }
 
-.canvas .statusbar {
-    position: absolute;
-    top: 0;
-    left: 0;
+.statusbar {
+    width: 75%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.statusbar-left {
+    /* position: absolute; */
+    /* margin: 1rem; */
+    /* margin-left: 5rem; */
+    padding-top: 0.25rem;
+    /* top: 1rem;
+    left: 1rem; */
     display: flex;
     align-items: center;
-    padding: 0.33rem 0;
+    align-self: flex-start;
+    /* padding: 0.33rem 0; */
     font-size: 0.8rem;
 }
 
+.statusbar-right {
+    /* margin-right: 5rem; */
+    padding-top: 0.25rem;
+    display: flex;
+    align-self: flex-end;
+}
+
 .status-icon {
-    width: 1.75rem;
-    height: 1.75rem;
-    margin-left: 0.5rem;    
+    width: var(--icon-size);
+    height: var(--icon-size);
+    margin: 0 0.25rem;   
+    filter: contrast(1.33); 
 }
 
 .status-icon-text {
@@ -229,12 +269,12 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: absolute;
+    /* position: absolute;
     top: 0.33rem;
-    right: 2.33rem;
+    right: 2.33rem; */
     width: auto;
     min-width: 4rem;
-    height: 1.75rem;
+    height: var(--icon-size);
     font-size: 1rem;
     font-weight: 100;
     padding: 0 0.25rem;    
@@ -244,10 +284,11 @@ canvas {
 }
 
 #divLevel {
-    position: absolute;
+    /* position: absolute;
     top: 0.33rem;
-    right: 0.33rem;
-    width: 1.75rem;
+    right: 0.33rem; */
+    width: var(--icon-size);
+    height: var(--icon-size);
     background: var(--ctrl-color);
     border: 4px double black;
     border-radius: 100%;
@@ -264,7 +305,8 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2.75rem;
+    padding: 0 4.75rem;
+    margin-top: 0.5rem;
     width: 100%;
 }
 
@@ -273,12 +315,53 @@ canvas {
     gap: 1rem;
 }
 
-.mobile-navbar img {
-    width: 2rem;
-    height: 2rem;
-    margin: 0.25rem;
+.navbar-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    filter: saturate(1.1);
     cursor: pointer;
 }
+
+.navbar-icon:hover {
+    filter: brightness(1.2);
+    
+}
+
+.sidebar {
+    position: absolute;
+    top: 1rem;
+    left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.orientationbar {
+    position: absolute;
+    bottom: 4.25rem;
+    height: 1rem;
+    width: 720px;
+    background-image: url('../img/Background/complete.png');
+    background-size: contain;
+    background-color: wheat;
+}
+
+.cursor {
+    height: 90%;
+    width: 50%;
+    border-right: 3px solid lime;
+    left: 12rem;
+    z-index: 101;
+}
+
+/* #imgQuit { */
+.quit {
+    position: absolute !important;
+    top: 1rem;
+    right: 1rem;
+}
+
+#imgHelp {margin-bottom: 1rem;}
 
 /* common classes - at the end of the cascade!!! */
 .flx-row1 {
@@ -377,7 +460,7 @@ canvas {
         width: 720px;
     }
 
-    .canvas {
+    .canvas-frame {
         /* width: 100vw;  */
         height: 100vh;
         overflow: hidden;
@@ -397,7 +480,7 @@ canvas {
         width: 720px;
     }
 
-    .canvas {
+    .canvas-frame {
         /* height and width are switched due to landscape mode !!! */
         width: 138vh; 
         height: 100vw;

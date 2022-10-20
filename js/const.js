@@ -3,8 +3,12 @@ import Container from './classes/container.class.js';
 const APP_NAME = 'El Pollo Loco';
 const PEPE = 'Pepe';
 const IMG_GAMEOVER ="url('../img/Intro_Outro/gameover_screen/3.Game over.png')";
-const IMG_START = ["url('../img/Intro_Outro/start_screen/screen1.png')",
-                   "url('../img/Intro_Outro/start_screen/screen2.png')"];
+const IMG_START = ["url('../img/Intro_Outro/desert1_1920.png')",
+                   "url('../img/Intro_Outro/desert2_1920x1080.jpg')",
+                   "url('../img/Intro_Outro/desert3_1920.png')",
+                   "url('../img/Intro_Outro/desert4_1400.jpg')"];
+const BTN_PATH = './img/Status/Mobile/';                 
+
 
 // Frames per second                   
 const FPS = 60; 
@@ -32,7 +36,10 @@ const canvasParent = document.getElementById('divCanvas'),
       introScreen = new Container('divIntro'),
       canvasDiv = new Container('divCanvas'),
       navBar = new Container('divNavbar'),
-      statusBar = new Container('divStatusbar');
+      statusBar = new Container('divStatusbar'),
+      btnMusic = new Container('imgMusic'),
+      btnSound = new Container('imgSound'),
+      btnPause = new Container('imgPause');
 
 const SONG_TITLES = ['Santa Esmeralda','Chicken Song'];
 
@@ -70,6 +77,7 @@ export const DEFAULT_SETTINGS = {
     soundEnabled: true,
     debugMode: false,
       showFrame: false,
+      enemiesOff: false,
       dbgCoins: 0,
       dbgBottles: 0,
       dbgBullets: 0,
@@ -103,5 +111,7 @@ export { APP_NAME, PEPE,
         ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS,          
         IMG_GAMEOVER, 
         IMG_START,
+        BTN_PATH,
         COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT };
-export { canvasParent, homeScreen, introScreen ,canvasDiv, navBar, statusBar };
+export { canvasParent, homeScreen, introScreen ,canvasDiv, navBar, statusBar, 
+        btnMusic, btnSound, btnPause };

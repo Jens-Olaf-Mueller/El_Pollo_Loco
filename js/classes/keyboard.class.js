@@ -6,6 +6,7 @@ export default class Keyboard {
     RIGHT = false;
     UP = false;
     SPACE = false;
+    B_KEY = false;
     Q_KEY = false;      // quit game (suicide)
     S_KEY = false;      // save game
     P_KEY = false;      // pause game
@@ -13,79 +14,105 @@ export default class Keyboard {
     CTRL_LEFT = false;  // feed chicken
     CTRL_RIGHT = false; // for further using
 
+    arrButtons = ['imgLeft','imgRight','imgUp','imgAction','imgBuy','imgPause','imgQuit','imgHeart'];
+    arrEvents = ['mousedown','mouseup','touchstart','touchend'];
+
     constructor() {
-        this.setEventListeners();
+        this.setKeyboardEvents();
+        this.buttonEvents();
+        // better solution: 
+        // https://stackoverflow.com/questions/11845678/adding-multiple-event-listeners-to-one-element        
     }
 
-    setEventListeners () {
-        window.addEventListener('keydown', (event) => {
-            // console.log(event);
-            if (event.key == 'ArrowLeft') this.LEFT = true;
-            if (event.key == 'ArrowRight') this.RIGHT = true;
-            if (event.key == 'ArrowUp') this.UP = true;
-            if (event.key == ' ') this.SPACE = true;
-            if (event.key == 's') this.S_KEY = true;
-            if (event.key == 'q') this.Q_KEY = true;
-            if (event.key == 'p') this.P_KEY = true;
-            if (event.key == 'F8') this.F8_KEY = true;
-            if (event.code == 'ControlLeft') this.CTRL_LEFT = true;
-            if (event.code == 'ControlRight')  this.CTRL_RIGHT = true;
-        });
-            
-        window.addEventListener('keyup', (event) => {
-            // console.log(event);
-            if (event.key == 'ArrowLeft') this.LEFT = false;
-            if (event.key == 'ArrowRight') this.RIGHT = false;
-            if (event.key == 'ArrowUp') this.UP = false;
-            if (event.key == ' ') this.SPACE = false;
-            if (event.key == 's') this.S_KEY = false;
-            if (event.key == 'q') this.Q_KEY = false;
-            if (event.key == 'p') this.P_KEY = false;
-            if (event.key == 'F8') this.F8_KEY = false;
-            if (event.code == 'ControlLeft') this.CTRL_LEFT = false;
-            if (event.code == 'ControlRight')  this.CTRL_RIGHT = false;
-        });
-
-        // event listeners for touch screen devices
-        $('imgLeft').addEventListener('touchstart', (event) => {
-            event.preventDefault();
-            this.LEFT = true;
-        });
-
-        $('imgLeft').addEventListener('touchend', (event) => {
-            event.preventDefault();
-            this.LEFT = false;
-        });
-
-        $('imgRight').addEventListener('touchstart', (event) => {
-            event.preventDefault();
-            this.RIGHT = true;
-        });
-
-        $('imgRight').addEventListener('touchend', (event) => {
-            event.preventDefault();
-            this.RIGHT = false;
-        });
-
-        $('imgUp').addEventListener('touchstart', (event) => {
-            event.preventDefault();
-            this.UP = true;
-        });
-
-        $('imgUp').addEventListener('touchend', (event) => {
-            event.preventDefault();
-            this.UP = false;
-        })
-
-        $('imgAction').addEventListener('touchstart', (event) => {
-            event.preventDefault();
-            this.SPACE = true;
-        });
-        
-        $('imgAction').addEventListener('touchend', (event) => {
-            event.preventDefault();
-            this.SPACE = false;
+    setKeyboardEvents () {
+        ['keydown','keyup'].forEach((evt) => {
+            window.addEventListener(evt, (event) => {
+                // console.log(event);
+                if (event.key == 'ArrowLeft') this.LEFT = (evt == 'keydown') ? true : false;
+                if (event.key == 'ArrowRight') this.RIGHT = (evt == 'keydown') ? true : false;
+                if (event.key == 'ArrowUp') this.UP = (evt == 'keydown') ? true : false;
+                if (event.key == ' ') this.SPACE = (evt == 'keydown') ? true : false;
+                if (event.key == 'b') this.B_KEY = (evt == 'keydown') ? true : false;
+                if (event.key == 's') this.S_KEY = (evt == 'keydown') ? true : false;
+                if (event.key == 'q') this.Q_KEY = (evt == 'keydown') ? true : false;
+                if (event.key == 'p') this.P_KEY = (evt == 'keydown') ? true : false;
+                if (event.key == 'F8') this.F8_KEY = (evt == 'keydown') ? true : false;
+                if (event.code == 'ControlLeft') this.CTRL_LEFT = (evt == 'keydown') ? true : false;
+                if (event.code == 'ControlRight')  this.CTRL_RIGHT = (evt == 'keydown') ? true : false;
+            });
         })
     }
+
+    buttonEvents() {
+        for (let i = 0; i < this.arrButtons.length; i++) {
+            const id = this.arrButtons[i], btn = document.getElementById(id);
+            this.arrEvents.forEach((evt) => {
+                btn.addEventListener(evt, (event) => {
+                    event.preventDefault();
+                    let state = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+                    switch (id) {
+                        case 'imgLeft': this.LEFT = state;
+                            break;
+                        case 'imgRight': this.RIGHT = state;
+                            break;
+                        case 'imgUp': this.UP = state;
+                            break;
+                        case 'imgAction': this.SPACE = state;
+                            break;
+                        case 'imgBuy': this.B_KEY = state;
+                            break;
+                        case 'imgPause': this.P_KEY = state;
+                            break;
+                        case 'imgQuit': this.Q_KEY = state;
+                            break;
+                        case 'imgHeart': this.CTRL_LEFT = state;
+                            break;
+                    }
+                });
+            });
+        }
+
+        // this.arrEvents.forEach((evt) => {
+        //     $('imgLeft').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.LEFT = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgRight').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.RIGHT = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgUp').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.UP = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgAction').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.SPACE = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgBuy').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.B_KEY = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgPause').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.P_KEY = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgQuit').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.Q_KEY = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgHeart').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.CTRL_LEFT = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+        // });
+    }
+
 }
-

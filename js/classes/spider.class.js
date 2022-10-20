@@ -10,7 +10,7 @@ export default class Spider extends Enemy {
 
     constructor (level, index = 1) {
         super (level,'Spider', index);
-        this.damage = 2 + Math.random() * level.levelNo;
+        this.damage = (2 + Math.random() * level.levelNo) * 0.5;
         this.initialize();        
     }
 

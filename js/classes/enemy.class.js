@@ -2,6 +2,7 @@ import Mobile from './mobile.class.js';
 import { Intervals } from "../game.js";
 import { FPS, CANVAS_WIDTH } from '../const.js';
 import { random } from '../library.js';
+import { gameSettings } from '../settings_mod.js';
 
 export default class Enemy extends Mobile {
     name = '';
@@ -16,7 +17,7 @@ export default class Enemy extends Mobile {
     westEnd = undefined;
     isBackground = false;
     onCollisionCourse = true;
-    isFriendly = false; 
+    isFriendly = gameSettings.enemiesOff; 
     energy = 100;
     damage = 0;
 
@@ -65,21 +66,16 @@ export default class Enemy extends Mobile {
         return this.energy > 0;
     }
 
-    remove (displayImage) {
+    remove () {
         if (this.type == 'bees') return;
         this.animationID = clearInterval(this.animationID);
         this.moveID = clearInterval(this.moveID);
-
         Intervals.remove(this.name);
-        // Intervals.remove(this.name + '_move');
-        // Intervals.remove(this.name + '_enemyAnimation');
-
         this.damage = 0;
         this.energy = 0;
         this.speed = 0; 
         this.resizeEnemy(this.type);    
-        // used to display a dead enemy (i.e chicken)     
-        if (displayImage) this.loadImage(this.imageCache[this.name + '_' + displayImage].src);
+        this.loadImage(this.imageCache[this.name + '_dead'].src);
     }
 
     resizeEnemy (type) {
@@ -90,9 +86,9 @@ export default class Enemy extends Mobile {
                 this.Y = 380;
                 break;
             case 'endboss':
-                this.height = 200;
-                this.width = 175; 
-                this.Y = 260;           
+                this.height = 70;
+                this.width = 70; 
+                this.Y = 380;           
                 break;
             default: // spiders & scorpions...
                 this.height = 30;

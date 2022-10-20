@@ -15,7 +15,7 @@ import Seed from './seed.class.js';
 import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
 import { showIntroScreen, updateGameStatus, Sounds, Intervals } from '../game.js';
 import { saveSettings, gameSettings } from '../settings_mod.js';
-import { random, sleep } from '../library.js';
+import { sleep } from '../library.js';
 
 export default class World { 
     Pepe;  
@@ -59,11 +59,10 @@ export default class World {
         this.gamePaused = undefined;                       
         this.initLevel (this.levelNo);
         this.draw();        
-        this.mainID = this.run();
     }
 
     initLevel (levelNo) {
-        this.level = new Level(levelNo);
+        this.level = new Level(levelNo, this.arrEndbossLastX);
         this.eastEnd = this.level.eastEnd;
         this.westEnd = this.level.westEnd;  
         this.arrBackgrounds = this.level.Backgrounds;
@@ -79,18 +78,22 @@ export default class World {
         if (gameSettings.debugMode) {
             console.log('World created... ', this);
             Intervals.list();
-        }        
+        }   
+        this.mainID = this.run();     
     }
 
     async nextLevel () {
-        this.levelNo++;
-        this.initLevel(this.levelNo);
-        this.Pepe.X = 50;
-        this.Pepe.bottles = 0;
-        if (this.Pepe.accuracy > 100) this.Pepe.accuracy -= this.levelNo * 10;
-        if (this.Pepe.sharpness > 100) this.Pepe.sharpness -= this.levelNo * 10;
-        await showIntroScreen(this.levelNo);    
-        await sleep(3500);            
+        setTimeout(async () => {
+            this.levelNo++;
+            await sleep(2500);
+            await showIntroScreen(this.levelNo);
+            this.initLevel(this.levelNo);
+            this.Pepe.X = 50;
+            this.Pepe.bottles = 0;
+            if (this.Pepe.accuracy > 100) this.Pepe.accuracy -= this.levelNo * 10;
+            if (this.Pepe.sharpness > 100) this.Pepe.sharpness -= this.levelNo * 10;  
+             
+        }, 3000);                            
     }
 
     /**
@@ -112,8 +115,12 @@ export default class World {
             this.gameSaved = ((new Date().getTime() - this.lastSaved) / 1000 < 4);
             // levelUp is set in checkBottelCollisions()
             if (this.levelUp) {
-                this.levelUp = false;
-                this.nextLevel();
+                this.mainID = clearInterval(this.mainID);
+                this.levelUp = false;                
+                // setTimeout(() => {
+                    this.nextLevel();
+                // }, 6000);
+                
             }         
         }, 200);
     }
@@ -201,44 +208,56 @@ export default class World {
             if (enemy.isAlive()) {   
                 let collision = this.Pepe.isColliding(enemy); 
                 if (collision == COLL_TOP) {
-                    if (enemy instanceof Chicken || enemy instanceof Chicklet) {
-                        Sounds.play(enemy.type);
-                        enemy.remove('dead');                        
-                        this.enlargeChickens(parseInt(gameSettings.chickenEnlargement)); 
-                        let score = this.levelNo * 10;                      
-                        // killed a friendly chicken ?!
-                        if (enemy.isFriendly) {
-                            score = score * -2;
-                            this.level.createChicklets(this.levelNo * 2 + 1, enemy.X + random(70,300))           
-                        }                         
-                        this.Pepe.score += score;
-                    } else if (enemy instanceof Spider || enemy instanceof Scorpion) { 
-                        Sounds.play('splat');
-                        this.Pepe.score += parseInt(this.levelNo * enemy.damage);
-                        enemy.remove('dead');
-                    }
-                } else if (collision) { // any other collision, no matter from what side
-                     if (!enemy.isFriendly) {
-                        // if we met a snake and can shoot it...
-                        if (enemy instanceof Snake && this.keyboard.SPACE && this.Pepe.canShoot()) {
-                            this.Pepe.shoot();
-                            if (this.Pepe.hitSuccessful()) {
-                                this.Pepe.score += parseInt(this.levelNo * enemy.damage);
-                                enemy.remove('dead');
-                            } else {
-                                Sounds.play('ricochet');
-                            }
-                        } else { // Pepe was simply hit by an enemy...
-                            this.Pepe.hit(enemy.damage);
-                            if (!this.Pepe.isDead()) Sounds.play('ouch');
-                        }                    
-                    }
-                    // play sounds of bees and snakes... 
-                    if (enemy instanceof Bees || enemy instanceof Snake) Sounds.play(enemy.type);
+                    this.handleTopSideCollision(enemy);
+                } else if (collision) { 
+                    // handle any other collision, except from top
+                    this.handleCollision(enemy);
                 }
             }
         });
     }
+
+
+    handleCollision(enemy) {
+        if (!enemy.isFriendly) {
+            // if we met a snake and can shoot - execute a shot!
+            if (enemy instanceof Snake && this.keyboard.SPACE && this.Pepe.canShoot()) {
+                this.Pepe.shoot();
+                if (this.Pepe.hitSuccessful()) {
+                    this.Pepe.score += parseInt(this.levelNo * enemy.damage);
+                    enemy.remove();
+                } else {
+                    Sounds.play('ricochet');
+                }
+            } else { // Pepe was simply hit by an enemy...
+                this.Pepe.hit(enemy.damage);
+                if (!this.Pepe.isDead) Sounds.play('ouch');
+            }                    
+        }
+        // play sounds of bees and snakes... 
+        if (enemy instanceof Bees || enemy instanceof Snake) Sounds.play(enemy.type);
+    }
+
+
+    handleTopSideCollision(enemy) {
+        if (enemy instanceof Bees || enemy instanceof Snake) return;
+        let score = parseInt(this.levelNo * enemy.damage) || 0; 
+        if (enemy instanceof Chicken || enemy instanceof Chicklet) {
+            score = this.levelNo * 10;
+            Sounds.play(enemy.type);                      
+            this.enlargeChickens(parseInt(gameSettings.chickenEnlargement));                                  
+            // killed a friendly chicken ?!
+            if (enemy instanceof Chicken && enemy.isFriendly) {
+                score = score * -2;      
+                this.level.createChicklets(this.levelNo * 2 + 1, enemy.X, -35);           
+            }                     
+        } else if (enemy instanceof Spider || enemy instanceof Scorpion) { 
+            Sounds.play('splat');
+        }
+        enemy.remove();
+        this.Pepe.score += score;
+    }
+
 
     /**
      * enlarges the remaining chicken by some pixels after a chicken was killed.
@@ -252,7 +271,7 @@ export default class World {
                 enemy.width +=increment;
                 enemy.height +=increment;
                 enemy.Y -=increment; // make sure the chicken remains on ground-level!
-                enemy.damage += this.levelNo;
+                enemy.damage += this.levelNo * 0.05;
             }
         });
     }
@@ -261,7 +280,7 @@ export default class World {
      * checks collision with foot, and if we got enough money...
      */
     checkFoodCollisions() {
-        if (this.Pepe.isDead()) return;
+        if (this.Pepe.isDead) return;
         this.level.Food.forEach((food) => {
             if (this.Pepe.isColliding(food) && this.keyboard.SPACE) {
                 this.Pepe.updateProperties(food);
@@ -274,28 +293,31 @@ export default class World {
      * and update the items in character
      */
     checkItemCollisions() {
-        if (this.Pepe.isDead()) return;
-        this.level.Items.forEach((item) => {
-            if (this.Pepe.isColliding(item) && this.keyboard.SPACE) {
-                let foundBonus;
-                if (item.type == 'jar' || (item.type == 'chest' && this.Pepe.keyForChest)) {
-                    foundBonus = item.contains;
+        // if (this.Pepe.isDead) return;
+        if (this.keyboard.SPACE && !this.Pepe.isDead) {
+            this.level.Items.forEach((item) => {
+                if (this.Pepe.isColliding(item)) {
+                    let foundBonus;
+                    if (item.type == 'jar' || (item.type == 'chest' && this.Pepe.keyForChest)) {
+                        foundBonus = item.contains;
+                    }
+                    this.Pepe.updateItems(item, foundBonus);  
                 }
-                this.Pepe.updateItems(item, foundBonus);  
-            }
-        });
+            });
+        }
     }
 
     /**
      * checks if we are in front of a shop and if we can buy items there
      */
     checkForShopping () {
-        if (this.Pepe.isDead()) return;
-        this.level.Backgrounds.forEach((item) => {
-            if (this.Pepe.isInFrontOfShop(item) && this.keyboard.SPACE) {
-                this.Pepe.buyItems(); 
-            }            
-        });
+        if (this.keyboard.B_KEY && !this.Pepe.isDead) {
+            this.level.Backgrounds.forEach((item) => {
+                if (this.Pepe.isInFrontOfShop(item)) {
+                    this.Pepe.buyItems(); 
+                }            
+            });
+        }
     }
 
     /**
@@ -324,7 +346,7 @@ export default class World {
      * accuracy and sharpness-values!
      * if all enbosses are killed, we level up!
      */
-    checkBottelCollisions () {
+    checkBottelCollisions() {
         this.level.Enemies.forEach((enemy) => {
             if (enemy instanceof Endboss) {
                 if (this.bottle.isColliding(enemy)) {
@@ -337,8 +359,7 @@ export default class World {
                         Sounds.play('glass');
                     }                   
                 }
-                this.levelUp = this.allEndbossesKilled (enemy);
-                if (this.levelUp) return;
+                this.levelUp = this.allEndbossesKilled(enemy);
             }
         });
     }
@@ -346,7 +367,7 @@ export default class World {
     /**
      * find all endbosses in the current level, since there can be more than one...
      */
-    getAllEndbosses () {
+    getAllEndbosses() {
         const allBosses = this.arrEnemies.filter(boss => {
             return (boss instanceof Endboss && boss.isAlive());
         }); 
@@ -359,11 +380,10 @@ export default class World {
      * @param {object} boss the endboss to be checked if it is killed
      * @returns true | false
      */
-    allEndbossesKilled (boss) {
-        if (boss.isDead()) {
+    allEndbossesKilled(boss) {
+        if (boss.isDead) {
             let timeElapsed = new Date().getTime();
-            if (timeElapsed - boss.diedAt > 6) {
-                boss.remove('dead');
+            if (timeElapsed - boss.diedAt > 5) {
                 this.arrEndbossLastX.push(boss.X); // save for display in next level as food!
                 return (this.getAllEndbosses().length == 0);
             }                    
@@ -373,7 +393,7 @@ export default class World {
     /**
      * checks if a chicken collides with seed and set it to 'friendly' if so
      */
-    checkSeedCollision () {
+    checkSeedCollision() {
         this.level.Enemies.forEach((enemy) => {
             if (enemy instanceof Chicken && enemy.isAlive()) {
                 if (this.seed.isColliding(enemy)) {
@@ -391,8 +411,9 @@ export default class World {
      * - shooting (if no bottles available but a loaded gun)
      */
     checkActions() {
-        if (this.Pepe.isDead()) return;
-        if (this.keyboard.SPACE) {
+        // if (this.Pepe.isDead) return;
+        // if (this.keyboard.SPACE) {
+        if (this.keyboard.SPACE && !this.Pepe.isDead) {
             const boss = this.Pepe.isCloseEnemy('endboss');
             if (boss) {
                 if (this.Pepe.bottles > 0) {                

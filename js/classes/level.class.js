@@ -13,6 +13,7 @@ import Shop from './shop.class.js';
 import Food from './food.class.js';
 
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
+import { random } from '../library.js';
 import { gameSettings } from '../settings_mod.js';
 
 export default class Level {
@@ -28,9 +29,11 @@ export default class Level {
     Foregrounds = [];
     Items = [];
     Obstracles = [];
+    LastEndbossX = [];
 
-    constructor (number) {
+    constructor (number, prevEndbossPosX) {
         this.levelNo = number;
+        this.LastEndbossX = prevEndbossPosX;
         this.name = 'Level ' + number;
         this.eastEnd = (CANVAS_WIDTH - 1) * number * 5;
         this.westEnd = -this.eastEnd;
@@ -121,11 +124,18 @@ export default class Level {
     }
 
     initFood () {
-        let count = (this.levelNo > 11) ? 10 : 21 - this.levelNo;
+        // let count = (this.levelNo < 11) ? 10 : 31 - this.levelNo;
+        let count = this.getLevelBalance(5,21,15,1);
+        // console.log('food in level ' + this.levelNo, count)
         this.Food.push(...this.add(count, Food, 'food', 'Food'));
         this.Food.push(...this.add(17, Food, 'chili', 'Food/Chili'));
         this.Food.push(...this.add(11, Food, 'drink', 'Food/Drinks'));
         this.Food.push(...this.add(6, Food, 'medicine', 'Food/Medicine'));
+        // debugger
+        // for (let i = 0; i < this.LastEndbossX.length; i++) {
+        //     const name = 'food' + parseInt(25 + i);
+        //     this.Food.push(new Food(`./img/Food/${name}.png`,name, this, this.LastEndbossX[i]));      
+        // }
     }
 
     initEnemies() {
@@ -138,19 +148,21 @@ export default class Level {
                 this.Enemies.push(new Bees(this, i));
             }            
         }
-        for (let i = 0; i < (3 + Math.random() * this.levelNo); i++) {
+        for (let i = 0; i < (1 + Math.random() * this.levelNo); i++) {
             this.Enemies.push(new Snake(this, i + 1));        
         }
-        for (let i = 0; i < (4 + Math.random() * this.levelNo); i++) {
-            this.Enemies.push(new Spider(this, i + 1));        
+        for (let i = 0; i < (2 + Math.random() * this.levelNo); i++) {
             this.Enemies.push(new Scorpion(this, i + 1));        
+        }
+        for (let i = 0; i < (3 + Math.random() * this.levelNo); i++) {
+            this.Enemies.push(new Spider(this, i + 1));            
         }
         this.shiftPosition(this.Enemies); 
     }
 
     createChicklets (count = 0, pX, pY) {
         for (let i = 0; i < count; i++) {
-            this.Enemies.push(new Chicklet(this, i, pX, pY));           
+            this.Enemies.push(new Chicklet(this, i, pX + random(50, CANVAS_WIDTH), pY));           
         }
     }
 

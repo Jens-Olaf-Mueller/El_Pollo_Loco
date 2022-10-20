@@ -9,8 +9,8 @@ import { loadSettings, saveSettings, gameSettings } from './settings_mod.js';
 import { sleep, random } from "./library.js";
 import Keyboard from './classes/keyboard.class.js';
 import { APP_NAME, SOUNDS,
-         ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, IMG_GAMEOVER, IMG_START,
-         homeScreen, introScreen ,canvasDiv, navBar, statusBar
+         ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, IMG_GAMEOVER, IMG_START, BTN_PATH,
+         homeScreen, introScreen ,canvasDiv, navBar, statusBar, btnMusic, btnSound
         } from './const.js';
 /**
  * D E C L A R A T I O N S
@@ -33,7 +33,7 @@ const fontZabars = new FontFace('Zabars', 'url(./fonts/Zabars/zabars-webfont.wof
 
 runApp();
 
-function runApp () {
+function runApp() {
     setEventListeners();
     loadSettings(APP_NAME);
     loadFont(fontZabars);
@@ -49,7 +49,7 @@ function startGame() {
     saveSettings(APP_NAME); 
     initStatusIcons();   
     initSounds();
-    document.body.style.backgroundImage = 'none';  
+    document.body.style.backgroundImage = '../img/Intro_Outro/desert2_1920x1080.jpg';  
     homeScreen.hide();
     canvasDiv.show();
     navBar.show();
@@ -61,7 +61,7 @@ function startGame() {
     if (gameSettings.debugMode) console.log('GAME STARTED...'); 
 }
 
-export async function gameOver () {
+export async function gameOver() {
     // document.exitFullscreen();
     Sounds.fade(parseInt(gameSettings.lastSong), 0);
     Sounds.stop('walk', true);    
@@ -74,7 +74,7 @@ export async function gameOver () {
     await showIntroScreen(false);
     introScreen.hide();    
     homeScreen.show();
-    document.body.style.backgroundImage = IMG_START[random(0,1)];
+    document.body.style.backgroundImage = IMG_START[random(0,IMG_START.length-1)];
     if (gameSettings.debugMode) console.log('G A M E  O V E R  ! ! !'); 
 }
 
@@ -83,7 +83,7 @@ export async function gameOver () {
  * @param {number} level if numeric, shows the intro screen of the given level, 
  * otherwise the game over-screen
  */
-export async function showIntroScreen (level) {
+export async function showIntroScreen(level) {
     introScreen.removeClass('fade');
     if (level === false) {
         $('introH1').innerText = '';
@@ -94,7 +94,7 @@ export async function showIntroScreen (level) {
     } else {
         if (gameSettings.musicEnabled == false) Sounds.play('jingle');
         $('introH1').innerText = 'Level  ' + level;
-        introScreen.element.style.backgroundImage = IMG_START[random(0,1)];       
+        introScreen.element.style.backgroundImage = IMG_START[random(0,IMG_START.length-1)];       
         introScreen.show();
         await sleep(2000);
         introScreen.addClass('fade');
@@ -104,7 +104,7 @@ export async function showIntroScreen (level) {
 /**
  * reset the old instance of the world class for restart!
  */
- function worldTerminate () {
+ function worldTerminate() {
     Intervals.remove('Pepe'); // MUST be executed first!
     clearInterval(world.mainID);
     Intervals.clear();
@@ -114,7 +114,7 @@ export async function showIntroScreen (level) {
     world = undefined;    
 }
 
-function setEventListeners () {
+function setEventListeners() {
     $('btnStart').addEventListener('click', startGame);
     $('imgEnergy').addEventListener('dblclick', (e) => {
         console.log('Status Pepe: [Score: ' + world.Pepe.score + ']');
@@ -125,17 +125,31 @@ function setEventListeners () {
         console.log('Sharpness: ' + world.Pepe.sharpness);
     });
     
-    window.addEventListener('resize', () => {
-        canvas.width = canvasDiv.element.clientWidth;
-        canvas.height = canvasDiv.element.clientHeight;
-    });
+    btnMusic.setEventListener('click', function() {
+        gameSettings.musicEnabled = !gameSettings.musicEnabled;
+        if (gameSettings.musicEnabled) {
+            Sounds.playList(gameSettings.lastSong, gameSettings.volume);
+        } else {
+            Sounds.stop(parseInt(gameSettings.lastSong));
+        }
+    })
+
+    btnSound.setEventListener('click', function() {
+        gameSettings.soundEnabled = !gameSettings.soundEnabled;
+        initSounds();
+    })
+
+    // window.addEventListener('resize', () => {
+    //     canvas.width = canvasDiv.element.clientWidth;
+    //     canvas.height = canvasDiv.element.clientHeight;
+    // });
 }
 
 /**
  * installs a font to the current document
  * @param {object} newFont font-object to be installed
  */
-function loadFont (newFont) {
+function loadFont(newFont) {
     newFont.load().then(function(font){
         // with canvas, if this is ommited won't work
         document.fonts.add(font);
@@ -143,11 +157,13 @@ function loadFont (newFont) {
     });
 }
 
-export function updateGameStatus (pepe) {
+export function updateGameStatus(pepe) {
     ICON_JUMP.src = arrJumpIcons[getImageIndex(pepe.jumpPower)]; 
     ICON_ENERGY.src = arrEnergyIcons[getImageIndex(pepe.energy)];
     ICON_SHARPNESS.src = arrSharpIcons[getImageIndex(pepe.sharpness)];    
     ICON_ACCURACY.src = arrAccuracyIcons[getImageIndex(pepe.accuracy)];
+    btnMusic.element.src = gameSettings.musicEnabled ? BTN_PATH + 'music on.png' : BTN_PATH + 'music off.png';
+    btnSound.element.src = gameSettings.soundEnabled ? BTN_PATH + 'sound on.png' : BTN_PATH + 'sound off.png';
 
     $('#divCoin >label').innerText = pepe.coins;
     $('#divBottle >label').innerText = pepe.bottles;        
@@ -157,6 +173,7 @@ export function updateGameStatus (pepe) {
     $('#divBullet >label').innerText = pepe.bullets;
     $('imgKey').classList.toggle('hidden', !pepe.keyForChest);    
     $('divSeed').classList.toggle('hidden',(!pepe.seeds));
+    $('imgHeart').classList.toggle('hidden',(!pepe.seeds));
     $('#divSeed >label').innerText = pepe.seeds;
     if (pepe.gun) {
         $('imgGun').classList.toggle('hidden', false);
@@ -165,13 +182,19 @@ export function updateGameStatus (pepe) {
         $('imgGun').classList.toggle('hidden', true);
         $('imgBullet').classList.toggle('hidden', false);
     }
+    $('divCursor').style.width = calcPosition(pepe) + '%';
 }
 
-function getImageIndex (property) {
+function calcPosition(pepe) {
+    let percent = parseInt((Math.abs(pepe.X) * 100 / pepe.environment.eastEnd) / 2);
+    return pepe.X < 0 ? 50 - percent : 50 + percent;
+}
+
+function getImageIndex(property) {
     return Math.floor(property / 10) > 10 ? 10 : Math.floor(property / 10);
 }
 
-function initStatusIcons () {
+function initStatusIcons() {
     arrJumpIcons = [], arrEnergyIcons = [], arrAccuracyIcons = [], arrSharpIcons = [];
     for (let i = 0; i < 11; i++) {
         arrJumpIcons.push(`./img/Status/Jump/jmp${i*10}.png`);
@@ -192,7 +215,7 @@ export function flashImg(id, timeout = 2250) {
 /**
  * loads all sounds and songs in the responsible class
  */
-function initSounds () {
+function initSounds() {
     Sounds.clear();
     for (const key in SOUNDS) {
         if (SOUNDS.hasOwnProperty(key)) {   

@@ -8,6 +8,23 @@ export default class Mobile {
     Y = undefined;
     width = undefined;
     height = undefined;
+    get bottom() {return this.Y + this.height;}
+    get top() {return this.Y + this.offsetY;}
+    get left() { return this.X;}
+    get right() {return this.X + this.width;}
+    get centerX() {return this.X + this.width / 2;}
+    get centerY() {return this.Y + this.height / 2;}
+
+    get isHurt() {return this.timeElapsed(this.lastHit) < 1;} // < 0.75
+    get isSleeping() {
+        return (this.timeElapsed(this.lastMove) > parseInt(gameSettings.sleepTime));
+    }
+    get isDead() {
+        if (this.energy > 0) return false;        
+        if (this.diedAt == null) this.diedAt = new Date().getTime();
+        return true;
+    }
+
     speed = 0.15;           // default speed
     speedY = 0;             // gravity acceleration
     acceleration = 0.5;
@@ -19,8 +36,7 @@ export default class Mobile {
     isMirrored = false;     // = 'otherDirection'    
    
     lastHit = 0;            // time elapsed when Pepe was hit by an enemy last time
-    // lastMove = new Date().getTime(); // time elapsed since Pepe has moved (for sleep animation)
-    diedAt = undefined;
+    diedAt = null;
 
     loadImage(path) {
         if (this.image === undefined) this.image = new Image();
@@ -77,6 +93,7 @@ export default class Mobile {
     }
 
     displayEnergy (ctx) {
+        if (this.isDead) return;
         if (this.energy < 100) {
             let color = this.energy >= 66 ? 'green' : this.energy >= 33 ? 'gold' : 'tomato';
             ctx.beginPath();            
@@ -117,7 +134,7 @@ export default class Mobile {
         ctx.fillText(`${name}`,this.X-20, this.Y-32 + offsetY);                
         ctx.fillText(`[X:${parseInt(this.X)},Y:${parseInt(this.Y)}]${showTop}`, this.X-20, this.Y-10 + offsetY);
         if (isPepe) {
-            ctx.fillText(`Bottom: ${parseInt(this.bottom())} Right: ${parseInt(this.right())}`,this.right()-100, this.bottom()+20);
+            ctx.fillText(`Bottom: ${parseInt(this.bottom)} Right: ${parseInt(this.right)}`,this.right-100, this.bottom + 20);
         }                
         if (this.isMirrored) this.environment.flipImage(this, false);
     }
@@ -199,22 +216,6 @@ export default class Mobile {
         }  
     }
 
-    isDead () {
-        if (this.energy > 0)  return false;
-        
-        if (this.diedAt == undefined) {
-            this.diedAt = new Date().getTime();
-        }
-        return true;
-    }
-
-    isHurt () {
-        return (this.timeElapsed(this.lastHit) < 0.75);
-    }
-
-    isSleeping () {
-        return (this.timeElapsed(this.lastMove) > parseInt(gameSettings.sleepTime)); 
-    }
 
     timeElapsed (since) {
         return (new Date().getTime() - since) / 1000; // time elapsed in sec
@@ -242,8 +243,8 @@ export default class Mobile {
      */
     getCollisionSide (obj) {
         // Calculate the distance between centers
-        let diffX = this.center().left - obj.center().left,
-            diffY = this.center().top - obj.center().top;
+        let diffX = this.centerX - obj.centerX,
+            diffY = this.centerY - obj.centerY;
         // Calculate the minimum distance to separate along X and Y
         let minDistX = this.width / 2 + obj.width / 2,
             minDistY = this.height / 2 + obj.height / 2;    
@@ -276,28 +277,5 @@ export default class Mobile {
         this.animationID = undefined;
         this.moveID = undefined;
         this.Y = CANVAS_HEIGHT * -1; // move the object out of the screen     
-    }
-
-    top () {
-        return this.Y + this.offsetY;
-    }
-
-    left () {
-        return this.X;
-    }
-
-    bottom () {
-        return this.Y + this.height;
-    }
-
-    right () {
-        return this.X + this.width;
-    }
-
-    center () {
-        return {
-            top: this.Y + this.height / 2,
-            left: this.X + this.width / 2            
-        }
     }
 }

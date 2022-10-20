@@ -23,6 +23,6 @@ export default class Chicken extends Enemy {
         this.loadImageCache (this.arrAnimation, this.name);     
         this.X = CANVAS_WIDTH / 2 + Math.random() * this.eastEnd;
         this.speed = 0.15 + Math.random();
-        this.damage = this.level.levelNo * 3;        
+        this.damage = this.level.levelNo * 1.5;        
     }
 }

@@ -21,10 +21,8 @@ export default class Food extends Background {
     westEnd;
     X = Infinity;
     Y = Infinity; //350; 
-    parent = undefined; 
 
-    // constructor(imgPath, name, level, parent) {
-    constructor(imgPath, name, level) {
+    constructor(imgPath, name, level, pX) {
         super().loadImage(imgPath);
         this.name = name; 
         this.value = parseInt(name.replace(/[^0-9]/g,'')) || 0; // returns only a number from string!
@@ -32,7 +30,7 @@ export default class Food extends Background {
         this.level = level;
         this.eastEnd = level.eastEnd || CANVAS_WIDTH;
         this.westEnd = -this.eastEnd || -CANVAS_WIDTH; 
-        // this.parent = parent;    
+        if (pX !== undefined) this.X = pX; 
         this.enabled(true); // calls this.initialize();
     }
 
@@ -41,9 +39,11 @@ export default class Food extends Background {
         this.visible = (rnd <= range);
 
         if (this.visible) {
-            this.X = random (150, this.eastEnd - CANVAS_WIDTH * 0.8);
-            // apply a 50:50 chance to place it in east or west
-            this.X = Math.random() < 0.5 ? -this.X : this.X; 
+            if (this.X == Infinity) {
+                this.X = random (150, this.eastEnd - CANVAS_WIDTH * 0.8);
+                // apply a 50:50 chance to place it in east or west
+                this.X = Math.random() < 0.5 ? -this.X : this.X; 
+            }
             this.Y = 300 + random(1, 50);
 
             // now tuning the food!

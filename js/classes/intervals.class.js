@@ -22,7 +22,7 @@
 export default class IntervalListener {
     arrIntervals = []; // JSON array!
     name = 'interval';
-    count = 0;
+    get count() {return this.arrIntervals.length};
 
     constructor (name) {
         if (typeof name == 'string') this.name = name;
@@ -36,9 +36,9 @@ export default class IntervalListener {
      * @returns the id of the started interval
      * @example classvariable.add (
      *              function myFunctionName() {
-     *                      // interval code here...
-     *                  }, 1000, context
-     *              );
+     *                  // interval code here...
+     *              }, 1000, context
+     *          );
      */
     add (fnc, timeout, params = []) {        
         let id = setInterval(fnc, timeout, params);
@@ -46,12 +46,11 @@ export default class IntervalListener {
             ID: id,
             handler: fnc,                       // setInterval-function
             timeout: timeout,
-            context: params,                    // calling class
+            context: params,                    // parent class
             name: params[0].name || this.name,  // name for the interval (or default)
-            key: params[0].name || this.name + '_' + fnc.name // created by class- or default name + function name
+            key: params[0].name + '_' + fnc.name || this.name + '_' + fnc.name // class- | default name + fnc-name
         };
         this.arrIntervals.push(interval);
-        this.count = this.arrIntervals.length;
         return id;
     }
 
@@ -121,7 +120,6 @@ export default class IntervalListener {
             while (index !== null) {
                 clearInterval(this.arrIntervals[index].ID);
                 this.arrIntervals.splice(index, 1);
-                this.count = this.arrIntervals.length;
                 index = this.find(interval);
             }
         }
@@ -149,6 +147,6 @@ export default class IntervalListener {
             const int = this.arrIntervals[i]; 
             console.log('Interval ' + int.name, int); 
         }
-        console.log(this.arrIntervals.length + ' intervals registered...');
+        console.log(this.count + ' intervals registered...');
     }
 }

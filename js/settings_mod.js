@@ -41,6 +41,7 @@ export function setSettings () {
     $('debugSeeds').value = gameSettings.dbgSeeds;
     $('dbgSeeds').innerText = gameSettings.dbgSeeds;
     $('chkFrame').checked = gameSettings.showFrame;
+    $('chkEnemiesOff').checked = gameSettings.enemiesOff;
 }
 
 export function saveSettings (key, pepe) {    
