@@ -21,7 +21,7 @@ export default class Bonus extends Mobile {
         this.loadImageCache (this.arrAnimation, this.name);
     }
 
-    animate (pX, pY) { 
+    animate(pX, pY) { 
         if ( this.moveID == undefined) { 
             this.X = pX;
             this.Y = pY;
@@ -30,20 +30,20 @@ export default class Bonus extends Mobile {
         }
     }
 
-    moveUp (Me, speed) {
+    moveUp($this, speed) {
         return Intervals.add(
             function move() {
-                Me.Y -= Math.abs(speed);
-                if (Me.Y + Me.height < 0) Me.hide(Me.name); // hide when top of the screen is reached
-            }, 1000 / FPS, [Me]
+                $this.Y -= Math.abs(speed);
+                if ($this.Y + $this.height < 0) $this.hide($this.name); // hide when top of the screen is reached
+            }, 1000 / FPS, [$this]
         );
     } 
 
-    runAnimation (Me) {
+    runAnimation($this) {
         return Intervals.add(
             function spin() {
-                Me.playAnimation(Me.arrAnimation, 'spin');
-            }, 5000 / FPS, [Me]             
+                $this.playAnimation($this.arrAnimation, 'spin');
+            }, 5000 / FPS, [$this]             
         );
     }
 }

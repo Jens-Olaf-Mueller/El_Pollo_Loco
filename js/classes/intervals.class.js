@@ -61,10 +61,9 @@ export default class IntervalListener {
     start (interval) {
         if (interval !== undefined) {
             let index = this.find(interval);
-            while (index !== null) {
+            if (index !== null) {
                 const objInt = this.arrIntervals[index];
-                objInt.ID = setInterval (objInt.handler, objInt.timeout, objInt.context);
-                index = this.find(interval);
+                objInt.ID = setInterval(objInt.handler, objInt.timeout, objInt.context);
             }
         } else { // start all(!) intervals
             for (let i = 0; i < this.arrIntervals.length; i++) {

@@ -16,10 +16,10 @@ export default class Bees extends Enemy {
         this.initialize();       
         level.Food.push(this.beehive);
         this.fly (this, 750);
-        this.beeAnimation(this, 'bees', 12000);
+        this.animate(this, 'bees', 12000);
     }
 
-    initialize () {
+    initialize() {
         this.loadImage ('./img/Food/food16.png');
         this.arrAnimation = loadArray('./img/Obstracles/Animals/Bugs/bees',3);
         this.loadImageCache (this.arrAnimation, this.name);        
@@ -35,33 +35,33 @@ export default class Bees extends Enemy {
         this.damage = this.level.levelNo * 1.75;
     }
 
-    fly (Me, milliseconds) {
-        Intervals.add (
+    fly($this, milliseconds) {
+        Intervals.add(
             function fly() {
-                Me.X += Me.speed;
-                Me.Y += Me.speedY;
-                let distance = random(50,100);
-                if (Me.beehive.visible) {                
-                    if (Me.X < Me.beehive.X - distance || Me.X > Me.beehive.X + distance) {
-                        Me.speed = Me.speed * -1;
+                $this.X += $this.speed;
+                $this.Y += $this.speedY;
+                let distance = random(50, 100);
+                if ($this.beehive.visible) {                
+                    if ($this.X < $this.beehive.X - distance || $this.X > $this.beehive.X + distance) {
+                        $this.speed = $this.speed * -1;
                     }                   
-                } else if (Me.X < Me.westEnd || Me.X > Me.eastEnd) {
-                     Me.speed = Me.speed * -1;
+                } else if ($this.X < $this.westEnd || $this.X > $this.eastEnd) {
+                     $this.speed = $this.speed * -1;
                 }
     
-                if (Me.Y < Me.beehive.Y - distance || Me.Y > Me.beehive.Y + distance ) {
-                    Me.speedY = Me.speedY * -1;
+                if ($this.Y < $this.beehive.Y - distance || $this.Y > $this.beehive.Y + distance ) {
+                    $this.speedY = $this.speedY * -1;
                 } 
-                Me.isMirrored = (Me.speed > 0);
-            }, milliseconds / FPS, [Me]
+                $this.isMirrored = ($this.speed > 0);
+            }, milliseconds / FPS, [$this]
         );
     }
 
-    beeAnimation (Me, subkey, milliseconds) {
-        Intervals.add (
+    animate($this, subkey, milliseconds) {
+        Intervals.add(
             function beeAnimation() {
-                Me.playAnimation(Me.arrAnimation, subkey)
-            }, milliseconds / FPS, [Me]
+                $this.playAnimation($this.arrAnimation, subkey)
+            }, milliseconds / FPS, [$this]
         );
     }
 }

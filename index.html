@@ -21,8 +21,8 @@
     <!--              C A N V A S               -->
     <!-------------------------------------------->    
     <div id="divCanvas" class="canvas-frame hidden">
-        <div class="statusbar">
-            <div id="divStatusbar" class="statusbar-left">
+        <div id="divStatusbar" class="statusbar">
+            <div class="statusbar-left">
                 <img id="imgEnergy" class="status-icon" src="./img/Status/Energy/battery100.png"> 
                 <img id="imgJump" class="status-icon" src="./img/Status/Jump/jmp50.png">
                 <img id="imgAccuracy" class="status-icon" src="./img/Status/Accuracy/accuracy50.png">
@@ -56,12 +56,24 @@
             </div>
         </div>
 
-        <div class="home-icons progress-bar hidden">
+        <div id="divIntro" class="intro hidden">
+            <h1 id="introH1" class="intro-level">Level  1</h1>
+        </div>
+
+        <!-- <div class="home-icons progress-bar hidden">
             <div id="aniLoad" class="home-icons loading"></div>
             <h3 class="h3-loading">Loading... 100%</h3>
-        </div>  
+        </div>   -->
 
         <canvas id="canvas" width="720px" height="480px"> </canvas>
+
+        <div id="divTheatre" class="frame">
+            <video id="movie" class="hidden">
+                <source src="./video/EPL demo.mp4" type="video/mp4">
+                Sorry, your browser does not support HTML5 video.
+            </video>
+        </div>
+
         <!-------------------------------------------->
         <!--     M O B I L E  N A V - B A R         -->
         <!-------------------------------------------->
@@ -82,24 +94,21 @@
         </div>        
 
         <div id="divSidebar" class="sidebar">
-            <a href="#">
+            <!-- <a href="#">
                 <img id="imgHome" class ="navbar-icon" src="./img/Status/Mobile/home.png">
-            </a>
-            
+            </a>             -->
             <a href="settings.html">
                 <img id="imgSettings" class ="navbar-icon" src="./img/Status/Mobile/settings.png">
             </a>
-
             <a href="help.html">
                 <img id="imgHelp" class ="navbar-icon" src="./img/Status/Mobile/help.png">
-            </a>
-            
+            </a>            
             <img id="imgSound" class ="navbar-icon" src="./img/Status/Mobile/sound on.png">
             <img id="imgMusic" class ="navbar-icon" src="./img/Status/Mobile/music off.png">
             <img id="imgPause" class ="navbar-icon" src="./img/Status/Mobile/pause.png">
         </div>
         <div class="quit tooltip" data-tooltip="Quit ?">
-            <img id="imgQuit" class ="navbar-icon" src="./img/Status/Mobile/cancel.png">
+            <img id="imgClose" class ="navbar-icon" src="./img/Status/Mobile/cancel.png">
         </div>
         
     </div>  
@@ -112,15 +121,13 @@
         <div class="home-navbar">
             <a href="settings.html"><div class="home-icons home-settings"><h3>Settings</h3></div></a>        
             <a href="help.html"><div class="home-icons help"><h3>Help</h3></div></a>
-            <div id="btnStart" class="home-icons start"><h3>Start</h3></div>
+            <div id="btnDemo" class="home-icons demo"><h3>Demo</h3></div>
+            <div id="btnStart" class="home-icons start"><h3>Start</h3></div>            
             <!-- <div class="home-icons hidden">
                 <div id="aniLoad" class="home-icons loading"></div>
                 <h3 class="h3-loading">Loading... 100%</h3>
             </div>            -->
         </div>        
-    </div>
-    <div id="divIntro" class="intro hidden">
-        <h1 id="introH1" class="intro-level">Level  1</h1>
     </div>
 </body>
 </html>

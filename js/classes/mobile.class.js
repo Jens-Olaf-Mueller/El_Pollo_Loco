@@ -6,6 +6,7 @@ import { Intervals } from '../game.js';
 export default class Mobile {
     X = undefined;
     Y = undefined;
+    offsetY = 0;
     width = undefined;
     height = undefined;
     get bottom() {return this.Y + this.height;}
@@ -20,9 +21,22 @@ export default class Mobile {
         return (this.timeElapsed(this.lastMove) > parseInt(gameSettings.sleepTime));
     }
     get isDead() {
-        if (this.energy > 0) return false;        
+        if (this.isAlive) return false;        
         if (this.diedAt == null) this.diedAt = new Date().getTime();
         return true;
+    }
+
+    get isAlive() {return this.energy > 0;}
+
+    /**
+     * helper for fnc 'applyGravity': determines if object is in the air
+     * @returns true | false
+     */
+    get isAboveGround () {
+        // 1. Alle Elemente holen, die bei deiner X-Koordinate liegen
+        // 2. Höhe von erstem Objekt nehmen, sonst height = 0
+        // if (this.Y != this.groundY) debugger
+        return this.Y < this.groundY;
     }
 
     speed = 0.15;           // default speed
@@ -35,7 +49,8 @@ export default class Mobile {
     imageCache = {};        // as image cache we use a jsonArray: {pictureKey: picturePath}
     isMirrored = false;     // = 'otherDirection'    
    
-    lastHit = 0;            // time elapsed when Pepe was hit by an enemy last time
+    lastHit = 0;            // time elapsed since Object was hit
+    lastMove = new Date().getTime(); // time elapsed since Object has moved
     diedAt = null;
 
     loadImage(path) {
@@ -61,16 +76,16 @@ export default class Mobile {
     /**
      * moves an object into the given direction
      */
-    move (context, direction, milliseconds = 1000, loop = true) {
+    move($this, direction, milliseconds = 1000, loop = true) {
         Intervals.add (
             function move() {
-                let speed = (direction == 'left') ? Math.abs(context.speed) * -1 : Math.abs(context.speed);
-                context.X += speed;
+                let speed = (direction == 'left') ? Math.abs($this.speed) * -1 : Math.abs($this.speed);
+                $this.X += speed;
                 if (loop == true) {
-                    if (speed < 0 && context.X + context.width < context.westEnd) context.X = context.eastEnd;
-                    if (speed > 0 && context.X > context.eastEnd) context.X = context.westEnd;
+                    if (speed < 0 && $this.right < $this.westEnd) $this.X = $this.eastEnd;
+                    if (speed > 0 && $this.X > $this.eastEnd) $this.X = $this.westEnd;
                 }
-            }, milliseconds / FPS, [context], direction, loop
+            }, milliseconds / FPS, [$this], direction, loop
         );
     }
 
@@ -87,7 +102,7 @@ export default class Mobile {
     }
 
     displayHeart (ctx) {
-        if (this.isFriendly && this.isAlive()) {
+        if (this.isFriendly && this.isAlive) {
             ctx.drawImage(this.heart, this.X+16, this.Y-16, 16, 16);
         }        
     }
@@ -113,7 +128,8 @@ export default class Mobile {
     displayFrame (ctx) {
         if (this.name && (this.name == 'Pepe' || this.type == 'chicken' || this.type == 'endboss')) {
             let offsetY = this.name == 'Pepe' ? this.offsetY : 0,
-                cordsRequired = this.name == 'Pepe' || ((this.type == 'chicken' || this.type == 'endboss') && this.isAlive());
+                cordsRequired = this.name == 'Pepe' || 
+                ((this.type == 'chicken' || this.type == 'endboss') && this.isAlive);
             ctx.beginPath();
             ctx.lineWidth = '3';
             ctx.strokeStyle = 'navy';
@@ -163,43 +179,31 @@ export default class Mobile {
      * Applies the gravity for the current object, if it is in the air.
      * Therefor we increase the Y-coordinate by the acceleration speed
      */
-    applyGravity (Me) {
+    applyGravity ($this) {
         // returns the interval-ID! (for seed and bonus class)
         return Intervals.add (
             function gravity () {
-                if (Me.isAboveGround() || Me.speedY < 0 ) {
-                    Me.Y += Me.speedY;
-                    Me.speedY += Me.acceleration; 
+                if ($this.isAboveGround || $this.speedY < 0 ) {
+                    $this.Y += $this.speedY;
+                    $this.speedY += $this.acceleration; 
                  } else {
-                    Me.Y = Me.groundY;
-                    Me.speedY = 0;
+                    $this.Y = $this.groundY;
+                    $this.speedY = 0;
                 } 
-            }, 1000 / FPS, [Me]
+            }, 1000 / FPS, [$this]
         )
     }
 
-    /**
-     * helper function for fnc 'applyGravity': determines if object is in the air
-     * @returns true | false
-     */
-    isAboveGround (height = 0) {
-        // 1. Alle Elemente holen, die bei deiner X-Koordinate liegen
-        // 2. Höhe von erstem Objekt nehmen, sonst height = 0
-        // if (this.Y != this.groundY) debugger
-
-        return this.Y < (this.groundY - height);
-    }
 
     isCloseEnemy (enemyType) {
         // get all endbosses in the current level...
-        const bosses = this.environment.getAllEndbosses();       
+        const bosses = this.environment.level.EndBosses;       
         // now check, if one of them is close enough for a hit
         let retVal = false;
         bosses.forEach(boss => {            
-            let PepeIsLeft = (this.X + this.width < boss.X),
-                distance = PepeIsLeft ? boss.X - (this.X + this.width) : this.X - (boss.X + boss.width);
-            if (PepeIsLeft && !this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 1.5 || 
-                !PepeIsLeft && this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 4) {
+            let distance = this.isLeftFrom(boss) ? boss.left - this.right : this.left - boss.right;
+            if (this.isLeftFrom(boss) && !this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 1.5 || 
+                this.isRightFrom(boss) && this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 4) {
                     retVal = boss;
                     return;
             }
@@ -217,8 +221,16 @@ export default class Mobile {
     }
 
 
-    timeElapsed (since) {
+    timeElapsed(since) {
         return (new Date().getTime() - since) / 1000; // time elapsed in sec
+    }
+
+    isLeftFrom(obj) {
+        return this.right < obj.left;
+    }
+
+    isRightFrom(obj) {
+        return this.left > obj.right;
     }
 
     /**
@@ -226,10 +238,10 @@ export default class Mobile {
      * @param {class} object to check collision with
      * @returns false | null for no collision; 12 | 3 | 6 | 9 for clockwise side
      */
-    isColliding (obj) {
-        if (!((this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width) && 
-             (this.Y + this.offsetY + this.height) >= obj.Y &&
-             (this.Y + this.offsetY) <= (obj.Y + obj.height) && obj.onCollisionCourse)) {
+    isColliding(obj) {
+        if (!obj.onCollisionCourse || 
+            this.right < obj.left || this.left > obj.right ||
+            this.top > obj.bottom || this.bottom < obj.top) {
             return false;
         }
         return this.getCollisionSide(obj);             
@@ -241,7 +253,7 @@ export default class Mobile {
      * @param {object} obj 
      * @returns COLL_TOP(12), COLL_RIGHT(3), COLL_BOTTOM(6), COLL_LEFT(9)
      */
-    getCollisionSide (obj) {
+    getCollisionSide(obj) {
         // Calculate the distance between centers
         let diffX = this.centerX - obj.centerX,
             diffY = this.centerY - obj.centerY;
@@ -267,15 +279,11 @@ export default class Mobile {
         return null;
     }
 
-    isInFrontOfShop (obj) {
-        return obj.isShop && (this.X + this.width) >= obj.X && this.X <= (obj.X + obj.width);
-    }
-
     hide (intervalKey) {
         Intervals.remove(intervalKey);
         this.gravarityID = undefined;
         this.animationID = undefined;
         this.moveID = undefined;
-        this.Y = CANVAS_HEIGHT * -1; // move the object out of the screen     
+        this.Y = CANVAS_HEIGHT * 2; // move the object out of the screen     
     }
 }

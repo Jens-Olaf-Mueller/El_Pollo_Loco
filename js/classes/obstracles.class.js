@@ -1,4 +1,3 @@
-
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 import { random } from '../library.js';
 import Background from './background.class.js';
@@ -97,23 +96,19 @@ export default class Obstracle extends Background {
         this.damage = toxic;
     }
 
-    isAlive () {
-        return this.damage > 0;
-    }
-
-    remove () {
-        if (this.type == 'spider' || this.type == 'scorpion') {
-            // clearInterval(this.animationID);
-            // clearInterval(this.moveID);
-            // this.animationID = undefined;
-            // this.moveID = undefined;
-            this.damage = 0;
-            // this.energy = 0;
-            // this.speed = 0;
-            this.height = 50;
-            this.width = 50; 
-            this.Y = 420;    
-            this.loadImage('./img/Items/Bottles/splash_salsa/splash3.png');
-        }
-    }
+    // remove () {
+    //     if (this.type == 'spider' || this.type == 'scorpion') {
+    //         // clearInterval(this.animationID);
+    //         // clearInterval(this.moveID);
+    //         // this.animationID = undefined;
+    //         // this.moveID = undefined;
+    //         this.damage = 0;
+    //         // this.energy = 0;
+    //         // this.speed = 0;
+    //         this.height = 50;
+    //         this.width = 50; 
+    //         this.Y = 420;    
+    //         this.loadImage('./img/Items/Bottles/splash_salsa/splash3.png');
+    //     }
+    // }
 }

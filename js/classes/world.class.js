@@ -1,4 +1,5 @@
 import Character from './character.class.js';
+import Keyboard from './keyboard.class.js';
 import Chicken from './chicken.class.js';
 import Chicklet from './chicklet.class.js';
 import Endboss from './endboss.class.js';
@@ -12,8 +13,8 @@ import Bonus from './bonus.class.js';
 import Bottle from './bottle.class.js';
 import Seed from './seed.class.js';
 
-import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
-import { showIntroScreen, updateGameStatus, Sounds, Intervals } from '../game.js';
+import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, GROUND, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
+import { showIntroScreen, updateGameStatus, Sounds, Intervals, demoMode } from '../game.js';
 import { saveSettings, gameSettings } from '../settings_mod.js';
 import { sleep } from '../library.js';
 
@@ -21,13 +22,13 @@ export default class World {
     Pepe;  
     level;
     levelNo = 1;
-    keyboard;
+    keyboard = new Keyboard();
     cnv;
     ctx; 
     camera_X = 0;
     eastEnd;
     westEnd;
-    groundY = 150;
+    groundY = GROUND;
     gamePaused = undefined;
     levelUp = false;
 
@@ -36,9 +37,10 @@ export default class World {
     arrFood;
     arrObstracles; 
     arrEnemies;
+    arrEndBosses;
     arrClouds;
     arrItems;
-    arrEndbossLastX = [];
+    arrEndbossFood = [];
 
     bottle;
     bonus;
@@ -49,10 +51,11 @@ export default class World {
     gameSaved = false;
     lastSaved = 0;
 
-    constructor (canvas, keyboard) {
+    get now() {return new Date().getTime();}
+
+    constructor (canvas) {
         this.cnv = canvas; // assigning the global canvas to a local reference variable
-        this.ctx = canvas.getContext('2d');        
-        this.keyboard = keyboard;
+        this.ctx = canvas.getContext('2d');
         this.levelNo = gameSettings.lastLevel;
         Intervals.clear(); // must be executed BEFORE new Character!!!
         this.Pepe = new Character(this); 
@@ -62,7 +65,8 @@ export default class World {
     }
 
     initLevel (levelNo) {
-        this.level = new Level(levelNo, this.arrEndbossLastX);
+        this.level = new Level(levelNo, this.arrEndbossFood);
+        this.arrEndbossFood = [];
         this.eastEnd = this.level.eastEnd;
         this.westEnd = this.level.westEnd;  
         this.arrBackgrounds = this.level.Backgrounds;
@@ -70,14 +74,15 @@ export default class World {
         this.arrObstracles = this.level.Obstracles;
         this.arrClouds = this.level.Clouds;
         this.arrEnemies = this.level.Enemies;
+        this.arrEndBosses = this.level.EndBosses;
         this.arrFood = this.level.Food;
         this.arrItems = this.level.Items;
         this.bonus = new Bonus('./img/Status/Bonus/spin0.png');
         this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
         this.seed = new Seed('./img/Seed/seed1.png');
         if (gameSettings.debugMode) {
+            // Intervals.list();
             console.log('World created... ', this);
-            Intervals.list();
         }   
         this.mainID = this.run();     
     }
@@ -92,7 +97,6 @@ export default class World {
             this.Pepe.bottles = 0;
             if (this.Pepe.accuracy > 100) this.Pepe.accuracy -= this.levelNo * 10;
             if (this.Pepe.sharpness > 100) this.Pepe.sharpness -= this.levelNo * 10;  
-             
         }, 3000);                            
     }
 
@@ -112,17 +116,14 @@ export default class World {
             this.checkActions();  
             this.checkKeyboard();
             updateGameStatus (this.Pepe);
-            this.gameSaved = ((new Date().getTime() - this.lastSaved) / 1000 < 4);
+            this.gameSaved = ((this.now - this.lastSaved) / 1000 < 4);
             // levelUp is set in checkBottelCollisions()
             if (this.levelUp) {
                 this.mainID = clearInterval(this.mainID);
-                this.levelUp = false;                
-                // setTimeout(() => {
-                    this.nextLevel();
-                // }, 6000);
-                
+                this.levelUp = false;
+                this.nextLevel();
             }         
-        }, 200);
+        }, 200); // 125 ??
     }
 
     /**
@@ -131,7 +132,7 @@ export default class World {
      *              - draw the objects (or arrays) in correct order (farest background first!)
      *              - recursive call by method 'requestAnimationFrame'
      *              - since 'this'  does not refer to the class inside the local function,
-     *                we use a work around by using 'Me' as reference to 'this'
+     *                we use a work around by using '$this' as reference to 'this'
      */
     draw () {       
         this.ctx.clearRect(0,0,CANVAS_WIDTH, CANVAS_HEIGHT); // delete canvas
@@ -156,8 +157,8 @@ export default class World {
         }
         
         this.ctx.translate(-this.camera_X, 0); // move the camera scope by 100px back to right after drawing the context
-        let Me = this;
-        this.reqAnimationFrameID = window.requestAnimationFrame(() => {Me.draw()});
+        let $this = this;
+        this.reqAnimationFrameID = window.requestAnimationFrame(() => {$this.draw()});
     }
     
     /**
@@ -205,7 +206,7 @@ export default class World {
      */
     checkEnemyCollisions () {        
         this.level.Enemies.forEach((enemy) => {
-            if (enemy.isAlive()) {   
+            if (enemy.isAlive) {   
                 let collision = this.Pepe.isColliding(enemy); 
                 if (collision == COLL_TOP) {
                     this.handleTopSideCollision(enemy);
@@ -231,7 +232,7 @@ export default class World {
                 }
             } else { // Pepe was simply hit by an enemy...
                 this.Pepe.hit(enemy.damage);
-                if (!this.Pepe.isDead) Sounds.play('ouch');
+                if (this.Pepe.isAlive) Sounds.play('ouch');
             }                    
         }
         // play sounds of bees and snakes... 
@@ -267,7 +268,7 @@ export default class World {
      */
     enlargeChickens (increment = 2) {
         this.level.Enemies.forEach((enemy) => {
-            if (enemy instanceof Chicken && enemy.isAlive() && !enemy.isFriendly) {
+            if (enemy instanceof Chicken && enemy.isAlive && !enemy.isFriendly) {
                 enemy.width +=increment;
                 enemy.height +=increment;
                 enemy.Y -=increment; // make sure the chicken remains on ground-level!
@@ -280,12 +281,13 @@ export default class World {
      * checks collision with foot, and if we got enough money...
      */
     checkFoodCollisions() {
-        if (this.Pepe.isDead) return;
-        this.level.Food.forEach((food) => {
-            if (this.Pepe.isColliding(food) && this.keyboard.SPACE) {
-                this.Pepe.updateProperties(food);
-            }
-        });
+        if (this.keyboard.SPACE && this.Pepe.isAlive) {
+            this.level.Food.forEach((food) => {
+                if (this.Pepe.isColliding(food)) {
+                    this.Pepe.updateProperties(food);
+                }
+            });
+        }
     }
 
     /**
@@ -293,8 +295,7 @@ export default class World {
      * and update the items in character
      */
     checkItemCollisions() {
-        // if (this.Pepe.isDead) return;
-        if (this.keyboard.SPACE && !this.Pepe.isDead) {
+        if (this.keyboard.SPACE && this.Pepe.isAlive) {
             this.level.Items.forEach((item) => {
                 if (this.Pepe.isColliding(item)) {
                     let foundBonus;
@@ -311,12 +312,8 @@ export default class World {
      * checks if we are in front of a shop and if we can buy items there
      */
     checkForShopping () {
-        if (this.keyboard.B_KEY && !this.Pepe.isDead) {
-            this.level.Backgrounds.forEach((item) => {
-                if (this.Pepe.isInFrontOfShop(item)) {
-                    this.Pepe.buyItems(); 
-                }            
-            });
+        if (this.keyboard.B_KEY && this.Pepe.isAlive) {            
+            if (this.Pepe.isInFrontOfShop) this.Pepe.buyItems(); 
         }
     }
 
@@ -329,7 +326,7 @@ export default class World {
             if (this.Pepe.isColliding(barrier) && barrier.onCollisionCourse && barrier.damage > 0) {                    
                 // can we jump on the obstracle?
                 if (barrier.canJumpOn) {
-                    if (this.Pepe.isAboveGround(barrier.Y)) {
+                    if (this.Pepe.isAboveGround) {
                         this.Pepe.Y -= barrier.height;
                     } else {
                         // this.Pepe.energy -=barrier.damage;
@@ -367,12 +364,12 @@ export default class World {
     /**
      * find all endbosses in the current level, since there can be more than one...
      */
-    getAllEndbosses() {
-        const allBosses = this.arrEnemies.filter(boss => {
-            return (boss instanceof Endboss && boss.isAlive());
-        }); 
-        return allBosses;
-    }
+    // getAllEndbosses() {
+    //     const allBosses = this.arrEnemies.filter(boss => {
+    //         return (boss instanceof Endboss && boss.isAlive);
+    //     }); 
+    //     return allBosses;
+    // }
 
     /**
      * checks if the given endboss is killed. 
@@ -382,10 +379,9 @@ export default class World {
      */
     allEndbossesKilled(boss) {
         if (boss.isDead) {
-            let timeElapsed = new Date().getTime();
-            if (timeElapsed - boss.diedAt > 5) {
-                this.arrEndbossLastX.push(boss.X); // save for display in next level as food!
-                return (this.getAllEndbosses().length == 0);
+            if (this.now - boss.diedAt > 5) {
+                this.arrEndbossFood.push(boss.X); // save for display in next level as food!
+                return this.level.solved;
             }                    
         }  
     }
@@ -395,7 +391,7 @@ export default class World {
      */
     checkSeedCollision() {
         this.level.Enemies.forEach((enemy) => {
-            if (enemy instanceof Chicken && enemy.isAlive()) {
+            if (enemy instanceof Chicken && enemy.isAlive) {
                 if (this.seed.isColliding(enemy)) {
                     this.seed.hide();
                     enemy.isFriendly = true;
@@ -411,9 +407,7 @@ export default class World {
      * - shooting (if no bottles available but a loaded gun)
      */
     checkActions() {
-        // if (this.Pepe.isDead) return;
-        // if (this.keyboard.SPACE) {
-        if (this.keyboard.SPACE && !this.Pepe.isDead) {
+        if (this.keyboard.SPACE && this.Pepe.isAlive) {
             const boss = this.Pepe.isCloseEnemy('endboss');
             if (boss) {
                 if (this.Pepe.bottles > 0) {                
@@ -455,6 +449,7 @@ export default class World {
                 Sounds.stop(gameSettings.lastSong);
             } else if (this.gamePaused == true) { 
                 this.gamePaused = undefined; 
+                // debugger
                 Intervals.start();
                 Sounds.playList(gameSettings.lastSong);
             }           
@@ -463,10 +458,9 @@ export default class World {
             if (this.gameSaved == false) {
                 // saving in debug not allowed because of cheating!
                 if (gameSettings.debugMode == false) saveSettings(APP_NAME,this.Pepe);
-                this.lastSaved = new Date().getTime();
-                // this.gameSaved = true;
+                this.lastSaved = this.now;
             }
-        } else if (this.keyboard.Q_KEY && !this.gamePaused) {
+        } else if (this.keyboard.Q_KEY && !this.gamePaused && !demoMode) {
         // quit game (commit suicide)...
             Sounds.play('suicide');
             this.Pepe.energy = 0;
@@ -520,4 +514,38 @@ export default class World {
         if (!hex.startsWith('#')) return hex;
         return hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i,(m, r, g, b) => '#' + r + r + g + g + b + b).substring(1).match(/.{2}/g).map(x => parseInt(x, 16));
     }
+
+    /**
+         * Test @function checkCameraTest same as @function checkCamera
+         * on right movement or left movement, target is position some offset from middle screen,
+         * opposed to movement direction.
+         */
+    checkCameraTest(target) {
+        let targetCenterX = target.x + target.width * 0.5;
+        let canvasCenterX = this.ctx.canvas.width * 0.5;
+        let distanceFromCamera = targetCenterX - this.cameraOffsetX;
+
+        if (this.canMoveCamera(canvasCenterX, this.level.level_end_x - canvasCenterX, distanceFromCamera)) {
+            this.camera_x = -(distanceFromCamera - canvasCenterX);
+            if (target.isMovingRight() && targetCenterX + this.camera_x >= canvasCenterX * 0.5) {
+                this.cameraOffsetX -= 3;
+            }
+            if (target.isMovingLeft() && targetCenterX + this.camera_x <= this.ctx.canvas.width - canvasCenterX * 0.5) {
+                this.cameraOffsetX += 3;
+            }
+        }
+    }
+
+    /**
+     * Check if camera target is inside Boundaries to allow camera movement
+     * @param {number} leftBoundary - minium distance for target to achieve for camera to move.
+     * @param {number} rightBoundary - maximum distance for target to achieve for camera to move.
+     * @param {number} distanceFromCamera - how far is the camera's offset from target
+     * @returns {boolean}
+     */
+    canMoveCamera(leftBoundary, rightBoundary, distanceFromCamera) {
+        return distanceFromCamera > leftBoundary &&
+            distanceFromCamera < rightBoundary;
+    }
+
 }

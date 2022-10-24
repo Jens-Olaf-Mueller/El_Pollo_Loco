@@ -20,14 +20,20 @@ export default class Bottle extends Mobile {
     animationID = undefined;
     moveID = undefined;
     gravarityID = undefined;
+    burstID = undefined;
 
     constructor (imgPath) {        
         super().loadImage(imgPath);
-        this.arrAnimation = loadArray ('./img/Items/Bottles/rotation/spin',8);
-        this.loadImageCache (this.arrAnimation, this.name);     
+        this.initialize();
     }
 
-    throw (pX, pY, speed, mirrored = false) {
+    initialize() { 
+        this.arrAnimation = loadArray ('./img/Items/Bottles/rotation/spin',8);
+        this.arrAnimation.push(...loadArray('./img/Items/Bottles/splash_salsa/splash',6));
+        this.loadImageCache (this.arrAnimation, this.name);
+    }
+
+    throw(pX, pY, speed, mirrored = false) {
         if( this.moveID == undefined) {
             // Sounds.play('bottle');
             this.X = pX;
@@ -35,28 +41,37 @@ export default class Bottle extends Mobile {
             this.speedY = -speed;
             this.gravarityID = this.applyGravity(this);
             this.animationID = this.animate(this);   
+            this.burstID = this.burst(this);
             this.moveID = this.move(this, mirrored);
         }
     }
 
-    animate (Me) {     
-        return Intervals.add (
-            function animate () {
-                Me.playAnimation(Me.arrAnimation, 'spin'); 
-            }, 2000 / FPS, [Me]
+    animate($this) {     
+        return Intervals.add(
+            function animate() {
+                $this.playAnimation($this.arrAnimation, 'spin'); 
+            }, 2000 / FPS, [$this]
         );
     }
 
-    move (Me, mirrored) {
-        return Intervals.add (
+    burst($this) {
+        return Intervals.add(
+            function splash() {
+                $this.playAnimation($this.arrAnimation, 'splash');
+            }, 1500 / FPS, [$this]
+        );
+    }
+
+    move($this, mirrored) {
+        return Intervals.add(
             function move() {
-                if (Me.Y < Me.groundY) {
+                if ($this.Y < $this.groundY) {
                     let dir = mirrored ? -1 : 1;
-                    Me.X += Me.speed * dir;
-                } else if (Me.Y >= Me.groundY) {
-                    Me.hide(Me.name);
+                    $this.X += $this.speed * dir;
+                } else if ($this.Y >= $this.groundY) {
+                    $this.hide($this.name);
                 }   
-            }, 25, [Me]
+            }, 25, [$this]
         );
     }
 }

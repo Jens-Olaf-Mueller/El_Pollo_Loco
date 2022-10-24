@@ -174,4 +174,46 @@ export default class Keyboard {
         $('imgHeart').addEventListener('mousedown', () => { this.CTRL_LEFT = true; });
         $('imgHeart').addEventListener('mouseup', () => { this.CTRL_LEFT = false; });
     }
+
+        // this.arrEvents.forEach((evt) => {
+        //     $('imgLeft').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.LEFT = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgRight').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.RIGHT = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgUp').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.UP = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgAction').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.SPACE = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgBuy').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.B_KEY = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgPause').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.P_KEY = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgQuit').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.Q_KEY = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+
+        //     $('imgHeart').addEventListener(evt, (event) => {
+        //         event.preventDefault();
+        //         this.CTRL_LEFT = evt == 'mousedown' || evt == 'touchstart' ? true : false;
+        //     });
+        // });
 }

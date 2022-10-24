@@ -27,7 +27,7 @@ export default class Seed extends Mobile {
         this.loadImageCache (this.arrAnimation, this.name);
     }
 
-    throw (pX, pY, speed, mirrored = false) {
+    throw(pX, pY, speed, mirrored = false) {
         if( this.moveID == undefined) {
             Sounds.play('seed');
             this.X = pX;
@@ -39,24 +39,24 @@ export default class Seed extends Mobile {
         }
     }
 
-    animate (Me) {     
+    animate($this) {     
         return Intervals.add (
             function animate () {
-                Me.playAnimation(Me.arrAnimation, 'seed'); 
-            }, 2000 / FPS, [Me]
+                $this.playAnimation($this.arrAnimation, 'seed'); 
+            }, 2000 / FPS, [$this]
         );
     }
 
-    move (Me, mirrored) {
+    move($this, mirrored) {
         return Intervals.add (
             function move() {
-                if (Me.Y < Me.groundY) {
+                if ($this.Y < $this.groundY) {
                     let dir = mirrored ? -1 : 1;
-                    Me.X += Me.speed * dir;
-                } else if (Me.Y >= Me.groundY) {
-                    Me.hide(Me.name);
+                    $this.X += $this.speed * dir;
+                } else if ($this.Y >= $this.groundY) {
+                    $this.hide($this.name);
                 }   
-            }, 25, [Me]
+            }, 25, [$this]
         );
     }
 }

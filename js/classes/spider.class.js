@@ -23,11 +23,11 @@ export default class Spider extends Enemy {
         this.spiderAnimation(this, 'spider', 60000);
     }
 
-    spiderAnimation (context, subkey, milliseconds) {
+    spiderAnimation ($this, subkey, milliseconds) {
         Intervals.add (
             function spiderAnimation() {
-                context.playAnimation(context.arrAnimation, subkey)
-            }, milliseconds / FPS, [context]
+                $this.playAnimation($this.arrAnimation, subkey)
+            }, milliseconds / FPS, [$this]
         );
     }
 }

@@ -21,19 +21,33 @@ export default class Level {
     levelNo;
     eastEnd;
     westEnd;
+    shop;
 
     Backgrounds = [];
     Clouds = [];
     Enemies = [];
+    EndBosses = [];
     Food = [];   
     Foregrounds = [];
     Items = [];
     Obstracles = [];
-    LastEndbossX = [];
+    LastEndbossPositions = [];
+
+    /**
+     * find all endbosses in the current level, since there can be more than one...
+     * A level is solved, i
+     */
+    get solved() {
+        const aliveBosses = this.EndBosses.filter(boss => {
+            // return (boss instanceof Endboss && boss.isAlive);
+            return (boss.isAlive);
+        }); 
+        return aliveBosses.length == 0;
+    }
 
     constructor (number, prevEndbossPosX) {
         this.levelNo = number;
-        this.LastEndbossX = prevEndbossPosX;
+        this.LastEndbossPositions = prevEndbossPosX;
         this.name = 'Level ' + number;
         this.eastEnd = (CANVAS_WIDTH - 1) * number * 5;
         this.westEnd = -this.eastEnd;
@@ -47,9 +61,10 @@ export default class Level {
         this.initClouds();
         this.initFood();
         this.initItems();
+        // this.initShop();
     }
 
-    initBackgrounds() {
+    initBackgrounds() { 
         let step = CANVAS_WIDTH - 1,
             pNr = 0;   
         for (let x =  this.westEnd; x < this.eastEnd + 1; x += step) {
@@ -61,6 +76,8 @@ export default class Level {
                 this.Backgrounds.push(new Background(path, x, this));
             }
         }
+        this.shop = new Shop('./img/Items/Shop/', this);
+        this.Backgrounds.push(this.shop); 
     }
 
     /**
@@ -88,10 +105,11 @@ export default class Level {
         for (let i = 0; i < count; i++) {
             this.Items.push(...this.add (3, Item,'bottle', 'Items/Bottles'));
         }
-        // this.Items.push(new Shop('../img/Items/Misc/shop0.png',this));
-        this.Items.push(...this.add (1, Item, 'shop', 'Items/Misc'));
+        // this.Items.push(new Shop('../img/Items/Misc/shop0.png',this));        
+        // this.Items.push(...this.add (1, Item, 'shop', 'Items/Shop'));
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
         this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
+
 
         count = this.getLevelBalance(2,16,4); 
         this.Items.push(...this.add (16, Item, 'misc', 'Items/Misc'));        
@@ -132,9 +150,9 @@ export default class Level {
         this.Food.push(...this.add(11, Food, 'drink', 'Food/Drinks'));
         this.Food.push(...this.add(6, Food, 'medicine', 'Food/Medicine'));
         // debugger
-        // for (let i = 0; i < this.LastEndbossX.length; i++) {
+        // for (let i = 0; i < this.LastEndbossPositions.length; i++) {
         //     const name = 'food' + parseInt(25 + i);
-        //     this.Food.push(new Food(`./img/Food/${name}.png`,name, this, this.LastEndbossX[i]));      
+        //     this.Food.push(new Food(`./img/Food/${name}.png`,name, this, this.LastEndbossPositions[i]));      
         // }
     }
 
@@ -144,7 +162,9 @@ export default class Level {
         }
         for (let i = 0; i < this.levelNo; i++) {
             if (i % 3 == 0) {
-                this.Enemies.push(new Endboss(this, i));
+                const boss = new Endboss(this, i)
+                this.Enemies.push(boss);
+                this.EndBosses.push(boss);
                 this.Enemies.push(new Bees(this, i));
             }            
         }

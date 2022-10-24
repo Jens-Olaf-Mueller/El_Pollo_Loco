@@ -33,12 +33,12 @@ export default class Cloud extends Mobile {
         this.moveLeft(this);
     }
 
-    moveLeft (context) {
+    moveLeft($this) {
         Intervals.add(
             function moveLeft() {
-                context.X -= context.speed;
-                if (context.X + context.width < context.westEnd) context.X = context.eastEnd;
-            }, 1000 / FPS, [context]
+                $this.X -= $this.speed;
+                if ($this.right < $this.westEnd) $this.X = $this.eastEnd;
+            }, 1000 / FPS, [$this]
         );
     }
 }

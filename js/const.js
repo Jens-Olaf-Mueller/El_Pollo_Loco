@@ -1,4 +1,5 @@
 import Container from './classes/container.class.js';
+import $ from "./library.js";
 
 const APP_NAME = 'El Pollo Loco';
 const PEPE = 'Pepe';
@@ -11,7 +12,7 @@ const BTN_PATH = './img/Status/Mobile/';
 
 
 // Frames per second                   
-const FPS = 60; 
+const FPS = 60, GROUND = 150;
 
 // Canvas-Size
 const CANVAS_HEIGHT = 480;
@@ -26,25 +27,32 @@ const COLL_TOP = 12,
       COLL_LEFT = 9;
 
 // icons for tatusbar
-const ICON_ENERGY = document.getElementById('imgEnergy'),
-      ICON_JUMP = document.getElementById('imgJump'),
-      ICON_ACCURACY = document.getElementById('imgAccuracy'),
-      ICON_SHARPNESS = document.getElementById('imgSharpness');
+const ICON_ENERGY = $('imgEnergy'),
+      ICON_JUMP = $('imgJump'),
+      ICON_ACCURACY = $('imgAccuracy'),
+      ICON_SHARPNESS = $('imgSharpness');
 
-const canvasParent = document.getElementById('divCanvas'),
+const canvasParent = $('divCanvas'),
       homeScreen = new Container('divHome'),
       introScreen = new Container('divIntro'),
-      canvasDiv = new Container('divCanvas'),
+      mainScreen = new Container('divCanvas'),
       navBar = new Container('divNavbar'),
       statusBar = new Container('divStatusbar'),
+      sideBar = new Container('divSidebar'),
+      posBar = new Container('divOrientationbar'),
+      btnStart = $('btnStart'),
+      btnClose = $('imgClose'),
+      btnDemo = $('btnDemo'),
       btnMusic = new Container('imgMusic'),
       btnSound = new Container('imgSound'),
-      btnPause = new Container('imgPause');
+      btnPause = new Container('imgPause'),
+      btnFeed = new Container('imgHeart'),
+      btnShop = new Container('imgBuy');
 
-const SONG_TITLES = ['Santa Esmeralda','Chicken Song'];
+const SONG_TITLES = ['Santa Esmeralda','Chicken Song','The Lonely Shepherd'];
 
 const SOUNDS = {
-    songs: ['Santa Esmeralda.mp3','Chicken Song.mp3'],
+    songs: ['Santa Esmeralda.mp3','Chicken Song.mp3','The Lonely Shepherd.mp3'],
     echo: "echo el_pollo_loco.mp3",
     jingle: "jingle.mp3",
     ouch: "ouch.mp3",
@@ -106,12 +114,12 @@ export const DEFAULT_SETTINGS = {
 
 export { APP_NAME, PEPE, 
         SOUNDS, SONG_TITLES,
-        FPS, 
+        FPS, GROUND,
         CANVAS_HEIGHT, CANVAS_WIDTH,  
         ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS,          
         IMG_GAMEOVER, 
         IMG_START,
         BTN_PATH,
         COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT };
-export { canvasParent, homeScreen, introScreen ,canvasDiv, navBar, statusBar, 
-        btnMusic, btnSound, btnPause };
+export { canvasParent, homeScreen, introScreen, mainScreen, navBar, statusBar, sideBar, posBar,
+         btnStart, btnClose, btnDemo, btnMusic, btnSound, btnPause, btnFeed, btnShop };

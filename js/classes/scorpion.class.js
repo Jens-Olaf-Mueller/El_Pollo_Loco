@@ -23,11 +23,11 @@ export default class Scorpion extends Enemy {
         this.scorpionAnimation(this, 'scorpion', 60000);
     }
 
-    scorpionAnimation (context, subkey, milliseconds) {
+    scorpionAnimation ($this, subkey, milliseconds) {
         Intervals.add (
             function scorpionAnimation() {
-                context.playAnimation(context.arrAnimation, subkey)
-            }, milliseconds / FPS, [context]
+                $this.playAnimation($this.arrAnimation, subkey)
+            }, milliseconds / FPS, [$this]
         );
     }
 }

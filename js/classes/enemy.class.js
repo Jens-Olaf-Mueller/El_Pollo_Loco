@@ -21,6 +21,8 @@ export default class Enemy extends Mobile {
     energy = 100;
     damage = 0;
 
+    // get isAlive() {return this.energy > 0;}
+
     arrAnimation = []; 
     animationID = undefined;
     moveID = undefined;
@@ -35,13 +37,13 @@ export default class Enemy extends Mobile {
         this.speed = this.defaultSpeed + Math.random() * 0.85;     
     }; 
 
-    animate (animationKey, context, milliseconds = 12000) {
+    animate (animationKey, $this, milliseconds = 12000) {
         if (this.isAlive) {
             this.move (this, 'left');
             Intervals.add (
                 function enemyAnimation() {
-                    context.playAnimation(context.arrAnimation, animationKey)
-                }, milliseconds / FPS, [context]
+                    $this.playAnimation($this.arrAnimation, animationKey)
+                }, milliseconds / FPS, [$this]
             );
         } 
     }
@@ -62,9 +64,9 @@ export default class Enemy extends Mobile {
         } 
     }
 
-    isAlive () {
-        return this.energy > 0;
-    }
+    // isAlive () {
+    //     return this.energy > 0;
+    // }
 
     remove () {
         if (this.type == 'bees') return;

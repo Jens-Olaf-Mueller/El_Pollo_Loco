@@ -8,13 +8,13 @@ export default class Chicken extends Enemy {
     width = 60;  
     heart = new Image(16,16);  
 
-    constructor (level, index) { 
+    constructor(level, index) { 
         super(level, 'Chicken', index);
         this.initialize();
         this.animate('wlk', this);
     };  
 
-    initialize () {
+    initialize() {
         this.loadImage ('./img/Chicken/adult/wlk0.png');
         this.heart.src= './img/Status/heart.png';
         this.arrAnimation = loadArray ('./img/Chicken/adult/wlk', 3);      

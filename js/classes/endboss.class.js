@@ -22,7 +22,7 @@ export default class Endboss extends Enemy {
     initialize() {        
         this.loadImage ('./img/Endboss/walking/wlk1.png');
         this.arrAnimation = loadArray ('./img/Endboss/walking/wlk', 4); 
-        this.arrAnimation.push(...loadArray('./img/Endboss/attack/attack/atk',8));
+        this.arrAnimation.push(...loadArray('./img/Endboss/attack/attack/atk', 8));
         this.arrAnimation.push(...loadArray('./img/Endboss/dead/die',3));
         this.arrAnimation.push(...loadArray('./img/Endboss/hurt/hurt',3));
         this.arrAnimation.push(...loadArray('./img/Endboss/attack/alert/alt', 8));
@@ -35,31 +35,30 @@ export default class Endboss extends Enemy {
         this.move(this, 'left');
     }
 
-    runAnimation(object) {
+    runAnimation($this) {
         Intervals.add(
             function animation() {
-                if (object.isDead) {
-                    object.speed = 0;
-                    if (object.timeElapsed(object.diedAt) < 3.5) {    
-                        object.playAnimation (object.arrAnimation,'die');
-                        object.width -=20;
-                        object.height -=20;
-                        object.Y +=20;                        
+                if ($this.isDead) {
+                    $this.speed = 0;
+                    if ($this.timeElapsed($this.diedAt) < 3.5) {    
+                        $this.playAnimation ($this.arrAnimation, 'die');
+                        $this.width -=20;
+                        $this.height -=20;
+                        $this.Y +=20;                        
                     } else {
-                        object.remove();                        
+                        $this.remove();                        
                     }  
-                } else if (object.isHurt) {
-                    object.lastAttack = new Date().getTime(); // saving time stamp since last attack
-                    object.playAnimation (object.arrAnimation,'hurt');
-                    // console.log('Endboss energy...' + object.energy)
-                } else if (object.isAttacking()) {
-                    object.speed = 2.75; // 3 ?
-                    object.playAnimation (object.arrAnimation,'atk');     
+                } else if ($this.isHurt) {
+                    $this.lastAttack = new Date().getTime(); // saving time stamp since last attack
+                    $this.playAnimation ($this.arrAnimation,'hurt');
+                } else if ($this.isAttacking()) {
+                    $this.speed = 2.75; // 3 ?
+                    $this.playAnimation ($this.arrAnimation,'atk');     
                 } else {
-                    object.speed = object.defaultSpeed;
-                    object.playAnimation (object.arrAnimation,'wlk');                
+                    $this.speed = $this.defaultSpeed;
+                    $this.playAnimation ($this.arrAnimation,'wlk');                
                 }
-            }, 250, [object] 
+            }, 250, [$this] 
         )
     }  
 

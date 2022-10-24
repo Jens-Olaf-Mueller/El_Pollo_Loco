@@ -27,4 +27,8 @@ export default class Container {
     removeClass(classname) {
         this.element.classList.remove(classname);
     }
+
+    toggleClass(classname, force) {
+        this.element.classList.toggle(classname, force);
+    }
 }

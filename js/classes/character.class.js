@@ -6,16 +6,16 @@ import Mobile from './mobile.class.js';
 import { updateGameStatus, gameOver, Sounds, Intervals, flashImg } from '../game.js';
 import { loadSettings, saveSettings, gameSettings } from '../settings_mod.js';
 import { loadArray, random } from '../library.js';
-import {FPS ,CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
+import {FPS , GROUND, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Character extends Mobile {
     name = 'Pepe';
     type = 'character';
     environment;                     // reference to the world
-    lastMove = new Date().getTime(); // time elapsed since Pepe has moved (requ. for sleep animation)
+    // lastMove = new Date().getTime(); // time elapsed since Pepe has moved (requ. for sleep animation)
     X = 50;
     Y = 150;
-    groundY = 0;
+    groundY = GROUND;
     offsetY = 110;
     height = 300;
     width = 150;
@@ -36,11 +36,15 @@ export default class Character extends Mobile {
     cameraOffset = 150;
     arrAnimation = [];
 
+    get isInFrontOfShop() {
+        return this.right > this.environment.level.shop.left + 50 && 
+               this.left < this.environment.level.shop.right - 50;
+    }
+
     constructor (environment) {
         super().loadImage('./img/Pepe/idle/wait/wait0.png');
         this.environment = environment;
         this.keyboard = environment.keyboard;
-        this.groundY = environment.groundY;
         this.Y = environment.groundY;
         this.initialize();  
     };
@@ -82,47 +86,47 @@ export default class Character extends Mobile {
     /**
      * adds the 'move' and 'animation'-interval to the interval-listener class.
      * since 'this' would not work inside another class, 
-     * we pass the current class as 'Me'
-     * @param {object} Me ist the instance of 'this'
+     * we pass the current class as '$this'
+     * @param {object} $this ist the instance of 'this'
      */
-    startIntervals (Me) {
+    startIntervals ($this) {
         Intervals.add (
             function move() {
-                if (!Me.isDead) {
+                if (!$this.isDead) {
                     Sounds.stop('walk');
-                    if (Me.keyboard.RIGHT) Me.walk('right');
-                    if (Me.keyboard.LEFT) Me.walk('left');
-                    if (Me.keyboard.UP && !Me.isAboveGround()) Me.jump();
+                    if ($this.keyboard.RIGHT) $this.walk('right');
+                    if ($this.keyboard.LEFT) $this.walk('left');
+                    if ($this.keyboard.UP && !$this.isAboveGround) $this.jump();
         
-                    Me.environment.camera_X = -Me.X + Me.cameraOffset;
-                    // if (Me.X > Me.environment.westEnd - Me.cameraOffset) {
-                    //     Me.environment.camera_X = -Me.X + Me.cameraOffset;
+                    $this.environment.camera_X = -$this.X + $this.cameraOffset;
+                    // if ($this.X > $this.environment.westEnd - $this.cameraOffset) {
+                    //     $this.environment.camera_X = -$this.X + $this.cameraOffset;
                     // }                     
                 }
-            }, 1000 / FPS, [Me] // = 16 ms
+            }, 1000 / FPS, [$this] // = 16 ms
         )
         
         Intervals.add (
             function animate () {
-                if (Me.isDead) {
-                    if (Me.timeElapsed(Me.diedAt) < 2.25) {    
-                        Me.playAnimation (Me.arrAnimation,'die');
+                if ($this.isDead) {
+                    if ($this.timeElapsed($this.diedAt) < 2.25) {    
+                        $this.playAnimation ($this.arrAnimation,'die');
                     } else {
                         gameOver();
                     }  
-                } else if (Me.isHurt) {
-                    Me.playAnimation (Me.arrAnimation,'hurt');
-                    Me.setNewTimeStamp();
-                } else if (Me.isAboveGround() || Me.speedY > 0) {
-                    Me.playAnimation (Me.arrAnimation,'jmp');
-                } else if (Me.keyboard.RIGHT || Me.keyboard.LEFT) {
-                    Me.playAnimation (Me.arrAnimation,'wlk');    
-                } else if (Me.isSleeping) {
-                    Me.playAnimation(Me.arrAnimation,'slp');              
+                } else if ($this.isHurt) {
+                    $this.playAnimation ($this.arrAnimation,'hurt');
+                    $this.setNewTimeStamp();
+                } else if ($this.isAboveGround || $this.speedY > 0) {
+                    $this.playAnimation ($this.arrAnimation,'jmp');
+                } else if ($this.keyboard.RIGHT || $this.keyboard.LEFT) {
+                    $this.playAnimation ($this.arrAnimation,'wlk');    
+                } else if ($this.isSleeping) {
+                    $this.playAnimation($this.arrAnimation,'slp');              
                 } else {
-                    Me.playAnimation(Me.arrAnimation,'wait');
+                    $this.playAnimation($this.arrAnimation,'wait');
                 }
-            }, 6000 / FPS, [Me] // = 100 ms
+            }, 6000 / FPS, [$this] // = 100 ms
         )
     }
 
@@ -166,7 +170,7 @@ export default class Character extends Mobile {
      * executes a bottle-throw and reduces the character's bottles
      */
     throwBottle () {
-        this.environment.bottle.throw(this.X + this.width / 2, this.Y + this.height / 2, 15, this.isMirrored);
+        this.environment.bottle.throw(this.centerX, this.centerY, 15, this.isMirrored);
         this.bottles--;
         this.setNewTimeStamp();
     }
