@@ -215,7 +215,7 @@ canvas {
 /* #################################################################### */
 /*                             C A N V A S                              */
 /* #################################################################### */
-.canvas-frame {
+.main-screen {
     position: relative;
     width: 956px; /* 1020px; */
     height: 700px; /* 680px; */    
@@ -240,21 +240,14 @@ canvas {
 }
 
 .statusbar-left {
-    /* position: absolute; */
-    /* margin: 1rem; */
-    /* margin-left: 5rem; */
     padding-top: 0.25rem;
-    /* top: 1rem;
-    left: 1rem; */
     display: flex;
     align-items: center;
     align-self: flex-start;
-    /* padding: 0.33rem 0; */
     font-size: 0.8rem;
 }
 
 .statusbar-right {
-    /* margin-right: 5rem; */
     padding-top: 0.25rem;
     display: flex;
     align-self: flex-end;
@@ -496,7 +489,7 @@ canvas {
         width: 720px;
     }
 
-    .canvas-frame {
+    .main-screen {
         /* width: 100vw;  */
         height: 100vh;
         overflow: hidden;
@@ -516,7 +509,7 @@ canvas {
         width: 720px;
     }
 
-    .canvas-frame {
+    .main-screen {
         /* height and width are switched due to landscape mode !!! */
         width: 138vh; 
         height: 100vw;

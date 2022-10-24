@@ -13,7 +13,7 @@ import Bonus from './bonus.class.js';
 import Bottle from './bottle.class.js';
 import Seed from './seed.class.js';
 
-import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, GROUND, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
+import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, GROUND, COLLISION } from '../const.js';
 import { showIntroScreen, updateGameStatus, Sounds, Intervals, demoMode } from '../game.js';
 import { saveSettings, gameSettings } from '../settings_mod.js';
 import { sleep } from '../library.js';
@@ -29,7 +29,7 @@ export default class World {
     eastEnd;
     westEnd;
     groundY = GROUND;
-    gamePaused = undefined;
+    gamePaused = null;
     levelUp = false;
 
     arrBackgrounds;
@@ -59,7 +59,7 @@ export default class World {
         this.levelNo = gameSettings.lastLevel;
         Intervals.clear(); // must be executed BEFORE new Character!!!
         this.Pepe = new Character(this); 
-        this.gamePaused = undefined;                       
+        // this.gamePaused = undefined;                       
         this.initLevel (this.levelNo);
         this.draw();        
     }
@@ -81,24 +81,12 @@ export default class World {
         this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
         this.seed = new Seed('./img/Seed/seed1.png');
         if (gameSettings.debugMode) {
-            // Intervals.list();
+            Intervals.list();
             console.log('World created... ', this);
         }   
         this.mainID = this.run();     
     }
 
-    async nextLevel () {
-        setTimeout(async () => {
-            this.levelNo++;
-            await sleep(2500);
-            await showIntroScreen(this.levelNo);
-            this.initLevel(this.levelNo);
-            this.Pepe.X = 50;
-            this.Pepe.bottles = 0;
-            if (this.Pepe.accuracy > 100) this.Pepe.accuracy -= this.levelNo * 10;
-            if (this.Pepe.sharpness > 100) this.Pepe.sharpness -= this.levelNo * 10;  
-        }, 3000);                            
-    }
 
     /**
      * this is the main interval to check all actions and events
@@ -112,7 +100,6 @@ export default class World {
             this.checkObstracleCollisions();  
             this.checkBottelCollisions();
             this.checkSeedCollision();
-            this.checkForShopping();
             this.checkActions();  
             this.checkKeyboard();
             updateGameStatus (this.Pepe);
@@ -123,7 +110,24 @@ export default class World {
                 this.levelUp = false;
                 this.nextLevel();
             }         
-        }, 200); // 125 ??
+        }, 125); // 125 ??
+    }
+
+
+    /**
+     * initializes the next level
+     */
+    async nextLevel () {
+        setTimeout(async () => {
+            this.levelNo++;
+            await sleep(2500);
+            await showIntroScreen(this.levelNo);
+            this.initLevel(this.levelNo);
+            this.Pepe.X = 50;
+            this.Pepe.bottles = 0;
+            if (this.Pepe.accuracy > 100) this.Pepe.accuracy -= this.levelNo * 10;
+            if (this.Pepe.sharpness > 100) this.Pepe.sharpness -= this.levelNo * 10;  
+        }, 3000);                            
     }
 
     /**
@@ -208,21 +212,25 @@ export default class World {
         this.level.Enemies.forEach((enemy) => {
             if (enemy.isAlive) {   
                 let collision = this.Pepe.isColliding(enemy); 
-                if (collision == COLL_TOP) {
-                    this.handleTopSideCollision(enemy);
-                } else if (collision) { 
-                    // handle any other collision, except from top
-                    this.handleCollision(enemy);
-                }
+                if (collision) this.handleCollision(enemy, collision);
             }
         });
     }
 
-
-    handleCollision(enemy) {
+    /**
+     * handles a collision with an enemy
+     * @param {object} enemy any enemy-object (chicken, snake, etc.)
+     * @param {number} collisionType for further using (left, right, bottom)
+     */
+    handleCollision(enemy, collisionType) {
+        // handle top-side collisions seperately!
+        if (collisionType == COLLISION.bottom) {
+            this.handleBottomCollision(enemy);
+            return;
+        }
         if (!enemy.isFriendly) {
             // if we met a snake and can shoot - execute a shot!
-            if (enemy instanceof Snake && this.keyboard.SPACE && this.Pepe.canShoot()) {
+            if (enemy instanceof Snake && this.keyboard.SPACE && this.Pepe.canShoot) {
                 this.Pepe.shoot();
                 if (this.Pepe.hitSuccessful()) {
                     this.Pepe.score += parseInt(this.levelNo * enemy.damage);
@@ -240,7 +248,7 @@ export default class World {
     }
 
 
-    handleTopSideCollision(enemy) {
+    handleBottomCollision(enemy) {
         if (enemy instanceof Bees || enemy instanceof Snake) return;
         let score = parseInt(this.levelNo * enemy.damage) || 0; 
         if (enemy instanceof Chicken || enemy instanceof Chicklet) {
@@ -308,14 +316,6 @@ export default class World {
         }
     }
 
-    /**
-     * checks if we are in front of a shop and if we can buy items there
-     */
-    checkForShopping () {
-        if (this.keyboard.B_KEY && this.Pepe.isAlive) {            
-            if (this.Pepe.isInFrontOfShop) this.Pepe.buyItems(); 
-        }
-    }
 
     /**
      * checks for collision with obstracles:
@@ -361,15 +361,6 @@ export default class World {
         });
     }
 
-    /**
-     * find all endbosses in the current level, since there can be more than one...
-     */
-    // getAllEndbosses() {
-    //     const allBosses = this.arrEnemies.filter(boss => {
-    //         return (boss instanceof Endboss && boss.isAlive);
-    //     }); 
-    //     return allBosses;
-    // }
 
     /**
      * checks if the given endboss is killed. 
@@ -412,7 +403,7 @@ export default class World {
             if (boss) {
                 if (this.Pepe.bottles > 0) {                
                     this.Pepe.throwBottle();
-                } else if (this.Pepe.canShoot()) {
+                } else if (this.Pepe.canShoot) {
                     this.Pepe.shoot();
                     if (this.Pepe.hitSuccessful()) {
                         boss.energy = 0;
@@ -433,43 +424,49 @@ export default class World {
      * - save game
      * - enabling fullscreen mode
      */
-    checkKeyboard() {        
-        if (this.keyboard.CTRL_LEFT && !this.gamePaused && this.Pepe.seeds > 0) {
-        // throw seed...
-            this.seed.throw(this.Pepe.X + this.Pepe.width / 2, 
-            this.Pepe.Y + this.Pepe.height * 0.666, 3, this.Pepe.isMirrored);
-            this.Pepe.seeds--;
-            this.Pepe.setNewTimeStamp();
-        } else if (this.keyboard.P_KEY) {
-        // pause game...
-            // on game start we set the flag explicit...
-            if (this.gamePaused === undefined) {
-                this.gamePaused = true;
-                Intervals.stop();
-                Sounds.stop(gameSettings.lastSong);
-            } else if (this.gamePaused == true) { 
-                this.gamePaused = undefined; 
-                // debugger
-                Intervals.start();
-                Sounds.playList(gameSettings.lastSong);
-            }           
-        } else if (this.keyboard.S_KEY) {
-        // save game...
-            if (this.gameSaved == false) {
-                // saving in debug not allowed because of cheating!
-                if (gameSettings.debugMode == false) saveSettings(APP_NAME,this.Pepe);
-                this.lastSaved = this.now;
+    checkKeyboard() { 
+        if (!this.gamePaused) {
+            if (this.keyboard.CTRL_LEFT && this.Pepe.seeds > 0) this.throwSeed();
+            if (this.keyboard.ESCAPE && !demoMode) {
+                Sounds.play('suicide');
+                this.Pepe.energy = 0;
             }
-        } else if (this.keyboard.Q_KEY && !this.gamePaused && !demoMode) {
-        // quit game (commit suicide)...
-            Sounds.play('suicide');
-            this.Pepe.energy = 0;
-        } else if (this.keyboard.F8_KEY && !this.gamePaused) {
-        // fullscreen mode...
-            if (document.fullscreenElement == null && document.fullscreenEnabled) {
-                canvasParent.requestFullscreen();
+            if (this.keyboard.F8_KEY) {
+                if (document.fullscreenElement == null && 
+                    document.fullscreenEnabled) canvasParent.requestFullscreen();
             }
-        }         
+        }
+        if (this.keyboard.B_KEY && this.Pepe.isInFrontOfShop) this.Pepe.buyItems(); 
+        if (this.keyboard.P_KEY) this.pauseGame(this.gamePaused);           
+        if (this.keyboard.S_KEY && !this.gameSaved) this.saveGame();       
+    }
+
+    throwSeed() {
+        this.seed.throw(this.Pepe.X + this.Pepe.width / 2, 
+        this.Pepe.Y + this.Pepe.height * 0.666, 3, this.Pepe.isMirrored);
+        this.Pepe.seeds--;
+        this.Pepe.setNewTimeStamp();
+    }
+
+    pauseGame(state) {
+        // on game start the flag is explicit set to 'null' !
+        if (state === null) {
+            this.gamePaused = true;
+            Intervals.stop();
+            Sounds.stop(gameSettings.lastSong);
+        } else if (state == true) { 
+            this.gamePaused = null;
+            Intervals.start();
+            Sounds.playList(gameSettings.lastSong);
+        }
+    }
+
+    saveGame() {
+        // saving in debug is not allowed because of cheating!
+        if (gameSettings.debugMode == false) {
+            saveSettings(APP_NAME,this.Pepe);
+            this.lastSaved = this.now;
+        }
     }
 
     /**

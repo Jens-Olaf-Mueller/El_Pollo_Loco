@@ -1,7 +1,7 @@
 import $ from "../library.js";
 // see also: https://stackoverflow.com/questions/11845678/adding-multiple-event-listeners-to-one-element 
 export default class Keyboard {
-    arrButtons = ['imgLeft','imgRight','imgUp','imgAction','imgBuy','imgPause','imgClose','imgHeart'];
+    arrButtons = ['imgLeft','imgRight','imgUp','imgAction','imgBuy','imgPause','divClose','imgHeart'];
     arrEvents = ['mousedown','mouseup','touchstart','touchend'];
 
     constructor() {
@@ -35,10 +35,10 @@ export default class Keyboard {
                 if (event.key == ' ') this.SPACE = state;
                 if (event.key == 'b') this.B_KEY = state;
                 if (event.key == 's') this.S_KEY = state;
-                if (event.key == 'q') this.Q_KEY = state;
-                if (event.key == 'p') this.P_KEY = state;
-                if (event.key == 'F8') this.F8_KEY = state;
                 if (event.key == 'Escape') this.ESCAPE = state;
+                if (event.key == 'q') this.ESCAPE = state;
+                if (event.key == 'p') this.P_KEY = state;
+                if (event.key == 'F8') this.F8_KEY = state;                
                 if (event.code == 'ControlLeft') this.CTRL_LEFT = state;
                 if (event.code == 'ControlRight')  this.CTRL_RIGHT = state;
             });
@@ -65,7 +65,7 @@ export default class Keyboard {
                             break;
                         case 'imgPause': this.P_KEY = state;                            
                             break;
-                        case 'imgClose': this.Q_KEY = state;                            
+                        case 'divClose': this.ESCAPE = state;                            
                             break;
                         case 'imgHeart': this.CTRL_LEFT = state;                            
                             break;

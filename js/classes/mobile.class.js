@@ -1,4 +1,4 @@
-import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH, COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT } from '../const.js';
+import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH, COLLISION } from '../const.js';
 import { getFilename } from '../library.js';
 import { gameSettings } from '../settings_mod.js';
 import { Intervals } from '../game.js';
@@ -14,7 +14,7 @@ export default class Mobile {
     get left() { return this.X;}
     get right() {return this.X + this.width;}
     get centerX() {return this.X + this.width / 2;}
-    get centerY() {return this.Y + this.height / 2;}
+    get centerY() {return this.Y + (this.height + this.offsetY) / 2;}
 
     get isHurt() {return this.timeElapsed(this.lastHit) < 1;} // < 0.75
     get isSleeping() {
@@ -22,12 +22,11 @@ export default class Mobile {
     }
     get isDead() {
         if (this.isAlive) return false;        
-        if (this.diedAt == null) this.diedAt = new Date().getTime();
+        if (this.diedAt == null) this.diedAt = this.now;
         return true;
     }
-
     get isAlive() {return this.energy > 0;}
-
+    get now() {return new Date().getTime();}
     /**
      * helper for fnc 'applyGravity': determines if object is in the air
      * @returns true | false
@@ -50,7 +49,7 @@ export default class Mobile {
     isMirrored = false;     // = 'otherDirection'    
    
     lastHit = 0;            // time elapsed since Object was hit
-    lastMove = new Date().getTime(); // time elapsed since Object has moved
+    lastMove = this.now;    // time elapsed since Object has moved
     diedAt = null;
 
     loadImage(path) {
@@ -63,7 +62,7 @@ export default class Mobile {
         this.imageBG.src = (path === undefined) ? '' : path;
     }
 
-    loadImageCache (arr, name) {
+    loadImageCache(arr, name) {
         let z = 0;
         arr.forEach(path => {            
             let img = new Image(), key = getFilename(path, false);
@@ -89,7 +88,7 @@ export default class Mobile {
         );
     }
 
-    draw (ctx, showframe) {
+    draw(ctx, showframe) {
         try {
             ctx.drawImage(this.image, this.X, this.Y, this.width, this.height);
             if (this.type == 'chicken') this.displayHeart(ctx);
@@ -101,13 +100,13 @@ export default class Mobile {
         }    
     }
 
-    displayHeart (ctx) {
+    displayHeart(ctx) {
         if (this.isFriendly && this.isAlive) {
             ctx.drawImage(this.heart, this.X+16, this.Y-16, 16, 16);
         }        
     }
 
-    displayEnergy (ctx) {
+    displayEnergy(ctx) {
         if (this.isDead) return;
         if (this.energy < 100) {
             let color = this.energy >= 66 ? 'green' : this.energy >= 33 ? 'gold' : 'tomato';
@@ -125,7 +124,7 @@ export default class Mobile {
      * helper function, to be executed only in debug mode !!!
      * @param {canvas context} ctx the given context to draw
      */
-    displayFrame (ctx) {
+    displayFrame(ctx) {
         if (this.name && (this.name == 'Pepe' || this.type == 'chicken' || this.type == 'endboss')) {
             let offsetY = this.name == 'Pepe' ? this.offsetY : 0,
                 cordsRequired = this.name == 'Pepe' || 
@@ -140,7 +139,7 @@ export default class Mobile {
         }      
     }
     // show the coordinates and names
-    displayCoordinates (ctx, name, offsetY) {
+    displayCoordinates(ctx, name, offsetY) {
         let isPepe = name == 'Pepe',
             showTop = isPepe ? `    Top: ${this.Y + offsetY}` : '';
         name = isPepe ? '' : name + ' ';        
@@ -160,7 +159,7 @@ export default class Mobile {
      * @param {string} arrImages string array containing the path for the images
      * @param {string} subkey creates together with name and index the key of the image in 'imageCache' 
      */
-    playAnimation (arrImages, subkey = 'wlk') {  
+    playAnimation(arrImages, subkey = 'wlk') {  
         const arr = arrImages.filter(img => {return img.includes(subkey)});      
         this.imgIndex++;     
         if (this.imgIndex >= arr.length) this.imgIndex = 0;
@@ -179,7 +178,7 @@ export default class Mobile {
      * Applies the gravity for the current object, if it is in the air.
      * Therefor we increase the Y-coordinate by the acceleration speed
      */
-    applyGravity ($this) {
+    applyGravity($this) {
         // returns the interval-ID! (for seed and bonus class)
         return Intervals.add (
             function gravity () {
@@ -195,7 +194,7 @@ export default class Mobile {
     }
 
 
-    isCloseEnemy (enemyType) {
+    isCloseEnemy(enemyType) {
         // get all endbosses in the current level...
         const bosses = this.environment.level.EndBosses;       
         // now check, if one of them is close enough for a hit
@@ -211,18 +210,22 @@ export default class Mobile {
         return retVal;
     }
 
-    hit (damage) {
+    hit(damage) {
         this.energy -=damage;
         if (this.energy < 0) {
             this.energy = 0; 
         } else {
-            this.lastHit = new Date().getTime(); // saving time stamp since last hit
+            this.lastHit = this.now; // saving time stamp since last hit
         }  
     }
 
-
+    /**
+     * helper function
+     * @param {number} since time in milliseconds to be calculated
+     * @returns time elapsed in seconds
+     */
     timeElapsed(since) {
-        return (new Date().getTime() - since) / 1000; // time elapsed in sec
+        return (this.now - since) / 1000;
     }
 
     isLeftFrom(obj) {
@@ -251,7 +254,7 @@ export default class Mobile {
      * helper function for  => isColliding.
      * determines, from which side a collision takes place
      * @param {object} obj 
-     * @returns COLL_TOP(12), COLL_RIGHT(3), COLL_BOTTOM(6), COLL_LEFT(9)
+     * @returns COLLISION.top(12), .right(3), .bottom(6), .left(9)
      */
     getCollisionSide(obj) {
         // Calculate the distance between centers
@@ -268,18 +271,18 @@ export default class Mobile {
         if (depthX != 0 && depthY != 0) {
             // Collision along the X-axis...
             if (Math.abs(depthX) < Math.abs(depthY)) {                
-                if (depthX > 0) return COLL_LEFT;
-                return COLL_RIGHT;
+                if (depthX > 0) return COLLISION.left;
+                return COLLISION.right;
             // Collision along the Y-axis...    
             } else { 
-                if (depthY > 0) return COLL_TOP;
-                return COLL_BOTTOM;
+                if (depthY > 0) return COLLISION.top;
+                return COLLISION.bottom;
             }
         }
         return null;
     }
 
-    hide (intervalKey) {
+    hide(intervalKey) {
         Intervals.remove(intervalKey);
         this.gravarityID = undefined;
         this.animationID = undefined;

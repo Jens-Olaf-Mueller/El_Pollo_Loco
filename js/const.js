@@ -25,6 +25,7 @@ const COLL_TOP = 12,
       COLL_RIGHT = 3,
       COLL_BOTTOM = 6,
       COLL_LEFT = 9;
+const COLLISION = {top: 12, right: 3, bottom: 6, left: 9}
 
 // icons for tatusbar
 const ICON_ENERGY = $('imgEnergy'),
@@ -41,7 +42,7 @@ const canvasParent = $('divCanvas'),
       sideBar = new Container('divSidebar'),
       posBar = new Container('divOrientationbar'),
       btnStart = $('btnStart'),
-      btnClose = $('imgClose'),
+      btnClose = new Container('divClose'),
       btnDemo = $('btnDemo'),
       btnMusic = new Container('imgMusic'),
       btnSound = new Container('imgSound'),
@@ -120,6 +121,6 @@ export { APP_NAME, PEPE,
         IMG_GAMEOVER, 
         IMG_START,
         BTN_PATH,
-        COLL_TOP, COLL_RIGHT, COLL_BOTTOM, COLL_LEFT };
+        COLLISION};
 export { canvasParent, homeScreen, introScreen, mainScreen, navBar, statusBar, sideBar, posBar,
          btnStart, btnClose, btnDemo, btnMusic, btnSound, btnPause, btnFeed, btnShop };

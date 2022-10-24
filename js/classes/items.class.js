@@ -56,14 +56,6 @@ export default class Item extends Background {
             this.width = 50;
             this.Y = 390;            
             this.fillRepository ();
-        // } else if (this.type == 'shop') {
-        //     this.height = 270;
-        //     this.width = 220;
-        //     this.Y = 150;
-        //     this.isBackground = true;
-        //     this.isShop = true;
-        //     let bgFile = this.imagePath.substring(0, this.imagePath.lastIndexOf('/')) + '/shop1.png';
-        //     this.loadBackgroundImage(bgFile);
         } else if (this.type == 'misc') {
             this.Y = 400 + Math.random() * 20;
             this.isBackground = Math.random() < 0.5;

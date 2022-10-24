@@ -10,6 +10,7 @@ import Obstracle from './obstracles.class.js';
 import Cloud from './cloud.class.js';
 import Item from './items.class.js';
 import Shop from './shop.class.js';
+import Sign from './sign.class.js';
 import Food from './food.class.js';
 
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
@@ -54,14 +55,13 @@ export default class Level {
         this.initLevel();
     }
 
-    initLevel () {        
+    initLevel() {        
         this.initBackgrounds();
         this.initEnemies();
         this.initObstracles();       
         this.initClouds();
         this.initFood();
         this.initItems();
-        // this.initShop();
     }
 
     initBackgrounds() { 
@@ -109,7 +109,11 @@ export default class Level {
         // this.Items.push(...this.add (1, Item, 'shop', 'Items/Shop'));
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
         this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
-
+        
+// TODO: modulo-operator kontrollieren für sign-images 
+        for (let i = 0; i < this.levelNo + 1; i++) {
+            this.Items.push(new Sign(this.shop.X, i % 5, this));
+        }
 
         count = this.getLevelBalance(2,16,4); 
         this.Items.push(...this.add (16, Item, 'misc', 'Items/Misc'));        

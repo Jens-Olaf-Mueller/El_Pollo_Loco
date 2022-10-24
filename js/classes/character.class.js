@@ -41,6 +41,15 @@ export default class Character extends Mobile {
                this.left < this.environment.level.shop.right - 50;
     }
 
+    /**
+     * check if we can execute a shot.
+     * must have a gun and bullets 
+     * @returns {boolean} true | false
+     */
+    get canShoot() {
+        return this.gun && this.bullets > 0;
+    } 
+
     constructor (environment) {
         super().loadImage('./img/Pepe/idle/wait/wait0.png');
         this.environment = environment;
@@ -173,16 +182,7 @@ export default class Character extends Mobile {
         this.environment.bottle.throw(this.centerX, this.centerY, 15, this.isMirrored);
         this.bottles--;
         this.setNewTimeStamp();
-    }
-
-    /**
-     * check if we can execute a shot.
-     * must be a gun and bullets available
-     * @returns true | false
-     */
-    canShoot () {
-        return this.gun && this.bullets > 0;
-    }    
+    }   
 
     /**
      * executes a shot, reduces the character's bullets and plays the concerning sounds
@@ -229,7 +229,8 @@ export default class Character extends Mobile {
      * character buys either medicine, a gun or bullets, 
      * according to the priotity list of the shop
      */
-    buyItems () {        
+    buyItems () {    
+        if (this.isDead) return;
         let price = parseInt((1 + Math.random() * 100) * this.environment.levelNo * 10),
             enoughMoney = false, amount;
         if (this.energy < 50) {

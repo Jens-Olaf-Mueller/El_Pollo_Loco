@@ -5,7 +5,7 @@ import { CANVAS_WIDTH } from '../const.js';
 export default class Chicklet extends Enemy {
     X = undefined;
     Y = undefined; 
-    groundY = 410; 
+    groundY = 405; 
     acceleration = 0.33; 
     height = 35;
     width = 35;  
@@ -16,7 +16,7 @@ export default class Chicklet extends Enemy {
         this.Y = pY;
         this.initialize();
         this.applyGravity(this);
-        this.animate('wlk', this);
+        this.animate('wlk', this, 5000);
     };  
 
     initialize() {
@@ -24,7 +24,7 @@ export default class Chicklet extends Enemy {
         this.arrAnimation = loadArray ('./img/Chicken/chicklets/wlk', 3);      
         this.arrAnimation.push('./img/Chicken/chicklets/dead.png');
         this.loadImageCache (this.arrAnimation, this.name); 
-        this.speed = 0.4 + Math.random();
+        this.speed += 0.4 + Math.random();
         this.damage = this.level.levelNo * 0.5;        
     }
 }

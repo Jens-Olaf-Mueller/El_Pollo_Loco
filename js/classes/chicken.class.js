@@ -15,14 +15,14 @@ export default class Chicken extends Enemy {
     };  
 
     initialize() {
-        this.loadImage ('./img/Chicken/adult/wlk0.png');
+        this.loadImage('./img/Chicken/adult/wlk0.png');
         this.heart.src= './img/Status/heart.png';
         this.arrAnimation = loadArray ('./img/Chicken/adult/wlk', 3);      
         this.arrAnimation.push('./img/Chicken/adult/dead.png');
         this.arrAnimation.push('./img/Chicken/adult/egg.png');
         this.loadImageCache (this.arrAnimation, this.name);     
         this.X = CANVAS_WIDTH / 2 + Math.random() * this.eastEnd;
-        this.speed = 0.15 + Math.random();
+        this.speed += Math.random();
         this.damage = this.level.levelNo * 1.5;        
     }
 }

@@ -21,13 +21,11 @@ export default class Enemy extends Mobile {
     energy = 100;
     damage = 0;
 
-    // get isAlive() {return this.energy > 0;}
-
     arrAnimation = []; 
     animationID = undefined;
     moveID = undefined;
 
-    constructor (level, name, index) { 
+    constructor(level, name, index) { 
         super();
         this.name = name + index; 
         this.type = name.toLowerCase();
@@ -37,11 +35,11 @@ export default class Enemy extends Mobile {
         this.speed = this.defaultSpeed + Math.random() * 0.85;     
     }; 
 
-    animate (animationKey, $this, milliseconds = 12000) {
+    animate(animationKey, $this, milliseconds = 12000) {
         if (this.isAlive) {
             this.move (this, 'left');
             Intervals.add (
-                function enemyAnimation() {
+                function animation() {
                     $this.playAnimation($this.arrAnimation, animationKey)
                 }, milliseconds / FPS, [$this]
             );
@@ -64,11 +62,7 @@ export default class Enemy extends Mobile {
         } 
     }
 
-    // isAlive () {
-    //     return this.energy > 0;
-    // }
-
-    remove () {
+    remove() {
         if (this.type == 'bees') return;
         this.animationID = clearInterval(this.animationID);
         this.moveID = clearInterval(this.moveID);
@@ -80,7 +74,7 @@ export default class Enemy extends Mobile {
         this.loadImage(this.imageCache[this.name + '_dead'].src);
     }
 
-    resizeEnemy (type) {
+    resizeEnemy(type) {
         switch (type) {
             case 'chicken':
                 this.height = 70;

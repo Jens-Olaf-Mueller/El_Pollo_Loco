@@ -1,17 +1,19 @@
 /** 
  * import all required functions & classes from outer .js-files
  */
+import Game from './classes/game.class.js';
 import World from './classes/world.class.js';
 import Sound from './classes/sound.class.js';
 import IntervalListener from './classes/intervals.class.js';
-import $ from "./library.js";
+// import $ from './library.js';
 import { loadSettings, saveSettings, gameSettings } from './settings_mod.js';
-import { sleep, random } from "./library.js";
+import $, { sleep, random } from './library.js';
 import { APP_NAME, SOUNDS,
          ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, IMG_GAMEOVER, IMG_START, BTN_PATH,
          homeScreen, introScreen ,mainScreen, navBar, statusBar, sideBar, posBar, 
-         btnDemo, btnStart, btnClose, btnMusic, btnSound, btnPause, btnFeed, btnShop
+         btnDemo, btnStart, btnClose, btnMusic, btnSound, btnPause, btnFeed, btnShop, canvasParent
         } from './const.js';
+// import {'*'} from './const.js';
 /**
  * D E C L A R A T I O N S
  *  @param {class} world main class that contains all other objects
@@ -51,12 +53,7 @@ function startGame() {
     initStatusIcons();   
     initSounds();
     document.body.style.backgroundImage = '../img/Intro_Outro/desert2_1920x1080.jpg';  
-    homeScreen.hide();
-    mainScreen.show();
-    navBar.show();
-    sideBar.show();
-    statusBar.show();
-    introScreen.removeClass('fade');  
+    displayControls();
     if (gameSettings.showIntro) showIntroScreen(gameSettings.lastLevel);
     if (gameSettings.musicEnabled) Sounds.playList(gameSettings.lastSong, gameSettings.volume);
     world = new World(canvas);
@@ -73,41 +70,58 @@ export async function gameOver() {
     worldTerminate();
     await sleep(1000);
     Sounds.play('gameover');
-    statusBar.hide();
-    navBar.hide();            
-    await hideIntroScreen();
-    mainScreen.hide();
-    introScreen.hide();    
-    homeScreen.show();
+    await displayControls(false);
     document.body.style.backgroundImage = IMG_START[random(0,IMG_START.length-1)];
     if (gameSettings.debugMode) console.log('G A M E  O V E R  ! ! !'); 
 }
 
 /**
- * displays the intro- or outro screen: number == false shows outro!
- * @param {number} level if numeric, shows the intro screen of the given level, 
- * otherwise the game over-screen
+ * displays the intro screen
+ * @param {number} level shows the intro screen of the given level
  */
 export async function showIntroScreen(level) {
     introScreen.removeClass('fade');
     if (gameSettings.soundEnabled && !gameSettings.musicEnabled) Sounds.play('jingle');
     $('introH1').innerText = 'Level  ' + level;
     canvas.classList.remove('hidden');
-    posBar.show();
     introScreen.element.style.backgroundImage = IMG_START[random(0,IMG_START.length-1)];       
     introScreen.show();
     await sleep(2500);
     introScreen.addClass('fade'); 
 }
 
-export async function hideIntroScreen() {
+/**
+ * displays the game over screen
+ */
+export async function showGameoverScreen() {
     introScreen.removeClass('fade');
     $('introH1').innerText = '';
     canvas.classList.add('hidden');
-    posBar.hide();
     introScreen.element.style.backgroundImage = IMG_GAMEOVER;
     introScreen.show();        
     await sleep(5000);
+}
+
+async function displayControls(state = true) {
+    if (state == true) {
+        homeScreen.hide();
+        mainScreen.show();
+        posBar.show();
+        navBar.show();
+        sideBar.show();
+        statusBar.show();
+        btnClose.show();  
+        return;
+    }    
+    posBar.hide();
+    navBar.hide();
+    sideBar.hide();
+    statusBar.hide();
+    btnClose.hide();        
+    await showGameoverScreen();
+    mainScreen.hide();
+    introScreen.hide();
+    homeScreen.show();
 }
 
 /**
@@ -127,7 +141,7 @@ function setEventListeners() {
     btnStart.addEventListener('click', startGame);       
     btnDemo.addEventListener('click', playDemo);
     canvas.addEventListener('click', closeDemo);
-    btnClose.addEventListener('click', closeDemo); 
+    btnClose.element.addEventListener('click', closeDemo); 
     btnMusic.setEventListener('click', function() {
         gameSettings.musicEnabled = !gameSettings.musicEnabled;
         if (gameSettings.musicEnabled) {
@@ -168,12 +182,13 @@ function setEventListeners() {
 function playDemo() {
     demoMode = true;
     homeScreen.hide();
+    btnClose.element.dataset.tooltip = 'Quit demo';
+    btnClose.show();
     statusBar.hide();
     sideBar.hide();
     posBar.hide();
-    canvas.classList.remove('hidden');
+    canvasParent.style.justifyContent = 'center'; 
     mainScreen.show();
-
     video.muted = true;
     video.play();
 }
@@ -182,7 +197,8 @@ function closeDemo() {
     if (demoMode) {
         demoMode = false;
         mainScreen.hide();
-        canvas.classList.add('hidden');
+        canvasParent.style.justifyContent = 'space-evenly';
+        btnClose.element.dataset.tooltip = 'Quit game';
         video.pause();
         video.currentTime = 0;
         homeScreen.show();
