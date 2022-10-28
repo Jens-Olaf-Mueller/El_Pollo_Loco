@@ -1,14 +1,10 @@
 import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH, COLLISION } from '../const.js';
-import { getFilename } from '../library.js';
 import { gameSettings } from '../settings_mod.js';
 import { Intervals } from '../game.js';
+import Graphics from './graphics.class.js';
 
-export default class Mobile {
-    X = undefined;
-    Y = undefined;
-    offsetY = 0;
-    width = undefined;
-    height = undefined;
+export default class Mobile extends Graphics{
+    // get bottom() {return this.Y + this.height - this.offsetY;}
     get bottom() {return this.Y + this.height;}
     get top() {return this.Y + this.offsetY;}
     get left() { return this.X;}
@@ -16,7 +12,7 @@ export default class Mobile {
     get centerX() {return this.X + this.width / 2;}
     get centerY() {return this.Y + (this.height + this.offsetY) / 2;}
 
-    get isHurt() {return this.timeElapsed(this.lastHit) < 1;} // < 0.75
+    get isHurt() {return this.timeElapsed(this.lastHit) < this.hurtDelay;} 
     get isSleeping() {
         return (this.timeElapsed(this.lastMove) > parseInt(gameSettings.sleepTime));
     }
@@ -40,38 +36,13 @@ export default class Mobile {
 
     speed = 0.15;           // default speed
     speedY = 0;             // gravity acceleration
-    acceleration = 0.5;
-
-    image = undefined;    
-    imageBG = undefined;
-    imgIndex = 0;
-    imageCache = {};        // as image cache we use a jsonArray: {pictureKey: picturePath}
-    isMirrored = false;     // = 'otherDirection'    
+    acceleration = 0.5;  
    
     lastHit = 0;            // time elapsed since Object was hit
     lastMove = this.now;    // time elapsed since Object has moved
     diedAt = null;
-
-    loadImage(path) {
-        if (this.image === undefined) this.image = new Image();
-        this.image.src = (path === undefined) ? '' : path;
-    }
-
-    loadBackgroundImage(path) {
-        if (this.imageBG === undefined) this.imageBG = new Image();
-        this.imageBG.src = (path === undefined) ? '' : path;
-    }
-
-    loadImageCache(arr, name) {
-        let z = 0;
-        arr.forEach(path => {            
-            let img = new Image(), key = getFilename(path, false);
-            img.src = path;
-            this.imageCache[name + '_' + key] = img;
-            z++;
-        });
-    }
-
+    hurtDelay = 1;
+    
     /**
      * moves an object into the given direction
      */
@@ -88,74 +59,9 @@ export default class Mobile {
         );
     }
 
-    draw(ctx, showframe) {
-        try {
-            ctx.drawImage(this.image, this.X, this.Y, this.width, this.height);
-            if (this.type == 'chicken') this.displayHeart(ctx);
-            if (this.type == 'endboss') this.displayEnergy(ctx);
-            if (showframe) this.displayFrame (ctx);
-        } catch (err) {
-            console.warn(`ERROR in Object ${this.name}: ` + err);
-            console.warn('Cache: ' + this.imageCache, 'Current Image: ' + this.image)
-        }    
-    }
-
-    displayHeart(ctx) {
-        if (this.isFriendly && this.isAlive) {
-            ctx.drawImage(this.heart, this.X+16, this.Y-16, 16, 16);
-        }        
-    }
-
-    displayEnergy(ctx) {
-        if (this.isDead) return;
-        if (this.energy < 100) {
-            let color = this.energy >= 66 ? 'green' : this.energy >= 33 ? 'gold' : 'tomato';
-            ctx.beginPath();            
-            ctx.lineWidth = '1';
-            ctx.strokeStyle = color;
-            ctx.rect(this.X + 50, this.Y + 40, 100, 10);
-            ctx.stroke();
-            ctx.fillStyle = color;
-            ctx.fillRect(this.X + 50, this.Y + 41, this.energy, 8);
-        }
-    }
 
     /**
-     * helper function, to be executed only in debug mode !!!
-     * @param {canvas context} ctx the given context to draw
-     */
-    displayFrame(ctx) {
-        if (this.name && (this.name == 'Pepe' || this.type == 'chicken' || this.type == 'endboss')) {
-            let offsetY = this.name == 'Pepe' ? this.offsetY : 0,
-                cordsRequired = this.name == 'Pepe' || 
-                ((this.type == 'chicken' || this.type == 'endboss') && this.isAlive);
-            ctx.beginPath();
-            ctx.lineWidth = '3';
-            ctx.strokeStyle = 'navy';
-            ctx.setLineDash([5, 5]);                
-            ctx.rect(this.X, this.Y + offsetY, this.width, this.height - offsetY);
-            ctx.stroke();                
-            if (cordsRequired) this.displayCoordinates(ctx, this.name, offsetY);            
-        }      
-    }
-    // show the coordinates and names
-    displayCoordinates(ctx, name, offsetY) {
-        let isPepe = name == 'Pepe',
-            showTop = isPepe ? `    Top: ${this.Y + offsetY}` : '';
-        name = isPepe ? '' : name + ' ';        
-        ctx.font = "12px Verdana";
-        ctx.fillStyle = 'navy';
-        if (this.isMirrored) this.environment.flipImage(this, true);
-        ctx.fillText(`${name}`,this.X-20, this.Y-32 + offsetY);                
-        ctx.fillText(`[X:${parseInt(this.X)},Y:${parseInt(this.Y)}]${showTop}`, this.X-20, this.Y-10 + offsetY);
-        if (isPepe) {
-            ctx.fillText(`Bottom: ${parseInt(this.bottom)} Right: ${parseInt(this.right)}`,this.right-100, this.bottom + 20);
-        }                
-        if (this.isMirrored) this.environment.flipImage(this, false);
-    }
-
-    /**
-     * plays an animation from the given array of pictures     * 
+     * plays an animation from the given array of pictures      
      * @param {string} arrImages string array containing the path for the images
      * @param {string} subkey creates together with name and index the key of the image in 'imageCache' 
      */
@@ -174,13 +80,14 @@ export default class Mobile {
         }
     }
 
+
     /**
      * Applies the gravity for the current object, if it is in the air.
      * Therefor we increase the Y-coordinate by the acceleration speed
      */
     applyGravity($this) {
         // returns the interval-ID! (for seed and bonus class)
-        return Intervals.add (
+        return Intervals.add(
             function gravity () {
                 if ($this.isAboveGround || $this.speedY < 0 ) {
                     $this.Y += $this.speedY;
@@ -194,30 +101,22 @@ export default class Mobile {
     }
 
 
-    isCloseEnemy(enemyType) {
-        // get all endbosses in the current level...
-        const bosses = this.environment.level.EndBosses;       
-        // now check, if one of them is close enough for a hit
-        let retVal = false;
-        bosses.forEach(boss => {            
-            let distance = this.isLeftFrom(boss) ? boss.left - this.right : this.left - boss.right;
-            if (this.isLeftFrom(boss) && !this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 1.5 || 
-                this.isRightFrom(boss) && this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 4) {
-                    retVal = boss;
-                    return;
+    /**
+     * executes a hit to an object, taking time since last hurt under consideration
+     * if still alive, we save a new time stamp since last hit
+     * @param {number} damage damage to be subtract from character's energy
+     */
+    hit(damage) {
+        if (this.lastHit == 0 || (this.now - this.lastHit) / 1000 > this.hurtDelay) {
+            this.energy -=damage;
+            if (this.energy < 0) {
+                this.energy = 0;
+                return;
             }
-        });
-        return retVal;
+            this.lastHit = this.now;
+        }
     }
 
-    hit(damage) {
-        this.energy -=damage;
-        if (this.energy < 0) {
-            this.energy = 0; 
-        } else {
-            this.lastHit = this.now; // saving time stamp since last hit
-        }  
-    }
 
     /**
      * helper function
@@ -228,13 +127,48 @@ export default class Mobile {
         return (this.now - since) / 1000;
     }
 
+
+    /**
+     * get all endbosses in the current level
+     * and check, if one of them is close enough for a hit
+     * distance left from the enymy is a third,
+     * distance right from the enymy is a quarter of the canvas width,
+     * @param {string} enemyType optional, for further using...
+     * @returns true | false
+     */
+    isCloseEnemy(enemyType = 'endboss') {
+        // TODO function to determine all enemies of the wanted type
+        // i.e. let enemies = getEnemies(enemyType)
+        const bosses = this.environment.level.EndBosses;
+        // let enemies;
+        // if (enemyType = 'endboss') enemies = bosses; // special case!
+        let retVal = false;
+        bosses.forEach(boss => {            
+            let distance = this.isLeftFrom(boss) ? boss.left - this.right : this.left - boss.right;
+            if (this.isLeftFrom(boss) && !this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 1.5 || 
+                this.isRightFrom(boss) && this.isMirrored && Math.abs(distance) <= CANVAS_WIDTH / 4) {
+                retVal = boss;
+                return;
+            }
+        });
+        return retVal;
+    }
+
+
+    /**
+     * determines if the character is left or right side of the object 
+     * @param {object} obj to be tested
+     * @returns true | false
+     */
     isLeftFrom(obj) {
         return this.right < obj.left;
     }
 
+
     isRightFrom(obj) {
         return this.left > obj.right;
     }
+
 
     /**
      * detects if the given object collides with the caracter.
@@ -249,6 +183,7 @@ export default class Mobile {
         }
         return this.getCollisionSide(obj);             
     }
+
 
     /**
      * helper function for  => isColliding.
@@ -282,11 +217,17 @@ export default class Mobile {
         return null;
     }
 
+
+    /**
+     * hides an object (i.e. after it was collected or killed)
+     * by stopping it's intervals an moving it out of the screen 
+     * @param {string} intervalKey key to access all interval-id's
+     */
     hide(intervalKey) {
         Intervals.remove(intervalKey);
         this.gravarityID = undefined;
         this.animationID = undefined;
         this.moveID = undefined;
-        this.Y = CANVAS_HEIGHT * 2; // move the object out of the screen     
+        this.Y = CANVAS_HEIGHT * 2;
     }
 }

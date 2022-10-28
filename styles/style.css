@@ -25,9 +25,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* background-image: url('../img/Intro_Outro/start_screen/screen1.png'); */
-    background-image: url('../img/Intro_Outro/desert2_1920x1080.jpg');
-    /* background-position: center; */
+    background-image: url('../img/Intro_Outro/desert2.png');
     min-height: 100vh;
     overflow: hidden;
 }
@@ -49,7 +47,7 @@ canvas {
     height: 100%;
     overflow: auto;
     position: relative;
-    background-image: url('../img/Intro_Outro/desert1_1920.png');
+    background-image: url('../img/Intro_Outro/desert1.png');
     padding: 2rem 4rem;
     background-color: var(--bg-yellow);
     opacity: 0.95;
@@ -203,7 +201,7 @@ canvas {
     transition: opacity 4.25s; 
 }
 
-.intro.fade {
+.fade {
     opacity: 0;
 }
 
@@ -237,6 +235,7 @@ canvas {
     margin: 0.8rem 0;
     display: flex;
     justify-content: space-between;
+    z-index: 111;
 }
 
 .statusbar-left {
@@ -378,7 +377,7 @@ canvas {
 .cursor {
     height: 90%;
     width: 50%;
-    border-right: 3px solid lime;
+    border-right: 5px solid lime;
     left: 12rem;
     z-index: 101;
 }
@@ -411,7 +410,7 @@ canvas {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 /* #################################################################### */
 /*                          R E S P O N S I V E                         */

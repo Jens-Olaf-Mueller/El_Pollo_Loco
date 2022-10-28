@@ -5,6 +5,8 @@ import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Bonus extends Mobile {
     name = 'Bonus';
+    type = 'bonus';
+    text;
     height = 50;
     width = 50;
     X = 0;
@@ -21,19 +23,20 @@ export default class Bonus extends Mobile {
         this.loadImageCache (this.arrAnimation, this.name);
     }
 
-    animate(pX, pY) { 
+    animate(pX, pY, text) { 
         if ( this.moveID == undefined) { 
             this.X = pX;
             this.Y = pY;
-            this.moveID = this.moveUp(this, this.speed);
+            this.text = text;
+            this.moveID = this.moveUp(this);
             this.animationID = this.runAnimation(this);
         }
     }
 
-    moveUp($this, speed) {
+    moveUp($this) {
         return Intervals.add(
             function move() {
-                $this.Y -= Math.abs(speed);
+                $this.Y -= Math.abs($this.speed);
                 if ($this.Y + $this.height < 0) $this.hide($this.name); // hide when top of the screen is reached
             }, 1000 / FPS, [$this]
         );

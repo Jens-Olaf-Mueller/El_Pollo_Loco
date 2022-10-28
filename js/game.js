@@ -5,12 +5,11 @@ import Game from './classes/game.class.js';
 import World from './classes/world.class.js';
 import Sound from './classes/sound.class.js';
 import IntervalListener from './classes/intervals.class.js';
-// import $ from './library.js';
 import { loadSettings, saveSettings, gameSettings } from './settings_mod.js';
 import $, { sleep, random } from './library.js';
 import { APP_NAME, SOUNDS,
          ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, IMG_GAMEOVER, IMG_START, BTN_PATH,
-         homeScreen, introScreen ,mainScreen, navBar, statusBar, sideBar, posBar, 
+         homeScreen, introScreen, mainScreen, shopScreen, navBar, statusBar, sideBar, posBar, 
          btnDemo, btnStart, btnClose, btnMusic, btnSound, btnPause, btnFeed, btnShop, canvasParent
         } from './const.js';
 // import {'*'} from './const.js';
@@ -38,7 +37,8 @@ runApp();
 function runApp() {
     setEventListeners();
     loadSettings(APP_NAME);
-    loadFont(fontZabars);    
+    loadFont(fontZabars);
+    initSounds();
      // check for the very first start and show help if wanted
     gameStarted = sessionStorage.getItem(APP_NAME + '_IsRunning');
     if (!gameStarted) {
@@ -50,8 +50,7 @@ function runApp() {
 function startGame() {      
     demoMode = false;
     saveSettings(APP_NAME); 
-    initStatusIcons();   
-    initSounds();
+    initStatusIcons();
     document.body.style.backgroundImage = '../img/Intro_Outro/desert2_1920x1080.jpg';  
     displayControls();
     if (gameSettings.showIntro) showIntroScreen(gameSettings.lastLevel);
@@ -104,6 +103,7 @@ export async function showGameoverScreen() {
 
 async function displayControls(state = true) {
     if (state == true) {
+        shopScreen.hide();
         homeScreen.hide();
         mainScreen.show();
         posBar.show();
@@ -142,6 +142,13 @@ function setEventListeners() {
     btnDemo.addEventListener('click', playDemo);
     canvas.addEventListener('click', closeDemo);
     btnClose.element.addEventListener('click', closeDemo); 
+    document.addEventListener('keyup', function(event) {
+        if (event.key === "Escape") {
+            if (demoMode) closeDemo();
+            if (world.level.insideShop) world.level.shop.exit();
+        } 
+    })
+
     btnMusic.setEventListener('click', function() {
         gameSettings.musicEnabled = !gameSettings.musicEnabled;
         if (gameSettings.musicEnabled) {
@@ -188,8 +195,11 @@ function playDemo() {
     sideBar.hide();
     posBar.hide();
     canvasParent.style.justifyContent = 'center'; 
+    canvas.classList.remove('hidden');
     mainScreen.show();
     video.muted = true;
+    if (Sounds.isEmpty) initSounds();
+    Sounds.playList(0, 0.5);
     video.play();
 }
 
@@ -201,6 +211,8 @@ function closeDemo() {
         btnClose.element.dataset.tooltip = 'Quit game';
         video.pause();
         video.currentTime = 0;
+        Sounds.stop(0);
+        Sounds.arrPlayList[0].currentTime = 0;
         homeScreen.show();
     }
 }
@@ -228,7 +240,7 @@ function loadFont(newFont) {
     });
 }
 
-export function updateGameStatus(pepe) {
+export function updateStatusbar(pepe) {
     ICON_JUMP.src = arrJumpIcons[getImageIndex(pepe.jumpPower)]; 
     ICON_ENERGY.src = arrEnergyIcons[getImageIndex(pepe.energy)];
     ICON_SHARPNESS.src = arrSharpIcons[getImageIndex(pepe.sharpness)];    
@@ -249,7 +261,8 @@ export function updateGameStatus(pepe) {
     $('divSeed').classList.toggle('hidden',(!pepe.seeds));
     $('#divSeed >label').innerText = pepe.seeds;
     btnFeed.toggleClass('hidden', (!pepe.seeds));
-    btnShop.toggleClass('hidden', (!pepe.isInFrontOfShop));
+
+    btnShop.toggleClass('hidden', (!(pepe.isInFrontOfShop && pepe.environment.level.shop.isOpen)));
     
     if (pepe.gun) {
         $('imgGun').classList.toggle('hidden', false);
@@ -267,7 +280,9 @@ function calcPosition(pepe) {
 }
 
 function getImageIndex(property) {
-    return Math.floor(property / 10) > 10 ? 10 : Math.floor(property / 10);
+    let result = Math.floor(property / 10) > 10 ? 10 : Math.floor(property / 10);
+    if (result < 0) result = 0;
+    return result;
 }
 
 function initStatusIcons() {
@@ -280,11 +295,11 @@ function initStatusIcons() {
     }        
 }
 
-export function flashImg(id, timeout = 2250) {
-    let image = document.getElementById(id);
-    image.classList.add('flash');
+export function flashElement(id, timeout = 2250) {
+    let element = $(id);
+    element.classList.add('flash');
     setTimeout(() => {
-        image.classList.remove('flash');
+        element.classList.remove('flash');
     }, timeout);            
 }
 

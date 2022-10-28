@@ -4,10 +4,11 @@ import $ from "./library.js";
 const APP_NAME = 'El Pollo Loco';
 const PEPE = 'Pepe';
 const IMG_GAMEOVER ="url('../img/Intro_Outro/gameover_screen/3.Game over.png')";
-const IMG_START = ["url('../img/Intro_Outro/desert1_1920.png')",
-                   "url('../img/Intro_Outro/desert2_1920x1080.jpg')",
-                   "url('../img/Intro_Outro/desert3_1920.png')",
-                   "url('../img/Intro_Outro/desert4_1400.jpg')"];
+const IMG_START = ["url('../img/Intro_Outro/desert0.png')",
+                   "url('../img/Intro_Outro/desert1.png')",
+                   "url('../img/Intro_Outro/desert2.png')",
+                   "url('../img/Intro_Outro/desert3.png')",
+                   "url('../img/Intro_Outro/desert4.png')"];
 const BTN_PATH = './img/Status/Mobile/';                 
 
 
@@ -21,10 +22,6 @@ const CANVAS_WIDTH = 720;
 // const CANVAS_WIDTH = document.getElementById('canvas').getBoundingClientRect().width;
 
 // collision constants clockwise (or binary: 1, 2, 4, 8... ?)
-const COLL_TOP = 12,
-      COLL_RIGHT = 3,
-      COLL_BOTTOM = 6,
-      COLL_LEFT = 9;
 const COLLISION = {top: 12, right: 3, bottom: 6, left: 9}
 
 // icons for tatusbar
@@ -41,6 +38,7 @@ const canvasParent = $('divCanvas'),
       statusBar = new Container('divStatusbar'),
       sideBar = new Container('divSidebar'),
       posBar = new Container('divOrientationbar'),
+      shopScreen = new Container('divShop'),
       btnStart = $('btnStart'),
       btnClose = new Container('divClose'),
       btnDemo = $('btnDemo'),
@@ -56,6 +54,7 @@ const SOUNDS = {
     songs: ['Santa Esmeralda.mp3','Chicken Song.mp3','The Lonely Shepherd.mp3'],
     echo: "echo el_pollo_loco.mp3",
     jingle: "jingle.mp3",
+    chord: "chord.mp3",
     ouch: "ouch.mp3",
     suicide: "Pepe dies.mp3",
     plopp: "plopp.mp3",
@@ -63,6 +62,7 @@ const SOUNDS = {
     coin: "coin click.mp3",
     money: "no money.mp3",
     kaching: "ka ching.mp3",
+    shop: "shop door.mp3",
     bees: "flying bees.mp3",
     gameover: "game over.mp3",    
     splat: "splat.mp3",
@@ -122,5 +122,6 @@ export { APP_NAME, PEPE,
         IMG_START,
         BTN_PATH,
         COLLISION};
-export { canvasParent, homeScreen, introScreen, mainScreen, navBar, statusBar, sideBar, posBar,
+export { canvasParent, homeScreen, introScreen, mainScreen, shopScreen,
+         navBar, statusBar, sideBar, posBar,
          btnStart, btnClose, btnDemo, btnMusic, btnSound, btnPause, btnFeed, btnShop };

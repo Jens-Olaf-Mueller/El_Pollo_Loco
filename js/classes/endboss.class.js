@@ -11,6 +11,7 @@ export default class Endboss extends Enemy {
     defaultSpeed = 0.15 + Math.random() * 0.25;
     bossNo = 0;
     lastAttack = 0;
+    hurtDelay = 3;
 
     constructor (level, index = 0) { 
         super(level, 'Endboss', index)

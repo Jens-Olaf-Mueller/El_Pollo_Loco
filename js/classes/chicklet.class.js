@@ -10,8 +10,8 @@ export default class Chicklet extends Enemy {
     height = 35;
     width = 35;  
 
-    constructor(level, index, pX, pY = 0) { 
-        super(level, 'Chicklet', index);
+    constructor(level, index, pX, pY = 0, parentname = '') { 
+        super(level, parentname + 'Chicklet', index);
         this.X = pX === undefined ? CANVAS_WIDTH / 2 + Math.random() * this.eastEnd : pX;
         this.Y = pY;
         this.initialize();

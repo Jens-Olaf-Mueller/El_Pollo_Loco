@@ -1,5 +1,5 @@
 /**
-* in order to use the EXTENDED classes as module
+* in order to use the EXTENDED classes as moduleIMG_START
 * the extending class must be imported here!
 */
 import Mobile from './mobile.class.js';

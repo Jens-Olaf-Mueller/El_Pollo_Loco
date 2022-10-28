@@ -25,10 +25,14 @@ export default class Enemy extends Mobile {
     animationID = undefined;
     moveID = undefined;
 
+    get fivty50() {return Math.random() < 0.5;}
+
     constructor(level, name, index) { 
         super();
-        this.name = name + index; 
+        this.name = name + index;
         this.type = name.toLowerCase();
+        // because of chicklet's parent names we must check this...
+        if (this.type.includes('chicklet')) this.type = 'chicklet'; 
         this.level = level;
         this.eastEnd = level.eastEnd;
         this.westEnd = level.westEnd;   

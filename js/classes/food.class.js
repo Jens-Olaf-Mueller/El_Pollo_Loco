@@ -20,7 +20,7 @@ export default class Food extends Background {
     eastEnd;
     westEnd;
     X = Infinity;
-    Y = Infinity; //350; 
+    Y = Infinity; 
 
     constructor(imgPath, name, level, pX) {
         super().loadImage(imgPath);
@@ -34,7 +34,7 @@ export default class Food extends Background {
         this.enabled(true); // calls this.initialize();
     }
 
-    initialize () {
+    initialize() {
         let range = 100 - this.level.levelNo * 10, rnd = random(1, 100);
         this.visible = (rnd <= range);
 
@@ -70,7 +70,7 @@ export default class Food extends Background {
         }
     }
 
-    enabled (state) {
+    enabled(state) {
         if (state == false) {
             this.visible = false;
             this.value = 0;

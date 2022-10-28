@@ -20,14 +20,13 @@ export default class Bottle extends Mobile {
     animationID = undefined;
     moveID = undefined;
     gravarityID = undefined;
-    burstID = undefined;
+    isCollidingEndboss = false;
+    collisionAt = 0;
+
+    // get isCollidingEndboss() {return ((new Date().getTime() - this.collisionAt) / 1000) < 4;}
 
     constructor (imgPath) {        
         super().loadImage(imgPath);
-        this.initialize();
-    }
-
-    initialize() { 
         this.arrAnimation = loadArray ('./img/Items/Bottles/rotation/spin',8);
         this.arrAnimation.push(...loadArray('./img/Items/Bottles/splash_salsa/splash',6));
         this.loadImageCache (this.arrAnimation, this.name);
@@ -36,31 +35,30 @@ export default class Bottle extends Mobile {
     throw(pX, pY, speed, mirrored = false) {
         if( this.moveID == undefined) {
             // Sounds.play('bottle');
+            this.isCollidingEndboss = false;
+            // this.collisionAt = 0;
             this.X = pX;
             this.Y = pY;
             this.speedY = -speed;
             this.gravarityID = this.applyGravity(this);
-            this.animationID = this.animate(this);   
-            this.burstID = this.burst(this);
+            this.animationID = this.animate(this); 
             this.moveID = this.move(this, mirrored);
         }
     }
 
+
     animate($this) {     
         return Intervals.add(
             function animate() {
-                $this.playAnimation($this.arrAnimation, 'spin'); 
+                if ($this.isCollidingEndboss) {
+                    $this.playAnimation($this.arrAnimation, 'splash');
+                } else {
+                     $this.playAnimation($this.arrAnimation, 'spin');
+                }                
             }, 2000 / FPS, [$this]
         );
     }
 
-    burst($this) {
-        return Intervals.add(
-            function splash() {
-                $this.playAnimation($this.arrAnimation, 'splash');
-            }, 1500 / FPS, [$this]
-        );
-    }
 
     move($this, mirrored) {
         return Intervals.add(

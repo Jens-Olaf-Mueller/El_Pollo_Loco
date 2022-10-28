@@ -1,0 +1,61 @@
+body {
+    background-image: url('..//img/Intro_Outro/desert1.png');
+}
+
+.shop {
+    background-image: url('../img/Items/Shop/inside-shop_720x480.png');
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: 720px;
+    height: 480px;
+    padding: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 1;
+    transition: opacity 4.25s;
+    z-index: 1001; /* in order to overlay the intro screen with z-index 999 !!! */
+}
+
+.inside-shop {
+    margin: 0 !important;
+}
+
+.goods {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0.33rem;
+    height: 5rem;
+    width: 4.1rem;
+    color: goldenrod;
+    filter: sepia(200%);
+    cursor: pointer;
+}
+
+.goods:hover, .goods:focus {
+    filter: sepia(0);
+    background-color: rgba(245, 222, 179, 0.601);
+    /* border: 1px solid goldenrod; */
+    outline: none;
+    border-radius: 8px;
+    box-shadow: 3px 3px 6px grey;
+    color: navy;
+}
+
+.goods:focus {
+    background-color: rgb(245, 222, 179);
+    border: 1px solid goldenrod;
+}
+
+.goods img {
+    padding: 0.25rem;
+    width: 100%;
+}
+
+.goods p {
+    margin-top: 0.33rem;
+    font-size: smaller;
+    
+}

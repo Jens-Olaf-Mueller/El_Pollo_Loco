@@ -25,4 +25,14 @@ export default class Chicken extends Enemy {
         this.speed += Math.random();
         this.damage = this.level.levelNo * 1.5;        
     }
+
+    enlarge(increment = 2, levelNo = 1) {
+        if (this.isAlive && !this.isFriendly) {
+            this.width +=increment;
+            this.height +=increment;
+            this.Y -=increment; // make sure the chicken remains on ground-level!
+            debugger
+            this.damage += levelNo * 0.05;
+        }
+    }
 }

@@ -1,3 +1,4 @@
+import Game from './game.class.js';
 import Character from './character.class.js';
 import Keyboard from './keyboard.class.js';
 import Chicken from './chicken.class.js';
@@ -14,11 +15,11 @@ import Bottle from './bottle.class.js';
 import Seed from './seed.class.js';
 
 import { APP_NAME, CANVAS_HEIGHT, CANVAS_WIDTH, canvasParent, GROUND, COLLISION } from '../const.js';
-import { showIntroScreen, updateGameStatus, Sounds, Intervals, demoMode } from '../game.js';
+import { showIntroScreen, updateStatusbar, Sounds, Intervals, demoMode } from '../game.js';
 import { saveSettings, gameSettings } from '../settings_mod.js';
 import { sleep } from '../library.js';
 
-export default class World { 
+export default class World extends Game { 
     Pepe;  
     level;
     levelNo = 1;
@@ -29,8 +30,7 @@ export default class World {
     eastEnd;
     westEnd;
     groundY = GROUND;
-    gamePaused = null;
-    levelUp = false;
+    gamePaused = false;
 
     arrBackgrounds;
     arrForegrounds;
@@ -48,24 +48,25 @@ export default class World {
     
     reqAnimationFrameID = undefined; 
     mainID = undefined;
-    gameSaved = false;
     lastSaved = 0;
 
+    get gameSaved() {((this.now - this.lastSaved) / 1000) < 4};
     get now() {return new Date().getTime();}
 
-    constructor (canvas) {
+    constructor(canvas) {
+        super();
         this.cnv = canvas; // assigning the global canvas to a local reference variable
         this.ctx = canvas.getContext('2d');
-        this.levelNo = gameSettings.lastLevel;
+        // this.levelNo = gameSettings.lastLevel;
+        this.levelNo = this.settings.lastLevel;
         Intervals.clear(); // must be executed BEFORE new Character!!!
-        this.Pepe = new Character(this); 
-        // this.gamePaused = undefined;                       
-        this.initLevel (this.levelNo);
+        this.Pepe = new Character(this);                     
+        this.initLevel(this.levelNo);
         this.draw();        
     }
 
-    initLevel (levelNo) {
-        this.level = new Level(levelNo, this.arrEndbossFood);
+    initLevel(levelNo) {
+        this.level = new Level(levelNo, this);
         this.arrEndbossFood = [];
         this.eastEnd = this.level.eastEnd;
         this.westEnd = this.level.westEnd;  
@@ -81,7 +82,7 @@ export default class World {
         this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
         this.seed = new Seed('./img/Seed/seed1.png');
         if (gameSettings.debugMode) {
-            Intervals.list();
+            // Intervals.list();
             console.log('World created... ', this);
         }   
         this.mainID = this.run();     
@@ -92,32 +93,24 @@ export default class World {
      * this is the main interval to check all actions and events
      * @returns id of the main interval
      */
-    run () {
+    run() {
         return setInterval(() => {
             this.checkEnemyCollisions();
-            this.checkFoodCollisions();
-            this.checkItemCollisions();
             this.checkObstracleCollisions();  
             this.checkBottelCollisions();
             this.checkSeedCollision();
-            this.checkActions();  
             this.checkKeyboard();
-            updateGameStatus (this.Pepe);
-            this.gameSaved = ((this.now - this.lastSaved) / 1000 < 4);
-            // levelUp is set in checkBottelCollisions()
-            if (this.levelUp) {
-                this.mainID = clearInterval(this.mainID);
-                this.levelUp = false;
-                this.nextLevel();
-            }         
-        }, 125); // 125 ??
+            updateStatusbar(this.Pepe);
+            if (this.level.solved) this.nextLevel();         
+        }, 125); // 200 ??
     }
 
 
     /**
      * initializes the next level
      */
-    async nextLevel () {
+    async nextLevel() {
+        this.mainID = clearInterval(this.mainID);
         setTimeout(async () => {
             this.levelNo++;
             await sleep(2500);
@@ -130,6 +123,7 @@ export default class World {
         }, 3000);                            
     }
 
+
     /**
      * draw method: called to draw different objects or arrays of objects
      * workflow:    - delete the canvas
@@ -138,7 +132,7 @@ export default class World {
      *              - since 'this'  does not refer to the class inside the local function,
      *                we use a work around by using '$this' as reference to 'this'
      */
-    draw () {       
+    draw() {       
         this.ctx.clearRect(0,0,CANVAS_WIDTH, CANVAS_HEIGHT); // delete canvas
         this.ctx.translate(this.camera_X, 0); // move the camera scope by 100px to left
 
@@ -165,12 +159,13 @@ export default class World {
         this.reqAnimationFrameID = window.requestAnimationFrame(() => {$this.draw()});
     }
     
+
     /**
      * draws the passed object(image) on the canvas
      * if an array is passed as parameter the method calls itself recursively
      * @param {class} object either a single object or an array of objects to be drawn
      */
-    plot (object) {
+    plot(object) {
         if (Array.isArray(object)) {
             object.forEach(obj => {
                 this.plot(obj); // recursive call!
@@ -182,25 +177,26 @@ export default class World {
         }                
     }
 
+
     /**
      * flips an image or restores it
      * @param {class} object to be flipped
      * @param {boolean} restore true means we restore the original direction
      */
-    flipImage (object, restore = false) {
+    flipImage(object, restore = false) {
+        object.X = object.X * -1;
         if (restore) {
-            object.X = object.X * -1;
             this.ctx.restore();
-        } else {
-            this.ctx.save();
-            this.ctx.translate(object.width, 0);
-            this.ctx.scale(-1, 1);
-            object.X = object.X * -1;
+            return;
         }
+        this.ctx.save();
+        this.ctx.translate(object.width, 0);
+        this.ctx.scale(-1, 1);
     }
 
+
     /**
-     * handle all ANCHOR enemy-collisions and possible reactions. (killing etc.)
+     * handle all enemy-collisions and possible reactions. (killing etc.)
      * checks for:
      * - chicklets & chicken
      * - killed friendly chicken (if so creates new chicklets!)
@@ -208,31 +204,32 @@ export default class World {
      * - snakes (and if they can be shot)
      * - bees (sound output only)
      */
-    checkEnemyCollisions () {        
+    checkEnemyCollisions() {        
         this.level.Enemies.forEach((enemy) => {
             if (enemy.isAlive) {   
                 let collision = this.Pepe.isColliding(enemy); 
-                if (collision) this.handleCollision(enemy, collision);
+                // handle bottom-side collisions seperately!
+                if (collision == COLLISION.bottom) {
+                    this.handleBottomCollision(enemy);
+                } else if (collision){
+                    this.handleCollision(enemy);
+                } 
             }
         });
     }
 
+
     /**
      * handles a collision with an enemy
-     * @param {object} enemy any enemy-object (chicken, snake, etc.)
-     * @param {number} collisionType for further using (left, right, bottom)
+     * @param {object} enemy any enemy-object (chicken, snake, endboss etc.)
      */
-    handleCollision(enemy, collisionType) {
-        // handle top-side collisions seperately!
-        if (collisionType == COLLISION.bottom) {
-            this.handleBottomCollision(enemy);
-            return;
-        }
+    handleCollision(enemy) {
+        if (this.level.shop.inside) return; // no collision if we are in shop!!!
         if (!enemy.isFriendly) {
             // if we met a snake and can shoot - execute a shot!
             if (enemy instanceof Snake && this.keyboard.SPACE && this.Pepe.canShoot) {
                 this.Pepe.shoot();
-                if (this.Pepe.hitSuccessful()) {
+                if (this.Pepe.hitSuccessful) {
                     this.Pepe.score += parseInt(this.levelNo * enemy.damage);
                     enemy.remove();
                 } else {
@@ -248,6 +245,11 @@ export default class World {
     }
 
 
+    /**
+     * handles the special case of bottom collision, 
+     * since some enemies can be killed by jumping on them
+     * @param {object} enemy enemies: chicken, chicklet, spider, scorpion
+     */
     handleBottomCollision(enemy) {
         if (enemy instanceof Bees || enemy instanceof Snake) return;
         let score = parseInt(this.levelNo * enemy.damage) || 0; 
@@ -258,7 +260,7 @@ export default class World {
             // killed a friendly chicken ?!
             if (enemy instanceof Chicken && enemy.isFriendly) {
                 score = score * -2;      
-                this.level.createChicklets(this.levelNo * 2 + 1, enemy.X, -35);           
+                this.level.createChicklets(this.levelNo * 2 + 1, enemy.X, -35, enemy.name);           
             }                     
         } else if (enemy instanceof Spider || enemy instanceof Scorpion) { 
             Sounds.play('splat');
@@ -274,52 +276,16 @@ export default class World {
      * chicken's damage is going to be inreased too by level number!
      * @param {number} increment determines the pixels the chicken to be enlarged
      */
-    enlargeChickens (increment = 2) {
+    enlargeChickens (increment) {
         this.level.Enemies.forEach((enemy) => {
-            if (enemy instanceof Chicken && enemy.isAlive && !enemy.isFriendly) {
-                enemy.width +=increment;
-                enemy.height +=increment;
-                enemy.Y -=increment; // make sure the chicken remains on ground-level!
-                enemy.damage += this.levelNo * 0.05;
-            }
+            if (enemy instanceof Chicken) enemy.enlarge(increment, this.levelNo);
         });
-    }
-
-    /**
-     * checks collision with foot, and if we got enough money...
-     */
-    checkFoodCollisions() {
-        if (this.keyboard.SPACE && this.Pepe.isAlive) {
-            this.level.Food.forEach((food) => {
-                if (this.Pepe.isColliding(food)) {
-                    this.Pepe.updateProperties(food);
-                }
-            });
-        }
-    }
-
-    /**
-     * checks collision with items (coins, bottles, jar or chest)
-     * and update the items in character
-     */
-    checkItemCollisions() {
-        if (this.keyboard.SPACE && this.Pepe.isAlive) {
-            this.level.Items.forEach((item) => {
-                if (this.Pepe.isColliding(item)) {
-                    let foundBonus;
-                    if (item.type == 'jar' || (item.type == 'chest' && this.Pepe.keyForChest)) {
-                        foundBonus = item.contains;
-                    }
-                    this.Pepe.updateItems(item, foundBonus);  
-                }
-            });
-        }
     }
 
 
     /**
      * checks for collision with obstracles:
-     * - can we jump on a stone or a chest ?!
+     * TODO - can we jump on a stone or a chest ?!
      */
     checkObstracleCollisions() {
         this.level.Obstracles.forEach((barrier) => {
@@ -328,6 +294,8 @@ export default class World {
                 if (barrier.canJumpOn) {
                     if (this.Pepe.isAboveGround) {
                         this.Pepe.Y -= barrier.height;
+                        //TODO - Gravarity - Y ???
+                        console.log('Sprung auf ' + barrier.name)
                     } else {
                         // this.Pepe.energy -=barrier.damage;
                         // this.Pepe.hit(barrier.damage);
@@ -337,6 +305,7 @@ export default class World {
         });
     }
 
+    
     /**
      * checks for collision between endboss and bottle.
      * a possible hit also depends on the character's
@@ -346,36 +315,34 @@ export default class World {
     checkBottelCollisions() {
         this.level.Enemies.forEach((enemy) => {
             if (enemy instanceof Endboss) {
-                if (this.bottle.isColliding(enemy)) {
-                    this.bottle.hide();
-                    if (this.Pepe.hitSuccessful()) {
+                if (this.bottle.isColliding(enemy)) {                    
+                    if (this.Pepe.hitSuccessful) {
+                        this.bottle.isCollidingEndboss = true;
                         Sounds.play('endboss');
                         enemy.hit(this.Pepe.sharpness / 10);
                         this.Pepe.score += parseInt(this.Pepe.sharpness / 10 + gameSettings.endbossAttackingTime);
                     } else {
                         Sounds.play('glass');
-                    }                   
+                    }    
+                    this.saveEndbossPosition(enemy);
                 }
-                this.levelUp = this.allEndbossesKilled(enemy);
             }
         });
     }
 
 
     /**
-     * checks if the given endboss is killed. 
-     * if so we look, if there are still other endbosses in this level!
+     * save the position for display in next level as food!
      * @param {object} boss the endboss to be checked if it is killed
-     * @returns true | false
      */
-    allEndbossesKilled(boss) {
+     saveEndbossPosition(boss) {
         if (boss.isDead) {
-            if (this.now - boss.diedAt > 5) {
-                this.arrEndbossFood.push(boss.X); // save for display in next level as food!
-                return this.level.solved;
-            }                    
+            if (!this.arrEndbossFood.some(item => item.name === boss.name)) {
+                this.arrEndbossFood.push({name: boss.name, X: parseInt(boss.X)});
+            }                  
         }  
     }
+
 
     /**
      * checks if a chicken collides with seed and set it to 'friendly' if so
@@ -392,32 +359,10 @@ export default class World {
         });
     }
 
-    /**
-     * checks for several actions with SPACE-key:
-     * - throwing a bottle
-     * - shooting (if no bottles available but a loaded gun)
-     */
-    checkActions() {
-        if (this.keyboard.SPACE && this.Pepe.isAlive) {
-            const boss = this.Pepe.isCloseEnemy('endboss');
-            if (boss) {
-                if (this.Pepe.bottles > 0) {                
-                    this.Pepe.throwBottle();
-                } else if (this.Pepe.canShoot) {
-                    this.Pepe.shoot();
-                    if (this.Pepe.hitSuccessful()) {
-                        boss.energy = 0;
-                        this.levelUp = this.allEndbossesKilled(boss);
-                    } else {
-                        Sounds.play('ricochet');
-                    }
-                }
-            }            
-        }
-    }
 
     /**
      * checking several keyboard activities:
+     * - throw bottle | shoot
      * - throwing seed (if possible)
      * - pause game
      * - quit game
@@ -425,49 +370,157 @@ export default class World {
      * - enabling fullscreen mode
      */
     checkKeyboard() { 
-        if (!this.gamePaused) {
-            if (this.keyboard.CTRL_LEFT && this.Pepe.seeds > 0) this.throwSeed();
-            if (this.keyboard.ESCAPE && !demoMode) {
-                Sounds.play('suicide');
-                this.Pepe.energy = 0;
-            }
-            if (this.keyboard.F8_KEY) {
-                if (document.fullscreenElement == null && 
-                    document.fullscreenEnabled) canvasParent.requestFullscreen();
-            }
+        if (this.keyboard.SPACE && this.Pepe.isAlive) {
+            this.checkFoodCollisions();
+            this.checkItemCollisions();
+            this.executeAction();
         }
-        if (this.keyboard.B_KEY && this.Pepe.isInFrontOfShop) this.Pepe.buyItems(); 
-        if (this.keyboard.P_KEY) this.pauseGame(this.gamePaused);           
-        if (this.keyboard.S_KEY && !this.gameSaved) this.saveGame();       
+        if (this.keyboard.CTRL_LEFT) this.throwSeed();
+        if (this.keyboard.B_KEY && this.Pepe.isInFrontOfShop) this.goShopping();
+        if (this.keyboard.P_KEY) this.pauseGame();           
+        if (this.keyboard.S_KEY) this.saveGame(); 
+        if (this.keyboard.F8_KEY) this.applyFullScreen();
+        if (this.keyboard.ESCAPE) this.handleEscapeKey();                   
     }
 
+
+    /**
+     * since the ESCAPE-key has different tasks depending on it's context,
+     * we handle it seperately here...
+     */
+    handleEscapeKey() {
+        if (this.level.insideShop) {
+            this.level.shop.exit();
+            return;
+        } 
+        if (demoMode) {
+            demoMode = false;
+            return;
+        }
+        if (!this.gamePaused) {
+            Sounds.play('suicide');
+            this.Pepe.energy = 0;
+        }
+    }
+
+    /**
+     * checks collision with foot, and if we got enough money we take it
+     */
+    checkFoodCollisions() {
+        this.level.Food.forEach((food) => {
+            if (this.Pepe.isColliding(food)) this.Pepe.updateProperties(food);
+        });
+    }
+
+    /**
+     * checks collision with items (coins, bottles, jar or chest)
+     * and update the items in character
+     */
+    checkItemCollisions() {
+        this.level.Items.forEach((item) => {
+            if (this.Pepe.isColliding(item)) {
+                let foundBonus;
+                if (item.type == 'jar' || (item.type == 'chest' && this.Pepe.keyForChest)) {
+                    foundBonus = item.contains;
+                }
+                this.Pepe.updateItems(item, foundBonus);  
+            }
+        });
+    }
+
+    
+    /**
+     * checks for several actions with space-key:
+     * - throwing a bottle
+     * - shooting (if no bottles available but a loaded gun)
+     */
+     executeAction() {
+        const boss = this.Pepe.isCloseEnemy('endboss');
+        if (boss) {
+            if (this.Pepe.bottles > 0) {                
+                this.Pepe.throwBottle();
+            } else if (this.Pepe.canShoot) {
+                this.Pepe.shoot();
+                if (this.Pepe.hitSuccessful) {
+                    boss.energy = 0;
+                    this.saveEndbossPosition(boss);
+                } else {
+                    Sounds.play('ricochet');
+                }
+            }
+        }            
+    }
+
+
+    /**
+     * throws seed if we got it in stock
+     */
     throwSeed() {
+        if (this.gamePaused || this.Pepe.seeds <= 0) return;
         this.seed.throw(this.Pepe.X + this.Pepe.width / 2, 
         this.Pepe.Y + this.Pepe.height * 0.666, 3, this.Pepe.isMirrored);
         this.Pepe.seeds--;
         this.Pepe.setNewTimeStamp();
     }
 
-    pauseGame(state) {
-        // on game start the flag is explicit set to 'null' !
-        if (state === null) {
-            this.gamePaused = true;
-            Intervals.stop();
-            Sounds.stop(gameSettings.lastSong);
-        } else if (state == true) { 
-            this.gamePaused = null;
-            Intervals.start();
-            Sounds.playList(gameSettings.lastSong);
+
+    /**
+     * open the shop if we are in front of it and not already inside
+     */
+    goShopping() {
+        if (this.Pepe.isInFrontOfShop && !this.level.insideShop) {
+            this.keyboard.B_KEY = false; // important!
+            this.pauseGame(true);
+            this.level.shop.enter();
         }
     }
 
+
+    /**
+     * enables or disables the pause mode
+     * @param {boolean} state true | false | null
+     */
+    pauseGame(state) {
+        if (state == undefined) {
+            this.gamePaused = !this.gamePaused; // causes 'true' on first call!
+        } else if (state == false) {
+            this.gamePaused = false;
+        } else {
+            this.gamePaused = true;
+        }
+        if (this.gamePaused) {
+            Intervals.stop();
+            Sounds.stop();
+            Sounds.stop(gameSettings.lastSong);
+            return;
+        } 
+        Intervals.start();
+        if (gameSettings.musicEnabled) Sounds.playList(gameSettings.lastSong);
+    }
+
+
+    /**
+     * saves the current game if we are NOT in debug-mode
+     * (saving in debug is not allowed because of cheating)
+     * and the game is not already saved last 4 seconds
+     */
     saveGame() {
-        // saving in debug is not allowed because of cheating!
-        if (gameSettings.debugMode == false) {
+        if (!gameSettings.debugMode && !this.gameSaved) {
             saveSettings(APP_NAME,this.Pepe);
             this.lastSaved = this.now;
         }
     }
+
+
+    /**
+     * applies full screen mode if game is NOT paused!
+     */
+    applyFullScreen() {
+        if (this.gamePaused == false && 
+            document.fullscreenElement == null && 
+            document.fullscreenEnabled) canvasParent.requestFullscreen();
+    }
+
 
     /**
      * prints a text with given parameters on canvas
@@ -512,37 +565,37 @@ export default class World {
         return hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i,(m, r, g, b) => '#' + r + r + g + g + b + b).substring(1).match(/.{2}/g).map(x => parseInt(x, 16));
     }
 
-    /**
-         * Test @function checkCameraTest same as @function checkCamera
-         * on right movement or left movement, target is position some offset from middle screen,
-         * opposed to movement direction.
-         */
-    checkCameraTest(target) {
-        let targetCenterX = target.x + target.width * 0.5;
-        let canvasCenterX = this.ctx.canvas.width * 0.5;
-        let distanceFromCamera = targetCenterX - this.cameraOffsetX;
+    // /**
+    //      * Test @function checkCameraTest same as @function checkCamera
+    //      * on right movement or left movement, target is position some offset from middle screen,
+    //      * opposed to movement direction.
+    //      */
+    // checkCameraTest(target) {
+    //     let targetCenterX = target.x + target.width * 0.5;
+    //     let canvasCenterX = this.ctx.canvas.width * 0.5;
+    //     let distanceFromCamera = targetCenterX - this.cameraOffsetX;
 
-        if (this.canMoveCamera(canvasCenterX, this.level.level_end_x - canvasCenterX, distanceFromCamera)) {
-            this.camera_x = -(distanceFromCamera - canvasCenterX);
-            if (target.isMovingRight() && targetCenterX + this.camera_x >= canvasCenterX * 0.5) {
-                this.cameraOffsetX -= 3;
-            }
-            if (target.isMovingLeft() && targetCenterX + this.camera_x <= this.ctx.canvas.width - canvasCenterX * 0.5) {
-                this.cameraOffsetX += 3;
-            }
-        }
-    }
+    //     if (this.canMoveCamera(canvasCenterX, this.level.level_end_x - canvasCenterX, distanceFromCamera)) {
+    //         this.camera_x = -(distanceFromCamera - canvasCenterX);
+    //         if (target.isMovingRight() && targetCenterX + this.camera_x >= canvasCenterX * 0.5) {
+    //             this.cameraOffsetX -= 3;
+    //         }
+    //         if (target.isMovingLeft() && targetCenterX + this.camera_x <= this.ctx.canvas.width - canvasCenterX * 0.5) {
+    //             this.cameraOffsetX += 3;
+    //         }
+    //     }
+    // }
 
-    /**
-     * Check if camera target is inside Boundaries to allow camera movement
-     * @param {number} leftBoundary - minium distance for target to achieve for camera to move.
-     * @param {number} rightBoundary - maximum distance for target to achieve for camera to move.
-     * @param {number} distanceFromCamera - how far is the camera's offset from target
-     * @returns {boolean}
-     */
-    canMoveCamera(leftBoundary, rightBoundary, distanceFromCamera) {
-        return distanceFromCamera > leftBoundary &&
-            distanceFromCamera < rightBoundary;
-    }
+    // /**
+    //  * Check if camera target is inside Boundaries to allow camera movement
+    //  * @param {number} leftBoundary - minium distance for target to achieve for camera to move.
+    //  * @param {number} rightBoundary - maximum distance for target to achieve for camera to move.
+    //  * @param {number} distanceFromCamera - how far is the camera's offset from target
+    //  * @returns {boolean}
+    //  */
+    // canMoveCamera(leftBoundary, rightBoundary, distanceFromCamera) {
+    //     return distanceFromCamera > leftBoundary &&
+    //         distanceFromCamera < rightBoundary;
+    // }
 
 }

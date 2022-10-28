@@ -4,12 +4,13 @@ export default class Sound {
     arrPlayList = [];
     path = '';
     volume = 1;
+    get isEmpty() {return Object.keys(this.arrAudio).length === 0;}
     
     constructor(path = './sound/') {
         this.path = path;
     }
 
-    add (filename, key, muted = false) {
+    add(filename, key, muted = false) {
         if (!Array.isArray(filename)) {
             let sound = new Audio(this.path + filename);
             sound.muted = muted;
@@ -25,7 +26,7 @@ export default class Sound {
         }
     }
 
-    remove (key) {
+    remove(key) {
         try {
             delete this.arrAudio[key];
             return true;
@@ -35,14 +36,14 @@ export default class Sound {
         }
     }
 
-    clear () {         
+    clear() {         
         for (const key in this.arrAudio) {
             delete this.arrAudio[key];
         }
         this.arrAudio = {};
     }
 
-    play (key, vol = 1) {        
+    play(key, vol = 1) {        
         if (this.arrAudio.hasOwnProperty(key)) {            
             if (this.arrAudio[key].muted == false) {
                 if (vol > 1) vol = parseFloat(vol / 100);
@@ -51,8 +52,7 @@ export default class Sound {
                 return true;
             } else {
                 return false;
-            }
-            
+            }            
         } else {
             console.warn(`Could not play sound. Key "${key}" not found..`);
             return false;
@@ -60,7 +60,7 @@ export default class Sound {
     }
 
     // index = -1: play whole list...?
-    playList (index = 0, vol = 1, loop = true) {        
+    playList(index = 0, vol = 1, loop = true) {        
         if (index < this.arrPlayList.length) {            
             if (this.arrPlayList[index].muted == false) {
                 if (vol > 1) vol = parseFloat(vol / 100);
@@ -83,24 +83,34 @@ export default class Sound {
      * @param {boolean} reset sets the audio to start after stopping
      * @returns 
      */
-    stop (key, reset = false) {
-        try {
-            if (this.arrAudio.hasOwnProperty(key)) {
-                this.arrAudio[key].pause();
-                if (reset) this.arrAudio[key].currentTime = 0;
-                return true;                
-            } else if (typeof key === 'number') {
-                this.arrPlayList[key].pause();
-                if (reset) this.arrPlayList[key].currentTime = 0;
-                return true;
+    stop(key, reset = false) {
+        if (key != undefined) {
+            try {
+                if (this.arrAudio.hasOwnProperty(key)) {
+                    this.arrAudio[key].pause();
+                    if (reset) this.arrAudio[key].currentTime = 0;
+                    return true;                
+                } else if (typeof key === 'number') {
+                    this.arrPlayList[key].pause();
+                    if (reset) this.arrPlayList[key].currentTime = 0;
+                    return true;
+                }
+            } catch (error) {
+                console.warn(`Could not stop sound. Key "${key}" not found.`);
+                return false;
             }
-        } catch (error) {
-            console.warn(`Could not stop sound. Key "${key}" not found.`);
-            return false;
+        } else {
+            for (let k in this.arrAudio) {
+                if (!Array.isArray(this.arrAudio[k])) {
+                    this.stop(k);
+                } else {
+                    debugger;
+                }
+            } 
         }
     }
 
-    fade (key, fadeAt) {
+    fade(key, fadeAt) {
         if (this.arrAudio.hasOwnProperty(key)) {
             this.#fadeOut(this.arrAudio[key], fadeAt);
         } else if (typeof key === 'number') {

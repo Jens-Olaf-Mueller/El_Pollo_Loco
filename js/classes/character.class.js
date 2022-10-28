@@ -3,9 +3,9 @@
 * an extending or used class must be imported here!
 */
 import Mobile from './mobile.class.js';
-import { updateGameStatus, gameOver, Sounds, Intervals, flashImg } from '../game.js';
+import { updateStatusbar, gameOver, Sounds, Intervals, flashElement } from '../game.js';
 import { loadSettings, saveSettings, gameSettings } from '../settings_mod.js';
-import { loadArray, random } from '../library.js';
+import $, { loadArray, random } from '../library.js';
 import {FPS , GROUND, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Character extends Mobile {
@@ -50,12 +50,22 @@ export default class Character extends Mobile {
         return this.gun && this.bullets > 0;
     } 
 
+    /**
+     * determine if a hit was succesful, depending on the character's current accuracy
+     * @returns true | false
+     */
+    get hitSuccessful () {
+        return random(1, 100) <= this.accuracy;
+    }
+
     constructor (environment) {
         super().loadImage('./img/Pepe/idle/wait/wait0.png');
         this.environment = environment;
         this.keyboard = environment.keyboard;
         this.Y = environment.groundY;
-        this.initialize();  
+        this.initialize();
+        this.startAnimations(this);
+        this.applyGravity(this);
     };
 
     initialize () {
@@ -67,8 +77,6 @@ export default class Character extends Mobile {
         this.arrAnimation.push(...loadArray('./img/Pepe/killed/die',30));
         this.loadImageCache (this.arrAnimation, this.name);
         this.loadSettings();
-        this.startIntervals(this);
-        this.applyGravity(this);
     }
 
     loadSettings () {
@@ -92,13 +100,14 @@ export default class Character extends Mobile {
         } 
     }
 
+
     /**
      * adds the 'move' and 'animation'-interval to the interval-listener class.
      * since 'this' would not work inside another class, 
      * we pass the current class as '$this'
      * @param {object} $this ist the instance of 'this'
      */
-    startIntervals ($this) {
+    startAnimations($this) {
         Intervals.add (
             function move() {
                 if (!$this.isDead) {
@@ -139,12 +148,13 @@ export default class Character extends Mobile {
         )
     }
 
+
   /**
    * executes a walk of the character
    * @param {string} direction  determines if we walk to left or right
    * @param {number} step pixels to be moved in 'direction'
    */
-    walk (direction, step = 18) {
+    walk(direction, step = 18) {
         Sounds.play('walk');
         step = (direction == 'right') ? step : -step;
         if (direction == 'right') {
@@ -156,24 +166,23 @@ export default class Character extends Mobile {
         this.setNewTimeStamp();        
     }
 
-    jump () {
+
+    /**
+     * executes a jump of the character and reduces it's jump power
+     * max. skip value should not be more than 15,
+     * otherwise character jumps out of the screen!
+     */
+    jump() {
         if (this.jumpPower > 20) Sounds.play('jump');
-        let power = Math.round(this.jumpPower / 6.75);
-        if (power > 15) power = 15;
-        this.speedY = -power;
+        let skip = Math.round(this.jumpPower / 6.6666); // i.e. 100 / 6.6666 = 15!
+        if (skip > 15) skip = 15;
+        this.speedY = -skip;
         this.jumpPower -= this.environment.levelNo / 5;
         if (this.jumpPower < 0) this.jumpPower = 0;        
-        updateGameStatus(this);
+        updateStatusbar(this);
         this.setNewTimeStamp();        
     }
 
-    /**
-     * determine if a hit was succesful, depending on the character's current accuracy
-     * @returns true | false
-     */
-    hitSuccessful () {
-        return random(1, 100) <= this.accuracy;
-    }
 
     /**
      * executes a bottle-throw and reduces the character's bottles
@@ -183,6 +192,7 @@ export default class Character extends Mobile {
         this.bottles--;
         this.setNewTimeStamp();
     }   
+
 
     /**
      * executes a shot, reduces the character's bullets and plays the concerning sounds
@@ -194,12 +204,14 @@ export default class Character extends Mobile {
         this.setNewTimeStamp();
     }
 
+
     /**
      * saving time stamp since last action
      */
     setNewTimeStamp () {
         this.lastMove = new Date().getTime();
     }
+
 
     /**
      * update the caracter's properties, depending on the given item.
@@ -208,8 +220,7 @@ export default class Character extends Mobile {
      */
     updateProperties (item) {
         if (item.visible) {
-            // still enough money left?
-            if (this.coins - item.price >= 0 || item.type == 'beehive') {
+            if (this.hasEnoughMoney(item.price) || item.type == 'beehive') {
                 Sounds.play('plopp');
                 this.energy += parseInt(item.energy);
                 this.accuracy += parseInt(item.accuracy);
@@ -220,39 +231,44 @@ export default class Character extends Mobile {
                 item.enabled(false);
             } else {
                 Sounds.play('money');
-                flashImg('imgCoin');
+                flashElement('imgCoin');
             }   
         }
     }
 
-    /**
-     * character buys either medicine, a gun or bullets, 
-     * according to the priotity list of the shop
-     */
-    buyItems () {    
-        if (this.isDead) return;
-        let price = parseInt((1 + Math.random() * 100) * this.environment.levelNo * 10),
-            enoughMoney = false, amount;
-        if (this.energy < 50) {
-            amount = parseInt(120 - this.energy);
-            enoughMoney = (this.coins >= price);
-            if (enoughMoney) this.parseFoundItem('medicine' + amount);
-        } else if (this.gun == false) {
-            price = this.environment.levelNo * 1000;
-            enoughMoney = (this.coins >= price);
-            if (enoughMoney) this.parseFoundItem('gun');
-        } else if (this.gun && this.bullets < 6) {
-            amount = parseInt(6 - this.bullets);
-            enoughMoney = (this.coins >= price);
-            if (enoughMoney) this.parseFoundItem('bullet' + amount); 
-        }
 
-        if (enoughMoney) {
-            Sounds.play('kaching');
+    /**
+     * determines if the character has enough money for the given price
+     * @param {number} price value to check
+     * @returns true | false
+     */
+    hasEnoughMoney(price) {
+        return this.coins - price >= 0;
+    }
+
+
+    /**
+     * character buys one of the following items:
+     * chili, medicine, food, drinks, seed, bottle, gun or bullet, 
+     * function is called from shop only!
+     */
+    buyGood(item, price) {    
+        // if (this.isDead) return; 
+        if (this.hasEnoughMoney(price)) {     
+            let itemSold = this.parseItem(item);      
+            if (itemSold == true) {
+                Sounds.play('kaching');
+                this.coins -= price;
+            } else {
+                // just make sure that we flash the right icon if we got a gun and have more than 6 bullets!
+                if (itemSold == 'imgBullet' && $('imgBullet').classList.contains('hidden')) itemSold = 'imgGun';
+                flashElement(itemSold);
+                Sounds.play('chord');
+            }     
         } else {
-            price = 0;
+            Sounds.play('money')
+            flashElement('imgCoin');
         }
-        this.coins -= price;
     }
 
     /**
@@ -260,7 +276,7 @@ export default class Character extends Mobile {
      * @param {object} item bottle or coin item
      * @param {object} bonus item found in a jar or chest
      */
-    updateItems (item, bonus) {
+    updateItems(item, bonus) {
         if (item.visible) {
             if (item.type == 'coin') {
                 Sounds.play('coin');
@@ -277,36 +293,40 @@ export default class Character extends Mobile {
         // handling an eventual bonus item
         if (bonus) {
             Sounds.play('found');
-            this.environment.bonus.animate(item.X, item.Y);
+            const name = bonus.replace(/[0-9]/g, '');
+            this.environment.bonus.animate(item.X, item.Y, name);
             item.contains = null;
             if (item.type == 'chest') {
                 this.keyForChest--;
                 if (this.keyForChest < 0) this.keyForChest = 0;
             }
-            this.parseFoundItem(bonus);
-            if (gameSettings.debugMode) console.log(bonus + ' found...');
+            this.parseItem(bonus);
+            // if (gameSettings.debugMode) console.log(name + ' found...');
         }  
     }
+
 
     /**
      * parses a found item and updates the character's belongings or properties
      * @param {string} itemName the name of the found item including it's value
      */
-    parseFoundItem (itemName) {
+    parseItem(itemName) {
         let value = parseInt(itemName.replace(/[^0-9]/g,'')),
             name = itemName.replace(/[0-9]/g, '');
-
         switch (name) {
             case 'key':
-                if (this.keyForChest <= this.environment.levelNo) this.keyForChest++;
+                if (this.keyForChest >= this.environment.levelNo) return 'imgKey';
+                this.keyForChest++;
                 break;
             case 'coin':
                 this.coins += value;
                 break;
             case 'bullet':
-                if (this.bullets <= this.environment.levelNo * 6) this.bullets++;        
+                if (this.bullets >= this.environment.levelNo * 6) return 'imgBullet';
+                this.bullets++;        
                 break;
             case 'gun':
+                if (this.gun) return 'imgGun';
                 this.gun = true;
                 break;
             case 'food':
@@ -314,25 +334,32 @@ export default class Character extends Mobile {
                 this.energy += value; 
                 break;
             case 'medicine':
-                this.energy += value * 10;                
+                this.energy += value * 10; 
+                this.accuracy -= value;
                 break;
             case 'drink':
-                this.accuracy += (value - 2) * 5;
+                this.accuracy += (value - 2) * 1.5;
                 this.energy += value / 2;                     
                 break;
             case 'chili':
-                this.sharpness += (value - 2) * 5;
+                this.sharpness += (value - 2) * 1.5;
                 this.jumpPower += Math.round(value / 4);        
                 break;
             case 'seed':
                 this.seeds += value;
+                this.jumpPower -= value;
                 break;        
-            default:
+            case 'bottle':
+                if (this.bottles >= 10) return 'imgSharpness';
+                this.bottles++;
+                this.jumpPower--;
                 break;
         } 
         this.adjustProperties(this.environment.levelNo * 10);
+        return true;
     }
 
+    
     /**
      * make sure the character's properties are in the correct range
      * and updates the scores

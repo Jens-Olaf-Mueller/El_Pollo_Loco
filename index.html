@@ -10,6 +10,7 @@
     <!-- <link href="https://fonts.cdnfonts.com/css/red-hot-chili" rel="stylesheet"> -->
     <link rel="stylesheet" href="./fonts/Zabars/stylesheet.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="./styles/style.css">
+    <link rel="stylesheet" href="./styles/style_shop.css">
     <link rel="stylesheet" href="./styles/style_tooltip.css">
 
     <script type="module" defer src="./js/game.js"></script>
@@ -18,7 +19,7 @@
 
 <body>
     <!-------------------------------------------->
-    <!--              C A N V A S               -->
+    <!--         M A I N - S C R E E N          -->
     <!-------------------------------------------->    
     <div id="divCanvas" class="main-screen hidden">
         <div id="divStatusbar" class="statusbar">
@@ -64,6 +65,11 @@
             <div id="aniLoad" class="home-icons loading"></div>
             <h3 class="h3-loading">Loading... 100%</h3>
         </div>   -->
+
+        <!-------------------------------------------->
+        <!--                S H O P                 -->
+        <!-------------------------------------------->  
+        <div id="divShop" class="shop fade hidden"> </div>
 
         <canvas id="canvas" width="720px" height="480px"> </canvas>
 
@@ -122,11 +128,7 @@
             <a href="settings.html"><div class="home-icons home-settings"><h3>Settings</h3></div></a>        
             <a href="help.html"><div class="home-icons help"><h3>Help</h3></div></a>
             <div id="btnDemo" class="home-icons demo"><h3>Demo</h3></div>
-            <div id="btnStart" class="home-icons start"><h3>Start</h3></div>            
-            <!-- <div class="home-icons hidden">
-                <div id="aniLoad" class="home-icons loading"></div>
-                <h3 class="h3-loading">Loading... 100%</h3>
-            </div>            -->
+            <div id="btnStart" class="home-icons start"><h3>Start</h3></div>
         </div>        
     </div>
 </body>
