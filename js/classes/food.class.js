@@ -2,7 +2,7 @@
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 import { random } from '../library.js';
 import Background from './background.class.js';
-// import Item from './items.class.js';
+
 export default class Food extends Background {
     name = '';
     type = '';
@@ -33,6 +33,7 @@ export default class Food extends Background {
         if (pX !== undefined) this.X = pX; 
         this.enabled(true); // calls this.initialize();
     }
+
 
     initialize() {
         let range = 100 - this.level.levelNo * 10, rnd = random(1, 100);
@@ -70,6 +71,7 @@ export default class Food extends Background {
         }
     }
 
+    
     enabled(state) {
         if (state == false) {
             this.visible = false;

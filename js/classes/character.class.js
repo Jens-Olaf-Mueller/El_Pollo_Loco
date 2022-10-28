@@ -108,7 +108,7 @@ export default class Character extends Mobile {
      * @param {object} $this ist the instance of 'this'
      */
     startAnimations($this) {
-        Intervals.add (
+        Intervals.add(
             function move() {
                 if (!$this.isDead) {
                     Sounds.stop('walk');
@@ -121,11 +121,11 @@ export default class Character extends Mobile {
                     //     $this.environment.camera_X = -$this.X + $this.cameraOffset;
                     // }                     
                 }
-            }, 1000 / FPS, [$this] // = 16 ms
+            }, 1000 / FPS, $this // = 16 ms
         )
         
-        Intervals.add (
-            function animate () {
+        Intervals.add(
+            function animate() {
                 if ($this.isDead) {
                     if ($this.timeElapsed($this.diedAt) < 2.25) {    
                         $this.playAnimation ($this.arrAnimation,'die');
@@ -144,10 +144,9 @@ export default class Character extends Mobile {
                 } else {
                     $this.playAnimation($this.arrAnimation,'wait');
                 }
-            }, 6000 / FPS, [$this] // = 100 ms
+            }, 6000 / FPS, $this // = 100 ms
         )
     }
-
 
   /**
    * executes a walk of the character
@@ -209,7 +208,7 @@ export default class Character extends Mobile {
      * saving time stamp since last action
      */
     setNewTimeStamp () {
-        this.lastMove = new Date().getTime();
+        this.lastMove = this.now;
     }
 
 

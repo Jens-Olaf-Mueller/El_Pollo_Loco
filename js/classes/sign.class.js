@@ -8,7 +8,6 @@ export default class Sign extends Background {
     shopLeft = undefined;
     height = 100;
     width = 80;
-    get fivty50() {return Math.random() < 0.5;}
 
     constructor(shopX, type, level) {
         super();

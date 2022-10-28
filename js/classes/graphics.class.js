@@ -5,24 +5,20 @@ export default class Graphics {
     Y = undefined;
     offsetY = 0;
     width = undefined;
-    height = undefined;
-    
+    height = undefined;    
     image = undefined;    
-    imageBG = undefined;
     imgIndex = 0;
     imageCache = {};        // as image cache we use a jsonArray: {pictureKey: picturePath}
     isMirrored = false;     // = 'otherDirection'
+
+    constructor() {
+        //
+    }
 
 
     loadImage(path) {
         if (this.image === undefined) this.image = new Image();
         this.image.src = (path === undefined) ? '' : path;
-    }
-
-
-    loadBackgroundImage(path) {
-        if (this.imageBG === undefined) this.imageBG = new Image();
-        this.imageBG.src = (path === undefined) ? '' : path;
     }
 
 
@@ -111,8 +107,7 @@ export default class Graphics {
         name = isPepe ? '' : name + ' ';        
         ctx.font = "12px Verdana";
         ctx.fillStyle = 'navy';
-        if (this.isMirrored) this.environment.flipImage(this, true);
-        // ctx.fillText(`${name}`,this.X-20, this.Y-32 + offsetY);                
+        if (this.isMirrored) this.environment.flipImage(this, true);               
         ctx.fillText(`${name}`,this.X, this.Y-32 + offsetY);                
         ctx.fillText(`[X:${parseInt(this.X)},Y:${parseInt(this.Y)}]${showTop}`, this.X, this.Y-10 + offsetY);
         if (isPepe) {

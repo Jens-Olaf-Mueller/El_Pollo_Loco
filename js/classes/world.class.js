@@ -82,7 +82,7 @@ export default class World extends Game {
         this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
         this.seed = new Seed('./img/Seed/seed1.png');
         if (gameSettings.debugMode) {
-            // Intervals.list();
+            Intervals.list();
             console.log('World created... ', this);
         }   
         this.mainID = this.run();     
@@ -305,7 +305,7 @@ export default class World extends Game {
         });
     }
 
-    
+
     /**
      * checks for collision between endboss and bottle.
      * a possible hit also depends on the character's

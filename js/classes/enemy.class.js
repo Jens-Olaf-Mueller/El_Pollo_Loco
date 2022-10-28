@@ -10,8 +10,6 @@ export default class Enemy extends Mobile {
     level = 0;    
     height = 0;
     width = 0;
-    X = undefined;
-    Y = undefined;
     defaultSpeed = 0.15;
     eastEnd = undefined;
     westEnd = undefined;
@@ -25,7 +23,6 @@ export default class Enemy extends Mobile {
     animationID = undefined;
     moveID = undefined;
 
-    get fivty50() {return Math.random() < 0.5;}
 
     constructor(level, name, index) { 
         super();
@@ -39,32 +36,33 @@ export default class Enemy extends Mobile {
         this.speed = this.defaultSpeed + Math.random() * 0.85;     
     }; 
 
+
     animate(animationKey, $this, milliseconds = 12000) {
         if (this.isAlive) {
             this.move (this, 'left');
             Intervals.add (
                 function animation() {
                     $this.playAnimation($this.arrAnimation, animationKey)
-                }, milliseconds / FPS, [$this]
+                }, milliseconds / FPS, $this
             );
         } 
     }
 
+
     setPosition(size) {
         this.height += size;
         this.Y = 430 - Math.random() * this.height;
-        let range = this.Y + this.height, 
-            west = Math.random() > 0.5 ? -1 : 1;
+        let west = this.fivty50 ? -1 : 1;
         this.X = random(350, this.eastEnd - CANVAS_WIDTH * 0.8) * west;    
-        this.onCollisionCourse = range >= 430 && range <= 460;
+        this.onCollisionCourse = this.bottom >= 430 && this.bottom <= 460;
         this.isBackground = size <= 12 && !(this.onCollisionCourse) ? true : false;
-        
         if (this.isBackground) {
             this.Y -= 50;
             this.height -= size * 2.5;
             this.width -= size * 2;
         } 
     }
+
 
     remove() {
         if (this.type == 'bees') return;
@@ -78,6 +76,7 @@ export default class Enemy extends Mobile {
         this.loadImage(this.imageCache[this.name + '_dead'].src);
     }
 
+    
     resizeEnemy(type) {
         switch (type) {
             case 'chicken':

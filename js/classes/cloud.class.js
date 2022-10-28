@@ -9,10 +9,9 @@ import { FPS } from '../const.js';
 export default class Cloud extends Mobile {
     name = ''; 
     type = 'cloud';
+    direction = this.fivty50 ? 'right' : 'left'; 
     height = 300;
     width = 500;
-    X = undefined;
-    Y = undefined;
     speed = 0;
     eastEnd = undefined;
     westEnd = undefined;
@@ -20,25 +19,16 @@ export default class Cloud extends Mobile {
     constructor (level, index) {
         let no = 1 + parseInt(Math.random() * 1);
         super().loadImage(`./img/Background/layers/clouds/${no}.png`);
-        this.name = 'cloud' + index;
+        this.name = 'Cloud' + index;
         this.eastEnd = level.eastEnd;
         this.westEnd = level.westEnd; 
-        this.initialize();        
+        this.initialize();     
+        this.move(this, this.direction ,1000);   
     };   
 
     initialize() {
-        this.X = Math.random() > 0.5 ? Math.random() * this.eastEnd : Math.random() * this.westEnd;
+        this.X = this.fivty50 ? Math.random() * this.eastEnd : Math.random() * this.westEnd;
         this.Y = 1 + Math.random() * 16;
         this.speed = 0.125 + Math.random() * 0.25;
-        this.moveLeft(this);
-    }
-
-    moveLeft($this) {
-        Intervals.add(
-            function moveLeft() {
-                $this.X -= $this.speed;
-                if ($this.right < $this.westEnd) $this.X = $this.eastEnd;
-            }, 1000 / FPS, [$this]
-        );
     }
 }

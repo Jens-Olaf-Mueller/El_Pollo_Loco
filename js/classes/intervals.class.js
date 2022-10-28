@@ -32,27 +32,29 @@ export default class IntervalListener {
      * registers an interval to the collection
      * @param {function} fnc function to be executed in the interval
      * @param {number} timeout for interval
-     * @param {object} params parent class
+     * @param {object} object parent class
      * @returns the id of the started interval
      * @example classvariable.add (
      *              function myFunctionName() {
      *                  // interval code here...
-     *              }, 1000, context
+     *              }, 1000, $this
      *          );
-     */
-    add (fnc, timeout, params = []) {        
-        let id = setInterval(fnc, timeout, params);
+     */ 
+    add (fnc, timeout, object) {        
+        let id = setInterval(fnc, timeout, object),
+            key = object.name + '_' + fnc.name || this.name + '_' + fnc.name;
         const interval = {
             ID: id,
-            handler: fnc,                       // setInterval-function
+            handler: fnc,                    // setInterval-function
             timeout: timeout,
-            context: params,                    // parent class
-            name: params[0].name || this.name,  // name for the interval (or default)
-            key: params[0].name + '_' + fnc.name || this.name + '_' + fnc.name // class- | default name + fnc-name
+            context: object,                 // parent class
+            name: object.name || this.name,  // name for the interval (or default)
+            key: key                         // class- | default name + fnc-name
         };
         this.arrIntervals.push(interval);
         return id;
     }
+
 
     /**
      * restarts a registered (existing!) interval

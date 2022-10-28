@@ -25,10 +25,12 @@ export default class Keyboard {
         this.ESCAPE = false;        // same as quit
     }
 
+
     setKeyboardEvents () {
         ['keydown','keyup'].forEach((evt) => {
             window.addEventListener(evt, (event) => {
-                let state = (evt == 'keydown') ? true : false;
+                // console.log(event);
+                let state = (evt == 'keydown') ? true : false;                
                 if (event.key == 'ArrowLeft') this.LEFT = state;
                 if (event.key == 'ArrowRight') this.RIGHT = state;
                 if (event.key == 'ArrowUp') this.UP = state;
@@ -45,6 +47,7 @@ export default class Keyboard {
         })
     }
 
+    
     buttonEvents() {
         for (let i = 0; i < this.arrButtons.length; i++) {
             const id = this.arrButtons[i], btn = document.getElementById(id);

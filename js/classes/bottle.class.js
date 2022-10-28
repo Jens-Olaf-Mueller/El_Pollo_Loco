@@ -23,7 +23,6 @@ export default class Bottle extends Mobile {
     isCollidingEndboss = false;
     collisionAt = 0;
 
-    // get isCollidingEndboss() {return ((new Date().getTime() - this.collisionAt) / 1000) < 4;}
 
     constructor (imgPath) {        
         super().loadImage(imgPath);
@@ -32,11 +31,11 @@ export default class Bottle extends Mobile {
         this.loadImageCache (this.arrAnimation, this.name);
     }
 
+
     throw(pX, pY, speed, mirrored = false) {
         if( this.moveID == undefined) {
             // Sounds.play('bottle');
             this.isCollidingEndboss = false;
-            // this.collisionAt = 0;
             this.X = pX;
             this.Y = pY;
             this.speedY = -speed;
@@ -53,9 +52,9 @@ export default class Bottle extends Mobile {
                 if ($this.isCollidingEndboss) {
                     $this.playAnimation($this.arrAnimation, 'splash');
                 } else {
-                     $this.playAnimation($this.arrAnimation, 'spin');
+                    $this.playAnimation($this.arrAnimation, 'spin');
                 }                
-            }, 2000 / FPS, [$this]
+            }, 2000 / FPS, $this
         );
     }
 
@@ -64,12 +63,11 @@ export default class Bottle extends Mobile {
         return Intervals.add(
             function move() {
                 if ($this.Y < $this.groundY) {
-                    let dir = mirrored ? -1 : 1;
-                    $this.X += $this.speed * dir;
+                    $this.X += mirrored ? -$this.speed : $this.speed;
                 } else if ($this.Y >= $this.groundY) {
                     $this.hide($this.name);
                 }   
-            }, 25, [$this]
+            }, 25, $this
         );
     }
 }

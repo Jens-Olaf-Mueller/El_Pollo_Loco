@@ -31,7 +31,6 @@ export default class Chicken extends Enemy {
             this.width +=increment;
             this.height +=increment;
             this.Y -=increment; // make sure the chicken remains on ground-level!
-            debugger
             this.damage += levelNo * 0.05;
         }
     }

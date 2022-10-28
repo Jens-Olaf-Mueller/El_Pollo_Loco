@@ -2,9 +2,7 @@ import Enemy from './enemy.class.js';
 import { loadArray } from '../library.js';
 import { CANVAS_WIDTH } from '../const.js';
 
-export default class Chicklet extends Enemy {
-    X = undefined;
-    Y = undefined; 
+export default class Chicklet extends Enemy { 
     groundY = 405; 
     acceleration = 0.33; 
     height = 35;

@@ -12,7 +12,7 @@ export default class Bees extends Enemy {
 
     constructor (level, index) {
         super (level,'Bees', index);
-        this.beehive = new Food('./img/Food/food21.png','beehive' + (index + 1) * 20, level);        
+        this.beehive = new Food('./img/Food/beehive25.png', 'beehive' + (index + 1) * 20, level);        
         this.initialize();       
         level.Food.push(this.beehive);
         this.fly (this, 750);
@@ -53,7 +53,7 @@ export default class Bees extends Enemy {
                     $this.speedY = $this.speedY * -1;
                 } 
                 $this.isMirrored = ($this.speed > 0);
-            }, milliseconds / FPS, [$this]
+            }, milliseconds / FPS, $this
         );
     }
 
@@ -61,7 +61,7 @@ export default class Bees extends Enemy {
         Intervals.add(
             function beeAnimation() {
                 $this.playAnimation($this.arrAnimation, subkey)
-            }, milliseconds / FPS, [$this]
+            }, milliseconds / FPS, $this
         );
     }
 }

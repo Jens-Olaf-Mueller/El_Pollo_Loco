@@ -3,6 +3,8 @@ import { random } from '../library.js';
 import Background from './background.class.js';
 
 export default class Obstracle extends Background {
+    X = Infinity;
+    Y = Infinity;
     name = '';
     type = '';
     level;
@@ -16,8 +18,7 @@ export default class Obstracle extends Background {
     width = 50;
     eastEnd;
     westEnd;
-    X = Infinity;
-    Y = Infinity;
+
 
     constructor (imgPath, name, level) { 
         super().loadImage(imgPath);
@@ -30,16 +31,16 @@ export default class Obstracle extends Background {
         this.initialize();
     };   
 
+
     initialize () {
         this.visible = random(0, 100) > 50 ? true : false;
         if (this.visible) {
-            let bgSize = random(1, 30), west = Math.random() > 0.5;
+            const bgSize = random(1, 30);
             this.height += bgSize;
             this.X = random (350, this.eastEnd - CANVAS_WIDTH * 0.8); 
-            this.X = west ? -this.X : this.X;
+            this.X = this.fivty50 ? -this.X : this.X;
             this.Y = 430 - Math.random() * this.height;
-            let bgRange = this.Y + this.height;
-            this.onCollisionCourse = bgRange >= 430 && bgRange <= 460;
+            this.onCollisionCourse = this.bottom >= 430 && this.bottom <= 460;
 
             this.setBackground(bgSize);           
             if (this.name.includes('tree')) this.setTreeProperties();
@@ -54,7 +55,6 @@ export default class Obstracle extends Background {
 
     setBackground (bgSize) {
         this.isBackground = bgSize <= 12 && !(this.onCollisionCourse) || (this.name == 'stone_big0') ? true : false;
-        
         if (this.isBackground) {
             this.Y -= 50;
             this.height -= bgSize * 2.5;
@@ -95,20 +95,4 @@ export default class Obstracle extends Background {
     setDamage (toxic) {
         this.damage = toxic;
     }
-
-    // remove () {
-    //     if (this.type == 'spider' || this.type == 'scorpion') {
-    //         // clearInterval(this.animationID);
-    //         // clearInterval(this.moveID);
-    //         // this.animationID = undefined;
-    //         // this.moveID = undefined;
-    //         this.damage = 0;
-    //         // this.energy = 0;
-    //         // this.speed = 0;
-    //         this.height = 50;
-    //         this.width = 50; 
-    //         this.Y = 420;    
-    //         this.loadImage('./img/Items/Bottles/splash_salsa/splash3.png');
-    //     }
-    // }
 }

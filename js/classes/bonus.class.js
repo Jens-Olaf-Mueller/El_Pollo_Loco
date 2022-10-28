@@ -38,7 +38,7 @@ export default class Bonus extends Mobile {
             function move() {
                 $this.Y -= Math.abs($this.speed);
                 if ($this.Y + $this.height < 0) $this.hide($this.name); // hide when top of the screen is reached
-            }, 1000 / FPS, [$this]
+            }, 1000 / FPS, $this
         );
     } 
 
@@ -46,7 +46,7 @@ export default class Bonus extends Mobile {
         return Intervals.add(
             function spin() {
                 $this.playAnimation($this.arrAnimation, 'spin');
-            }, 5000 / FPS, [$this]             
+            }, 5000 / FPS, $this             
         );
     }
 }

@@ -23,7 +23,7 @@ export default class Seed extends Mobile {
 
     constructor (imgPath) {        
         super().loadImage(imgPath);
-        this.arrAnimation = loadArray ('./img/Seed/seed',4);
+        this.arrAnimation = loadArray ('./img/Seed/seed', 4);
         this.loadImageCache (this.arrAnimation, this.name);
     }
 
@@ -43,20 +43,19 @@ export default class Seed extends Mobile {
         return Intervals.add (
             function animate () {
                 $this.playAnimation($this.arrAnimation, 'seed'); 
-            }, 2000 / FPS, [$this]
+            }, 2000 / FPS, $this
         );
     }
 
     move($this, mirrored) {
-        return Intervals.add (
+        return Intervals.add(
             function move() {
                 if ($this.Y < $this.groundY) {
-                    let dir = mirrored ? -1 : 1;
-                    $this.X += $this.speed * dir;
+                    $this.X += mirrored ? -$this.speed : $this.speed;
                 } else if ($this.Y >= $this.groundY) {
                     $this.hide($this.name);
                 }   
-            }, 25, [$this]
+            }, 25, $this
         );
     }
 }

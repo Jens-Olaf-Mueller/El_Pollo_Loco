@@ -59,7 +59,7 @@ export default class Endboss extends Enemy {
                     $this.speed = $this.defaultSpeed;
                     $this.playAnimation ($this.arrAnimation,'wlk');                
                 }
-            }, 250, [$this] 
+            }, 250, $this 
         )
     }  
 

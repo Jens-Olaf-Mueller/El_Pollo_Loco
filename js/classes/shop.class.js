@@ -169,7 +169,7 @@ export default class Shop extends Mobile {
                 });
                 let path = $this.isOpen ? $this.arrImages[OPEN] : $this.arrImages[CLOSED];
                 $this.loadImage(path);
-            }, 750, [$this]
+            }, 750, $this
         );
     }
 

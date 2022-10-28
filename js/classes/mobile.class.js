@@ -3,11 +3,10 @@ import { gameSettings } from '../settings_mod.js';
 import { Intervals } from '../game.js';
 import Graphics from './graphics.class.js';
 
-export default class Mobile extends Graphics{
-    // get bottom() {return this.Y + this.height - this.offsetY;}
-    get bottom() {return this.Y + this.height;}
+export default class Mobile extends Graphics {    
     get top() {return this.Y + this.offsetY;}
     get left() { return this.X;}
+    get bottom() {return this.Y + this.height;}
     get right() {return this.X + this.width;}
     get centerX() {return this.X + this.width / 2;}
     get centerY() {return this.Y + (this.height + this.offsetY) / 2;}
@@ -15,24 +14,17 @@ export default class Mobile extends Graphics{
     get isHurt() {return this.timeElapsed(this.lastHit) < this.hurtDelay;} 
     get isSleeping() {
         return (this.timeElapsed(this.lastMove) > parseInt(gameSettings.sleepTime));
-    }
+    } 
     get isDead() {
         if (this.isAlive) return false;        
         if (this.diedAt == null) this.diedAt = this.now;
         return true;
     }
     get isAlive() {return this.energy > 0;}
+    get isAboveGround () {return this.Y < this.groundY;}      
+
     get now() {return new Date().getTime();}
-    /**
-     * helper for fnc 'applyGravity': determines if object is in the air
-     * @returns true | false
-     */
-    get isAboveGround () {
-        // 1. Alle Elemente holen, die bei deiner X-Koordinate liegen
-        // 2. Höhe von erstem Objekt nehmen, sonst height = 0
-        // if (this.Y != this.groundY) debugger
-        return this.Y < this.groundY;
-    }
+    get fivty50() {return Math.random() >= 0.5;} // returns a 50:50 chance
 
     speed = 0.15;           // default speed
     speedY = 0;             // gravity acceleration
@@ -55,7 +47,7 @@ export default class Mobile extends Graphics{
                     if (speed < 0 && $this.right < $this.westEnd) $this.X = $this.eastEnd;
                     if (speed > 0 && $this.X > $this.eastEnd) $this.X = $this.westEnd;
                 }
-            }, milliseconds / FPS, [$this], direction, loop
+            }, milliseconds / FPS, $this, direction, loop
         );
     }
 
@@ -96,7 +88,7 @@ export default class Mobile extends Graphics{
                     $this.Y = $this.groundY;
                     $this.speedY = 0;
                 } 
-            }, 1000 / FPS, [$this]
+            }, 1000 / FPS, $this
         )
     }
 
@@ -192,29 +184,42 @@ export default class Mobile extends Graphics{
      * @returns COLLISION.top(12), .right(3), .bottom(6), .left(9)
      */
     getCollisionSide(obj) {
-        // Calculate the distance between centers
-        let diffX = this.centerX - obj.centerX,
-            diffY = this.centerY - obj.centerY;
-        // Calculate the minimum distance to separate along X and Y
-        let minDistX = this.width / 2 + obj.width / 2,
-            minDistY = this.height / 2 + obj.height / 2;    
-        // Calculate the depth of collision for both the X and Y axis
-        let depthX = diffX > 0 ? minDistX - diffX : -minDistX - diffX,
-            depthY = diffY > 0 ? minDistY - diffY : -minDistY - diffY;
-    
+        const depth = this.getCollisionDepth(obj);
         // having the depth, pick the smaller depth and move along that axis
-        if (depthX != 0 && depthY != 0) {
+        if (depth.X != 0 && depth.Y != 0) {
             // Collision along the X-axis...
-            if (Math.abs(depthX) < Math.abs(depthY)) {                
-                if (depthX > 0) return COLLISION.left;
+            if (Math.abs(depth.X) < Math.abs(depth.Y)) {                
+                if (depth.X > 0) return COLLISION.left;
                 return COLLISION.right;
             // Collision along the Y-axis...    
             } else { 
-                if (depthY > 0) return COLLISION.top;
+                if (depth.Y > 0) return COLLISION.top;
                 return COLLISION.bottom;
             }
         }
         return null;
+    }
+
+
+    /**
+     * Step 1: Calculate the distance between centers
+     * Step 2: Calculate the minimum distance to separate along X and Y
+     * Step 3: Calculate the depth of collision for both the X and Y axis
+     * @param {object} obj the colliding object
+     * @returns JSON with X- and Y-depth
+     */
+    getCollisionDepth(obj) {
+        // Step 1 
+        let diffX = this.centerX - obj.centerX,
+            diffY = this.centerY - obj.centerY;
+        // Step 2 
+        let minDistX = this.width / 2 + obj.width / 2,
+            minDistY = this.height / 2 + obj.height / 2;    
+        // Step 3 
+        let depthX = diffX > 0 ? minDistX - diffX : -minDistX - diffX,
+            depthY = diffY > 0 ? minDistY - diffY : -minDistY - diffY;
+        
+        return {X: depthX, Y: depthY};
     }
 
 
