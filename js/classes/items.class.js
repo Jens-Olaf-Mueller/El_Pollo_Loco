@@ -3,44 +3,45 @@ import { random } from '../library.js';
 import Background from './background.class.js';
 
 export default class Item extends Background {
-    X = Infinity;
-    Y = Infinity;
     name = '';
     type = '';
-    level;
-    imagePath = '';
     visible = true;
     isBackground = false;
     onCollisionCourse = true;
     value;
     height = 70;
     width = 70;
-    eastEnd;
-    westEnd;
     contains = null;
 
 
     constructor (imgPath, name, level) { 
-        super().loadImage(imgPath);
-        this.imagePath = imgPath;       
+        super(imgPath, name, level);      
         this.name = name;
-        // returns only a number from string: 'food4' => 4
+        // RegEx '/[^0-9]/g' returns only a number from string: 'food4' => 4
         this.value = parseInt(name.replace(/[^0-9]/g,'')) || 0; 
-        this.type = name.replace(/[0-9]/g, '');
-        this.level = level;
-        this.eastEnd = level.eastEnd || CANVAS_WIDTH;  
-        this.westEnd = level.westEnd || -CANVAS_WIDTH;        
-        this.enabled(true); // calls this.initialize();
+        this.type = name.replace(/[0-9]/g, '');      
+        this.initialize();
     }
     
+
+    enabled(state) {
+        if (state === false) {
+            this.visible = false; 
+            this.value = 0;       
+            this.height = 0;
+            this.width = 0;
+            this.X = Infinity;
+            this.Y = Infinity;
+            return;
+        }
+        this.initialize();
+    }
 
     initialize() {
         this.X = random (150, this.eastEnd - CANVAS_WIDTH * 0.8);
         this.X = this.fivty50 ? -this.X : this.X;
         switch (this.type) {
             case 'bottle': this.Y = 370;                
-                break;
-            case 'coin':  this.initCoinProperties();
                 break;
             case 'chest': this.initChestProperties();
                 break;
@@ -51,14 +52,8 @@ export default class Item extends Background {
             default: this.enabled(false);
                 break;
         }
-    }
-
-
-    initCoinProperties() {
-        this.value++;
-        this.height = 30;
-        this.width = 30;
-        this.Y = 260 - this.value * 20 - this.value; 
+        this.home.X = this.X;
+        this.home.Y = this.Y;
     }
     
 
@@ -101,32 +96,5 @@ export default class Item extends Background {
             value = random (1, this.level.levelNo * 3),
             index = random (1, arrFound.length);                 
         if (chance <= range && arrFound[index] != null) this.contains = (arrFound[index] + value);
-    }
-
-
-    // swapImages(setBackgroundImage = true) {
-    //     let tmpImg;
-    //     if (setBackgroundImage) {
-    //         tmpImg = this.image;
-    //         this.image = this.imageBG;
-    //         this.imageBG = this.image;
-    //     } else {
-    //         tmpImg = this.imageBG;
-    //         this.imageBG = this.image;
-    //         this.image = tmpImg;
-    //     }
-    // }
-
-    enabled(state) {
-        if (state === false) {
-            this.visible = false; 
-            this.value = 0;       
-            this.height = 0;
-            this.width = 0;
-            this.X = Infinity;
-            this.Y = Infinity;
-            return;
-        }
-        this.initialize();
     }
 }

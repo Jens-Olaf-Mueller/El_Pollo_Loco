@@ -6,16 +6,13 @@ import { FPS, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 export default class Bonus extends Mobile {
     name = 'Bonus';
     type = 'bonus';
-    text;
-    height = 50;
-    width = 50;
+    text = '';
     X = 0;
     Y = -100;
+    height = 50;
+    width = 50;    
     speedY = 10;  
     speed = 2.25;
-    arrAnimation = [];
-    animationID = undefined;
-    moveID = undefined;
 
     constructor (imgPath) {        
         super().loadImage(imgPath);

@@ -6,20 +6,15 @@ import { loadArray } from "../library.js";
 export default class Bottle extends Mobile {
     name = 'Bottle';
     type = 'bottle';
-    height = 70;
-    width = 70;
     X = 0;
     Y = -70;
-    offsetY = 0;
+    height = 70;
+    width = 70;
     groundY = 380;
     speed = 10;
     speedY = 0.5; 
     visible = false;
     onCollisionCourse = true;
-    arrAnimation = [];
-    animationID = undefined;
-    moveID = undefined;
-    gravarityID = undefined;
     isCollidingEndboss = false;
     collisionAt = 0;
 

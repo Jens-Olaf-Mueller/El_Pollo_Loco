@@ -4,6 +4,18 @@ import { loadSettings, saveSettings, gameSettings } from './settings_mod.js';
 
 const arrControls = Array.from($('[data-settings'));
 const arrSliders = Array.from($('input[type=range]'));
+const home = $('btnAutoStart');
+
+// delete the auto start flag in sessionstore when site is loaded
+document.addEventListener("DOMContentLoaded", () => {
+    sessionStorage.setItem(APP_NAME + '_AutoStart', false);
+});
+
+home.addEventListener('click', () => {
+    sessionStorage.setItem(APP_NAME + '_AutoStart', true);
+    window.location.href = 'index.html';
+}, true)
+
 
 // Use Array.forEach to add an event listener to each control
 arrControls.forEach(checkbox => {
@@ -119,8 +131,10 @@ function updateSettings (event) {
             break;   
         case 'enemies':
             gameSettings.enemiesOff = value;
-            break;           
-                
+            break;     
+        case 'intervals':
+            gameSettings.logIntervals = value;
+            break;
         default:
             gameSettings.debugMode = value;
             enableControls('divDebugmode', value);
@@ -158,6 +172,7 @@ function restoreSettings () {
     gameSettings.debugMode = false;
       gameSettings.showFrame = false;
       gameSettings.enemiesOff = false;
+      gameSettings.logIntervals = false;
       gameSettings.dbgCoins = 0;
       gameSettings.dbgBottles = 0;
       gameSettings.dbgBullets = 0;

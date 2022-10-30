@@ -6,6 +6,10 @@ import Background from './background.class.js';
 export default class Food extends Background {
     name = '';
     type = '';
+    X = Infinity;
+    Y = Infinity;
+    height = 50;
+    width = 50;
     level;
     value = 0;
     price = 2;
@@ -15,12 +19,7 @@ export default class Food extends Background {
     sharpness = 0;
     accuracy = 0;
     jumpPower = 0;
-    height = 50;
-    width = 50;
-    eastEnd;
-    westEnd;
-    X = Infinity;
-    Y = Infinity; 
+
 
     constructor(imgPath, name, level, pX) {
         super().loadImage(imgPath);

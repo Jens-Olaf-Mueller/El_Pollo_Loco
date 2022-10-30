@@ -87,6 +87,7 @@ export const DEFAULT_SETTINGS = {
     debugMode: false,
       showFrame: false,
       enemiesOff: false,
+      logIntervals: false,
       dbgCoins: 0,
       dbgBottles: 0,
       dbgBullets: 0,

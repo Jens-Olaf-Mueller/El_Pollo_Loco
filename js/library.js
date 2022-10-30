@@ -126,11 +126,29 @@ export function loadArray (path, count, extension = '.png') {
 //     return path.replace(/^.*[\\\/]/, '');
 // }
 
+
+/**
+ * returns the filename of a given path
+ * @param {string} path full path
+ * @param {boolean} extention determines if with or without file extention
+ * @returns string filename
+ */
 export function getFilename(path, extention = true) {
     let file = path.match(/[-_\w]+[.][\w]+$/i)[0];
     if (extention) return file;
     //removing extension and returning just the filename
     return file.split('.').shift();     
+}
+
+
+/**
+ * returns the path from a given full path
+ * (extracts the file name)
+ * @param {string} file full path
+ * @returns string that contains the path only without filename
+ */
+export function getPath(filename) {
+    return filename.substring(0, filename.lastIndexOf("/") + 1);
 }
 
 /**

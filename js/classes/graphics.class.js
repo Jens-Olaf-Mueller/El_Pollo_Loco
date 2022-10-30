@@ -1,18 +1,26 @@
 import { getFilename } from '../library.js';
+import { CANVAS_WIDTH } from '../const.js';
 
 export default class Graphics {
-    X = undefined;
-    Y = undefined;
+    X = Infinity;
+    Y = Infinity;
     offsetY = 0;
-    width = undefined;
-    height = undefined;    
+    height = undefined; 
+    width = undefined;  
+    level;
+    eastEnd = Infinity;
+    westEnd = Infinity;     
     image = undefined;    
     imgIndex = 0;
     imageCache = {};        // as image cache we use a jsonArray: {pictureKey: picturePath}
     isMirrored = false;     // = 'otherDirection'
 
-    constructor() {
-        //
+    constructor(level) {
+        this.level = level;
+        if (level) {
+            this.eastEnd = level.eastEnd || CANVAS_WIDTH;  
+            this.westEnd = level.westEnd || -CANVAS_WIDTH;
+        }        
     }
 
 

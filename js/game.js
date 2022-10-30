@@ -29,7 +29,8 @@ let world,
     arrJumpIcons, 
     arrAccuracyIcons, 
     arrSharpIcons,
-    gameStarted;
+    gameIsRunning,
+    autoStart;
 export let demoMode;
 
 runApp();
@@ -39,9 +40,16 @@ function runApp() {
     loadSettings(APP_NAME);
     loadFont(fontZabars);
     initSounds();
+    // coming from help or settings?
+    autoStart = sessionStorage.getItem(APP_NAME + '_AutoStart');
+    if (autoStart === 'true') {
+        sessionStorage.setItem(APP_NAME + '_AutoStart', false);
+        startGame();
+        return;
+    }
      // check for the very first start and show help if wanted
-    gameStarted = sessionStorage.getItem(APP_NAME + '_IsRunning');
-    if (!gameStarted) {
+    gameIsRunning = sessionStorage.getItem(APP_NAME + '_IsRunning');
+    if (!gameIsRunning) {
         sessionStorage.setItem(APP_NAME + '_IsRunning', true);
         if (gameSettings.showHelpOnStart) window.location.href = 'help.html';
     }

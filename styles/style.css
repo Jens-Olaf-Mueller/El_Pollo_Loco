@@ -297,9 +297,6 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* position: absolute;
-    top: 0.33rem;
-    right: 2.33rem; */
     width: auto;
     min-width: 4rem;
     height: var(--icon-size);
@@ -312,9 +309,6 @@ canvas {
 }
 
 #divLevel {
-    /* position: absolute;
-    top: 0.33rem;
-    right: 0.33rem; */
     width: var(--icon-size);
     height: var(--icon-size);
     background: var(--ctrl-color);
@@ -431,6 +425,7 @@ canvas {
     }
 
     .home-icons { 
+        margin: 1rem;
         width: 128px;
         height: 128px;
     }
@@ -443,6 +438,10 @@ canvas {
         justify-content: center;
     }
 
+    .orientationbar {
+        display: none;
+    }
+
     .desktop {
         display: none;
     }
@@ -453,21 +452,12 @@ canvas {
     }
 }
 
-/* @media only screen and (max-width: 850px) {
-    .home-icons { 
-        width: 128px;
-        height: 128px;
-    }
-    .home-icons h3 {
-        font-size: 1.5rem;
-    }
-} */
-
 @media only screen and (max-width: 400px) {
     .home { 
         padding: 1rem; 
         justify-content: flex-start;
     }
+
     .mobile {
         font-size: 3rem;
     }
@@ -500,6 +490,10 @@ canvas {
         display: flex;
         z-index: 101;
     }
+
+    .orientationbar {
+        display: none;
+    }
 }
 
 @media only screen and (min-width: 300px) and (orientation: portrait) {
@@ -516,8 +510,7 @@ canvas {
         transform: rotate(-90deg);
     }
 
-    .mobile-navbar {
-        
+    .mobile-navbar {        
         position: absolute;
         bottom: 0rem;
         left: 0;

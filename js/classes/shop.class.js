@@ -194,6 +194,7 @@ export default class Shop extends Mobile {
         posBar.show();
         navBar.show();
         sideBar.show();
+        statusBar.removeClass('inside-shop');
         $('canvas').classList.remove('hidden');
         btnClose.element.dataset.tooltip = 'Quit game';
         this.environment.pauseGame(false);

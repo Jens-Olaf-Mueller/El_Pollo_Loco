@@ -6,20 +6,16 @@ import { loadArray } from '../library.js';
 export default class Seed extends Mobile {
     name = 'Seed';
     type = 'seed';
-    height = 40;
-    width = 55;
     X = 0;
     Y = -40;
-    offsetY = 0;
+    height = 40;
+    width = 55;
+    // offsetY = 0;
     groundY = 380;
     speed = 8;
     speedY = 0.125; 
     acceleration = 0.125;
     onCollisionCourse = true;
-    arrAnimation = [];
-    animationID = undefined;
-    moveID = undefined;
-    gravarityID = undefined;
 
     constructor (imgPath) {        
         super().loadImage(imgPath);

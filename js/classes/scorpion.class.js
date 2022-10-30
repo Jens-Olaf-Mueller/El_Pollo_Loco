@@ -2,10 +2,10 @@ import Enemy from './enemy.class.js';
 import { loadArray, random } from '../library.js';
 
 export default class Scorpion extends Enemy {
-    height = 40;
-    width = 40;
+    height = 35;
+    width = 35;
     speed = 0;
-    get animationSpeed() {return this.onCollisionCourse ? 60000 : 120000;}
+    get animationSpeed() {return this.onCollisionCourse ? 120000 : 240000;}
 
     constructor (level, index = 1) {
         super (level,'Scorpion', index);

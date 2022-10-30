@@ -8,20 +8,15 @@ export default class Enemy extends Mobile {
     name = '';
     type = undefined;
     level = 0;    
-    height = 0;
-    width = 0;
     defaultSpeed = 0.15;
     eastEnd = undefined;
     westEnd = undefined;
     isBackground = false;
     onCollisionCourse = true;
     isFriendly = gameSettings.enemiesOff; 
+    direction = 'left'; // default direction
     energy = 100;
     damage = 0;
-
-    arrAnimation = []; 
-    animationID = undefined;
-    moveID = undefined;
 
 
     constructor(level, name, index) { 
@@ -39,7 +34,7 @@ export default class Enemy extends Mobile {
 
     animate(animationKey, $this, milliseconds = 12000) {
         if (this.isAlive) {
-            this.move (this, 'left');
+            this.move (this, this.direction);
             Intervals.add (
                 function animation() {
                     $this.playAnimation($this.arrAnimation, animationKey)
@@ -55,6 +50,7 @@ export default class Enemy extends Mobile {
         let west = this.fivty50 ? -1 : 1;
         this.X = random(350, this.eastEnd - CANVAS_WIDTH * 0.8) * west;    
         this.onCollisionCourse = this.bottom >= 430 && this.bottom <= 460;
+        this.direction = this.X >= 0 ? 'left' : 'right';
         this.isBackground = size <= 12 && !(this.onCollisionCourse) ? true : false;
         if (this.isBackground) {
             this.Y -= 50;

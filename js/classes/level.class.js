@@ -9,6 +9,7 @@ import Background from './background.class.js';
 import Obstracle from './obstracles.class.js';
 import Cloud from './cloud.class.js';
 import Item from './items.class.js';
+import Coin from './coin.class.js';
 import Shop from './shop.class.js';
 import Sign from './sign.class.js';
 import Food from './food.class.js';
@@ -105,12 +106,28 @@ export default class Level {
 
     initItems() {
          // amount of bottles and coins depend on the level number        
-        for (let i = 0; i < this.levelNo * 2; i++) {
-            this.Items.push(...this.add (11, Item, 'coin', 'Items/Coins'));
+        // for (let i = 0; i < this.levelNo * 2; i++) {
+        //     this.Items.push(...this.add (11, Item, 'coin', 'Items/Coins'));
+        // }
+
+        for (let i = 0; i < this.levelNo; i++) {
+            this.Items.push(...this.add(5, Coin, 'dollar', 'Items/Coins/Dollar'));
+            this.Items.push(...this.add(5, Coin, 'clover', 'Items/Coins/Clover'));
+            this.Items.push(...this.add(4, Coin, 'gold', 'Items/Coins/Carribean'));
+            this.Items.push(...this.add(4, Coin, 'bag', 'Items/Coins/Bag'));
+            this.Items.push(...this.add(3, Coin, 'topas', 'Items/Coins/Topas'));
+            this.Items.push(...this.add(2, Coin, 'diamond', 'Items/Coins/Diamond'));
+
+// this.Items.push(new Coin('./img/Items/Coins/Clover', 'clover', this, 5));
+// this.Items.push(new Coin('./img/Items/Coins/Carribean', 'gold', this, 7));
+            // this.Items.push(new Coin('./img/Items/Coins/Bag', 'bag', this, 8));
+            // this.Items.push(new Coin('./img/Items/Coins/Topas', 'topas', this, 9));            
+            // this.Items.push(new Coin('./img/Items/Coins/Diamond', 'diamond', this, 11));
         }
+
         let count = this.levelNo < 2 ? 5 : 2 + this.levelNo;
         for (let i = 0; i < count; i++) {
-            this.Items.push(...this.add (3, Item,'bottle', 'Items/Bottles'));
+            this.Items.push(...this.add (3, Item, 'bottle', 'Items/Bottles'));
         }
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
         this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));

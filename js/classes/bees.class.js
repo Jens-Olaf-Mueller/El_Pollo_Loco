@@ -7,7 +7,6 @@ import { Intervals } from "../game.js";
 export default class Bees extends Enemy {
     height = 33;
     width = 33;
-    speed = 0;
     beehive = undefined;
 
     constructor (level, index) {

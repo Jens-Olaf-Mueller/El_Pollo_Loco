@@ -28,12 +28,22 @@ export default class Mobile extends Graphics {
 
     speed = 0.15;           // default speed
     speedY = 0;             // gravity acceleration
-    acceleration = 0.5;  
+    acceleration = 0.5;
+    home = {X: 0, Y: 0};  
    
     lastHit = 0;            // time elapsed since Object was hit
     lastMove = this.now;    // time elapsed since Object has moved
     diedAt = null;
     hurtDelay = 1;
+
+    arrAnimation = []; 
+    animationID = undefined;
+    moveID = undefined;
+    gravarityID = undefined;
+
+    constructor(level) {
+        super(level);
+    }
     
     /**
      * moves an object into the given direction
@@ -58,7 +68,13 @@ export default class Mobile extends Graphics {
      * @param {string} subkey creates together with name and index the key of the image in 'imageCache' 
      */
     playAnimation(arrImages, subkey = 'wlk') {  
-        const arr = arrImages.filter(img => {return img.includes(subkey)});      
+        const arr = arrImages.filter(img => {return img.includes(subkey)});  
+        
+        // if (subkey == 'dollar') {
+        //     console.log(arrImages)
+        //     debugger
+        // }
+        
         this.imgIndex++;     
         if (this.imgIndex >= arr.length) this.imgIndex = 0;
         let key = this.name + '_' + subkey + this.imgIndex;   // i.e key = Pepe_wlk0     

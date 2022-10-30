@@ -11,14 +11,13 @@ import {FPS , GROUND, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 export default class Character extends Mobile {
     name = 'Pepe';
     type = 'character';
-    environment;                     // reference to the world
-    // lastMove = new Date().getTime(); // time elapsed since Pepe has moved (requ. for sleep animation)
+    environment;                    
     X = 50;
     Y = 150;
-    groundY = GROUND;
-    offsetY = 110;
+    offsetY = 110;        
     height = 300;
     width = 150;
+    groundY = GROUND;
 
     energy = 100;
     score = 0;
@@ -34,7 +33,6 @@ export default class Character extends Mobile {
     
     keyboard;
     cameraOffset = 150;
-    arrAnimation = [];
 
     get isInFrontOfShop() {
         return this.right > this.environment.level.shop.left + 50 && 
@@ -92,10 +90,10 @@ export default class Character extends Mobile {
         this.keyForChest = gameSettings.keyForChest || 0;
         this.seeds = gameSettings.seeds || 0;
         if (gameSettings.debugMode) {
-            if (gameSettings.dbgCoins) this.coins = gameSettings.dbgCoins;
-            if (gameSettings.dbgBottles) this.bottles = gameSettings.dbgBottles;
-            if (gameSettings.dbgSeeds) this.seeds = gameSettings.dbgSeeds;
-            if (gameSettings.dbgBullets) this.bullets = gameSettings.dbgBullets;
+            if (gameSettings.dbgCoins) this.coins = +gameSettings.dbgCoins;
+            if (gameSettings.dbgBottles) this.bottles = +gameSettings.dbgBottles;
+            if (gameSettings.dbgSeeds) this.seeds = +gameSettings.dbgSeeds;
+            if (gameSettings.dbgBullets) this.bullets = +gameSettings.dbgBullets;
             if (gameSettings.dbgGun) this.gun = true;
         } 
     }

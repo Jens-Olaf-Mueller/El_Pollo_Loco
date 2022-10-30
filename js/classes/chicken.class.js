@@ -14,6 +14,7 @@ export default class Chicken extends Enemy {
         this.animate('wlk', this);
     };  
 
+    
     initialize() {
         this.loadImage('./img/Chicken/adult/wlk0.png');
         this.heart.src= './img/Status/heart.png';

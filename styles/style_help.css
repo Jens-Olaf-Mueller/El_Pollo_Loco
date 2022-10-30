@@ -106,6 +106,20 @@ details summary:hover::before, details[open] summary::before {
     color: unset;
 }
 
+.home-navbar #btnAutoStart {
+    position: absolute;
+    top: 3.85rem;
+    left: 5.5rem;
+    transform: rotate(-5deg);
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.home-navbar #btnAutoStart:hover {
+    text-shadow: 3px 3px 2px #666;
+    color: black;
+}
+
 .signpost {
     background-image: url('../img/Status/signpost2.png');
     margin: 2rem;

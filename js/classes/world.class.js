@@ -61,7 +61,7 @@ export default class World extends Game {
         this.levelNo = this.settings.lastLevel;
         Intervals.clear(); // must be executed BEFORE new Character!!!
         this.Pepe = new Character(this);                     
-        this.initLevel(this.levelNo);
+        this.initLevel(this.levelNo);  
         this.draw();        
     }
 
@@ -81,9 +81,9 @@ export default class World extends Game {
         this.bonus = new Bonus('./img/Status/Bonus/spin0.png');
         this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
         this.seed = new Seed('./img/Seed/seed1.png');
-        if (gameSettings.debugMode) {
-            Intervals.list();
+        if (gameSettings.debugMode) {            
             console.log('World created... ', this);
+            if (gameSettings.logIntervals) Intervals.list();
         }   
         this.mainID = this.run();     
     }

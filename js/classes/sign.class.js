@@ -6,8 +6,8 @@ export default class Sign extends Background {
     typeNr;
     level;
     shopLeft = undefined;
-    height = 100;
-    width = 80;
+    height = 150;
+    width = 120;
 
     constructor(shopX, type, level) {
         super();
@@ -36,7 +36,7 @@ export default class Sign extends Background {
 
     // evl. in Background-Class...?!
     setZindex() {
-        this.Y = 400 + Math.random() * 20;
+        this.Y = 350 + Math.random() * 20;
         this.isBackground = this.fivty50;
         if (this.isBackground) {
             this.height -= 20;

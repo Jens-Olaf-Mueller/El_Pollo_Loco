@@ -16,8 +16,6 @@ export default class Obstracle extends Background {
     damage = 0;
     height = 50;
     width = 50;
-    eastEnd;
-    westEnd;
 
 
     constructor (imgPath, name, level) { 
