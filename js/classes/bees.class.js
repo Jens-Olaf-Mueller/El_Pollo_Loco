@@ -20,7 +20,7 @@ export default class Bees extends Enemy {
 
     initialize() {
         this.loadImage ('./img/Food/food16.png');
-        this.arrAnimation = loadArray('./img/Obstracles/Animals/Bugs/bees',3);
+        this.arrAnimation = loadArray('./img/Obstacles/Animals/Bugs/bees',3);
         this.loadImageCache (this.arrAnimation, this.name);        
         this.Y = 250 + Math.random() * 80;
         this.X = random (350, this.eastEnd - CANVAS_WIDTH * 0.8);         

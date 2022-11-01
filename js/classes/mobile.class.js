@@ -48,16 +48,16 @@ export default class Mobile extends Graphics {
     /**
      * moves an object into the given direction
      */
-    move($this, direction, milliseconds = 1000, loop = true) {
+    move($this, milliseconds = 1000, loop = true) {
         Intervals.add (
             function move() {
-                let speed = (direction == 'left') ? Math.abs($this.speed) * -1 : Math.abs($this.speed);
+                let speed = ($this.moveDirection == 'left') ? Math.abs($this.speed) * -1 : Math.abs($this.speed);
                 $this.X += speed;
                 if (loop == true) {
                     if (speed < 0 && $this.right < $this.westEnd) $this.X = $this.eastEnd;
                     if (speed > 0 && $this.X > $this.eastEnd) $this.X = $this.westEnd;
                 }
-            }, milliseconds / FPS, $this, direction, loop
+            }, milliseconds / FPS, $this, loop
         );
     }
 
@@ -169,12 +169,14 @@ export default class Mobile extends Graphics {
      * @returns true | false
      */
     isLeftFrom(obj) {
-        return this.right < obj.left;
+        // return this.right < obj.left;
+        return this.centerX < obj.left;
     }
 
 
     isRightFrom(obj) {
-        return this.left > obj.right;
+        // return this.left > obj.right;
+        return this.centerX > obj.right;
     }
 
 

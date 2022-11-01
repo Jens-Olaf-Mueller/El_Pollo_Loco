@@ -87,21 +87,22 @@ export async function gameOver() {
  * @param {number} level shows the intro screen of the given level
  */
 export async function showIntroScreen(level) {
-    introScreen.removeClass('fade');
+    introScreen.fadeIn(4250); 
     if (gameSettings.soundEnabled && !gameSettings.musicEnabled) Sounds.play('jingle');
     $('introH1').innerText = 'Level  ' + level;
-    canvas.classList.remove('hidden');
+    // canvas.classList.remove('hidden');
     introScreen.element.style.backgroundImage = IMG_START[random(0,IMG_START.length-1)];       
     introScreen.show();
-    await sleep(2500);
-    introScreen.addClass('fade'); 
+    await sleep(2500); 
+    introScreen.fadeOut(4250); 
+
 }
 
 /**
  * displays the game over screen
  */
 export async function showGameoverScreen() {
-    introScreen.removeClass('fade');
+    introScreen.fadeIn(4250);
     $('introH1').innerText = '';
     canvas.classList.add('hidden');
     introScreen.element.style.backgroundImage = IMG_GAMEOVER;
@@ -114,6 +115,7 @@ async function displayControls(state = true) {
         shopScreen.hide();
         homeScreen.hide();
         mainScreen.show();
+        canvas.classList.remove('hidden');
         posBar.show();
         navBar.show();
         sideBar.show();

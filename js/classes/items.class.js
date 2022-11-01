@@ -12,6 +12,7 @@ export default class Item extends Background {
     height = 70;
     width = 70;
     contains = null;
+    canJumpOn = false;
 
 
     constructor (imgPath, name, level) { 
@@ -61,7 +62,8 @@ export default class Item extends Background {
         this.height = 80;
         this.width = 90;
         this.Y = 370;
-        this.fillRepository (true);
+        this.fillRepository(true);
+        this.canJumpOn = true;
     }
 
 
@@ -69,7 +71,7 @@ export default class Item extends Background {
         this.height = 45;
         this.width = 50;
         this.Y = 390;            
-        this.fillRepository ();
+        this.fillRepository();
     } 
         
 

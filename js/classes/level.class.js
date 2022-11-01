@@ -6,7 +6,7 @@ import Spider from './spider.class.js';
 import Scorpion from './scorpion.class.js';
 import Bees from './bees.class.js';
 import Background from './background.class.js';
-import Obstracle from './obstracles.class.js';
+import Obstacle from './obstacles.class.js';
 import Cloud from './cloud.class.js';
 import Item from './items.class.js';
 import Coin from './coin.class.js';
@@ -34,7 +34,7 @@ export default class Level {
     Food = [];   
     Foregrounds = [];
     Items = [];
-    Obstracles = [];
+    Obstacles = [];
     LastEndbossPositions = [];
 
     /**
@@ -60,16 +60,22 @@ export default class Level {
         this.initLevel();
     }
 
+
     initLevel() {        
         this.initBackgrounds();
         this.initEnemies();
-        this.initObstracles();       
+        this.initObstacles();       
         this.initClouds();
         this.initFood();
+        this.initCoinsAndBottles();
         this.initItems();
     }
 
 
+    /**
+     * load all backgrunds including the SHOP!
+     * This must be done FIRST due to the signposts for the shop depend on the shop's position!
+     */
     initBackgrounds() { 
         let step = CANVAS_WIDTH - 1,
             pNr = 0;   
@@ -82,66 +88,61 @@ export default class Level {
                 this.Backgrounds.push(new Background(path, x, this));
             }
         }
+        // shop is ALWAYS in the background!
         this.shop = new Shop('./img/Items/Shop/', this);
         this.Backgrounds.push(this.shop); 
     }
 
 
     /**
-    * loads all obstracles
+    * loads all obstacles like stones, cactus, grass and trees
     */
-    initObstracles() {
+    initObstacles() {
         // load the plants...
         let count = this.getLevelBalance(8,12,4,2);        
-        this.Obstracles = this.add(count, Obstracle, 'cactus', 'Obstracles/Plants');
-        this.Obstracles.push(...this.add(5, Obstracle, 'grass', 'Obstracles/Plants'));        
-        this.Obstracles.push(...this.add(5, Obstracle, 'tree', 'Obstracles/Plants'));
+        this.Obstacles = this.add(count, Obstacle, 'cactus', 'Obstacles/Plants');
+        this.Obstacles.push(...this.add(5, Obstacle, 'grass', 'Obstacles/Plants'));        
+        this.Obstacles.push(...this.add(5, Obstacle, 'tree', 'Obstacles/Plants'));
         // stones...
         count = this.getLevelBalance(8,11,4);
-        this.Obstracles.push(...this.add(count, Obstracle, 'stone', 'Obstracles/Stones'));
-        this.Obstracles.push(...this.add(7, Obstracle, 'stone_big', 'Obstracles/Stones'));
-        this.shiftPosition(this.Obstracles);
+        this.Obstacles.push(...this.add(count, Obstacle, 'stone', 'Obstacles/Stones'));
+        this.Obstacles.push(...this.add(7, Obstacle, 'stone_big', 'Obstacles/Stones'));
+        this.shiftPosition(this.Obstacles);
     }
 
 
-    initItems() {
-         // amount of bottles and coins depend on the level number        
-        // for (let i = 0; i < this.levelNo * 2; i++) {
-        //     this.Items.push(...this.add (11, Item, 'coin', 'Items/Coins'));
-        // }
-
+    /**
+     * amount of bottles and coins depend on the level number 
+     */
+    initCoinsAndBottles() {
         for (let i = 0; i < this.levelNo; i++) {
-            this.Items.push(...this.add(5, Coin, 'dollar', 'Items/Coins/Dollar'));
-            this.Items.push(...this.add(5, Coin, 'clover', 'Items/Coins/Clover'));
-            this.Items.push(...this.add(4, Coin, 'gold', 'Items/Coins/Carribean'));
-            this.Items.push(...this.add(4, Coin, 'bag', 'Items/Coins/Bag'));
-            this.Items.push(...this.add(3, Coin, 'topas', 'Items/Coins/Topas'));
-            this.Items.push(...this.add(2, Coin, 'diamond', 'Items/Coins/Diamond'));
-
-// this.Items.push(new Coin('./img/Items/Coins/Clover', 'clover', this, 5));
-// this.Items.push(new Coin('./img/Items/Coins/Carribean', 'gold', this, 7));
-            // this.Items.push(new Coin('./img/Items/Coins/Bag', 'bag', this, 8));
-            // this.Items.push(new Coin('./img/Items/Coins/Topas', 'topas', this, 9));            
-            // this.Items.push(new Coin('./img/Items/Coins/Diamond', 'diamond', this, 11));
-        }
-
+            this.Items.push(...this.add(5, Coin, 'dollar', 'Items/Coins/Dollar', i));
+            this.Items.push(...this.add(5, Coin, 'clover', 'Items/Coins/Clover', i));
+            this.Items.push(...this.add(4, Coin, 'gold', 'Items/Coins/Carribean', i));
+            this.Items.push(...this.add(4, Coin, 'bag', 'Items/Coins/Bag', i));
+            this.Items.push(...this.add(3, Coin, 'topas', 'Items/Coins/Topas', i));
+            this.Items.push(...this.add(2, Coin, `diamond`, 'Items/Coins/Diamond', i));
+        }    
         let count = this.levelNo < 2 ? 5 : 2 + this.levelNo;
         for (let i = 0; i < count; i++) {
             this.Items.push(...this.add (3, Item, 'bottle', 'Items/Bottles'));
         }
+    }
+
+
+    initItems() {
         this.Items.push(...this.add (4, Item, 'chest', 'Items/Chest'));
-        this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));
+        this.Items.push(...this.add (9, Item, 'jar', 'Items/Misc'));       
+        let count = this.getLevelBalance(2,16,4); 
+        this.Items.push(...this.add (count, Item, 'misc', 'Items/Misc'));      
+        // make sure we got at least one key and gun in each level!
+        this.hideItem('key','jar');
+        this.hideItem('gun','chest');
 
 // TODO: modulo-operator kontrollieren für sign-images 
         for (let i = 0; i < this.levelNo + 1; i++) {
             this.Items.push(new Sign(this.shop.X, i % 5, this));
-        }
-
-        count = this.getLevelBalance(2,16,4); 
-        this.Items.push(...this.add (16, Item, 'misc', 'Items/Misc'));        
-        // make sure we got at least one key and gun in each level!
-        this.hideItem('key','jar');
-        this.hideItem('gun','chest');
+        }        
         this.shiftPosition(this.Items);
     }
     
@@ -219,19 +220,20 @@ export default class Level {
 
 
     /**
-     * helper function for: initObstracles(), initFood().
+     * helper function for: initObstacles(), initFood().
      * @param {integer} count the amount of objects to be loades
      * @param {object} classType the kind of class instance to be created
      * @param {string} key value to create an unique key as identifyer for name
      * @param {string} subfolder path, where the image is located
      * @returns array of new created objects
      */
-    add(count, classType, key, subfolder) {
+    add(count, classType, key, subfolder, levelNo = null) {
         let arr = [],
             path = subfolder ? `./img/${subfolder}` : `./img`;
         for (let i = 0; i < count; i++) {
+            const id = (levelNo === null) ? undefined : levelNo * count + i;
             const name = key + i;
-            arr.push(new classType(`${path}/${name}.png`, name, this));
+            arr.push(new classType(`${path}/${name}.png`, name, this, id));
         }
         return arr;
     }
@@ -255,7 +257,7 @@ export default class Level {
 
 
     /**
-     * calculates the balance (amount) for the items, obstracles etc.
+     * calculates the balance (amount) for the items, obstacles etc.
      * to be created  for each level
      * @param {number} minLevel minimum of level number to take effect
      * @param {*} maxValue maximum value that is returned

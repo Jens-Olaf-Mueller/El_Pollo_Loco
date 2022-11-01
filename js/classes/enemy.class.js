@@ -14,7 +14,7 @@ export default class Enemy extends Mobile {
     isBackground = false;
     onCollisionCourse = true;
     isFriendly = gameSettings.enemiesOff; 
-    direction = 'left'; // default direction
+    moveDirection = 'left'; // default direction
     energy = 100;
     damage = 0;
 
@@ -34,7 +34,7 @@ export default class Enemy extends Mobile {
 
     animate(animationKey, $this, milliseconds = 12000) {
         if (this.isAlive) {
-            this.move (this, this.direction);
+            this.move(this);
             Intervals.add (
                 function animation() {
                     $this.playAnimation($this.arrAnimation, animationKey)
@@ -50,7 +50,7 @@ export default class Enemy extends Mobile {
         let west = this.fivty50 ? -1 : 1;
         this.X = random(350, this.eastEnd - CANVAS_WIDTH * 0.8) * west;    
         this.onCollisionCourse = this.bottom >= 430 && this.bottom <= 460;
-        this.direction = this.X >= 0 ? 'left' : 'right';
+        this.moveDirection = this.X >= 0 ? 'left' : 'right';
         this.isBackground = size <= 12 && !(this.onCollisionCourse) ? true : false;
         if (this.isBackground) {
             this.Y -= 50;

@@ -8,7 +8,6 @@ import Bees from './bees.class.js';
 import Snake from './snake.class.js';
 import Scorpion from './scorpion.class.js';
 import Spider from './spider.class.js';
-
 import Level from './level.class.js';
 import Bonus from './bonus.class.js';
 import Bottle from './bottle.class.js';
@@ -35,7 +34,7 @@ export default class World extends Game {
     arrBackgrounds;
     arrForegrounds;
     arrFood;
-    arrObstracles; 
+    arrObstacles; 
     arrEnemies;
     arrEndBosses;
     arrClouds;
@@ -50,7 +49,7 @@ export default class World extends Game {
     mainID = undefined;
     lastSaved = 0;
 
-    get gameSaved() {((this.now - this.lastSaved) / 1000) < 4};
+    get gameSaved() {return ((this.now - this.lastSaved) / 1000) < 4};
     get now() {return new Date().getTime();}
 
     constructor(canvas) {
@@ -59,9 +58,9 @@ export default class World extends Game {
         this.ctx = canvas.getContext('2d');
         // this.levelNo = gameSettings.lastLevel;
         this.levelNo = this.settings.lastLevel;
-        Intervals.clear(); // must be executed BEFORE new Character!!!
-        this.Pepe = new Character(this);                     
-        this.initLevel(this.levelNo);  
+        Intervals.clear(); // must be executed BEFORE new Character!!!                             
+        this.initLevel(this.levelNo); // FIRST create the level...
+        this.Pepe = new Character(this); // ... THEN the character!
         this.draw();        
     }
 
@@ -72,7 +71,7 @@ export default class World extends Game {
         this.westEnd = this.level.westEnd;  
         this.arrBackgrounds = this.level.Backgrounds;
         this.arrForegrounds = this.level.Foregrounds;
-        this.arrObstracles = this.level.Obstracles;
+        this.arrObstacles = this.level.Obstacles;
         this.arrClouds = this.level.Clouds;
         this.arrEnemies = this.level.Enemies;
         this.arrEndBosses = this.level.EndBosses;
@@ -212,7 +211,7 @@ export default class World extends Game {
                 if (collision == COLLISION.bottom) {
                     this.handleBottomCollision(enemy);
                 } else if (collision){
-                    this.handleCollision(enemy);
+                    this.handleCollision(enemy, collision);
                 } 
             }
         });
@@ -223,7 +222,7 @@ export default class World extends Game {
      * handles a collision with an enemy
      * @param {object} enemy any enemy-object (chicken, snake, endboss etc.)
      */
-    handleCollision(enemy) {
+    handleCollision(enemy, direction) {
         if (this.level.shop.inside) return; // no collision if we are in shop!!!
         if (!enemy.isFriendly) {
             // if we met a snake and can shoot - execute a shot!
@@ -235,13 +234,28 @@ export default class World extends Game {
                 } else {
                     Sounds.play('ricochet');
                 }
-            } else { // Pepe was simply hit by an enemy...
+            } else { // Pepe was simply hit by any enemy...
                 this.Pepe.hit(enemy.damage);
-                if (this.Pepe.isAlive) Sounds.play('ouch');
-            }                    
+                if (this.Pepe.isAlive && this.Pepe.timeElapsed(this.Pepe.lastHit) < 2) Sounds.play('ouch');
+            }     
         }
         // play sounds of bees and snakes... 
         if (enemy instanceof Bees || enemy instanceof Snake) Sounds.play(enemy.type);
+        this.#changeDirection(enemy, direction); // eventually we change the enemie's move direction 
+    }
+
+
+    /**
+     * helper function for this.handleCollision()
+     * @param {object} enemy the enemy to be tested
+     * @param {number} direction constant that represents the direction
+     */
+    #changeDirection(enemy, direction) {
+        if (enemy instanceof Chicken || enemy instanceof Chicklet || enemy instanceof Endboss) {
+            if (this.Pepe.isRightFrom(enemy) && direction == COLLISION.left) enemy.isMirrored = true;
+            if (this.Pepe.isLeftFrom(enemy) && direction == COLLISION.right) enemy.isMirrored = false; 
+            enemy.moveDirection = enemy.isMirrored ? 'right' : 'left';
+        }
     }
 
 
@@ -284,23 +298,18 @@ export default class World extends Game {
 
 
     /**
-     * checks for collision with obstracles:
-     * TODO - can we jump on a stone or a chest ?!
+     * checks for collision with obstracles and if we can jump on it
      */
     checkObstracleCollisions() {
-        this.level.Obstracles.forEach((barrier) => {
-            if (this.Pepe.isColliding(barrier) && barrier.onCollisionCourse && barrier.damage > 0) {                    
-                // can we jump on the obstracle?
+        this.level.Obstacles.forEach((barrier) => {
+            let collision = this.Pepe.isColliding(barrier);
+            if (collision == COLLISION.bottom) {
                 if (barrier.canJumpOn) {
-                    if (this.Pepe.isAboveGround) {
-                        this.Pepe.Y -= barrier.height;
-                        //TODO - Gravarity - Y ???
-                        console.log('Sprung auf ' + barrier.name)
-                    } else {
-                        // this.Pepe.energy -=barrier.damage;
-                        // this.Pepe.hit(barrier.damage);
-                    } 
-                }                                        
+                    this.Pepe.groundY = barrier.jumpTop;
+                    this.Pepe.speedY = 0;
+                }
+            } else if (collision) {
+                this.Pepe.groundY = GROUND;
             }
         });
     }
@@ -505,10 +514,11 @@ export default class World extends Game {
      * and the game is not already saved last 4 seconds
      */
     saveGame() {
+        debugger
         if (!gameSettings.debugMode && !this.gameSaved) {
-            saveSettings(APP_NAME,this.Pepe);
-            this.lastSaved = this.now;
+            saveSettings(APP_NAME,this.Pepe);            
         }
+        this.lastSaved = this.now;
     }
 
 

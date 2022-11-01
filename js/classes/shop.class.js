@@ -1,6 +1,7 @@
 import Mobile from './mobile.class.js';
 import { CANVAS_WIDTH } from '../const.js';
 import $, { random, loadArray } from '../library.js';
+import { gameSettings } from '../settings_mod.js';
 import { Intervals, Sounds } from '../game.js';
 
 import { APP_NAME, SOUNDS,
@@ -83,7 +84,7 @@ export default class Shop extends Mobile {
                  image: './img/Items/Guns/bullet0.png',
                  sold: false
                 },                
-                {item: 'medizine',
+                {item: 'medicine',
                  price: parseInt(50 + Math.random() * i * 100) + this.cent,
                  image: this.getRandomImage(this.#arrMedicineImages),
                  sold: false
@@ -94,7 +95,7 @@ export default class Shop extends Mobile {
                  sold: false
                 },
                 {item: 'gun',
-                 price: i * 1000,
+                 price: this.levelNo * 1000,
                  image: './img/Items/Guns/gun1.png',
                  sold: false
                 },
@@ -104,13 +105,13 @@ export default class Shop extends Mobile {
                  sold: false
                 },
                 {item: 'bottle',
-                 price: i * 500,
+                 price: this.levelNo * 500,
                  image: './img/Items/Bottles/bottle_icon_edge.png',
                  sold: false
                 }
             );
         }
-        console.log('Im Shop: ', this.#arrGoods )
+        if (gameSettings.debugMode) console.log('Im Shop: ', this.#arrGoods )
     }
 
 
@@ -121,10 +122,11 @@ export default class Shop extends Mobile {
 
     renderGoods() {
         this.htmlShop.innerHTML = '';
-        for (let i = 1; i < 9; i++) {
-            const good = this.#arrGoods[i-1];
+        let arrTabIndex = [1,3,5,7,2,4,6,8];
+        for (let i = 0; i < 8; i++) {
+            const good = this.#arrGoods[i];
             this.htmlShop.innerHTML += `
-                <div class="goods" tabindex="${i}" data-goodname="${good.item}">
+                <div class="goods" tabindex="${arrTabIndex[i]}" data-goodname="${good.item}">
                     <img src="${good.image}">
                     <p>$ ${good.price}</p>
                 </div>
@@ -132,6 +134,7 @@ export default class Shop extends Mobile {
         }
         this.setEventListeners(this);
     }
+
 
     setEventListeners($this) {
         const goods = Array.from($('.goods'));
@@ -142,13 +145,26 @@ export default class Shop extends Mobile {
         });
     }
 
+
     buyItem(good) {   
         // good equals the div-element!
         let item = good.dataset.goodname,
             price = Math.round(good.innerText.slice(2)),
             amount = good.firstElementChild.outerHTML.replace(/[^0-9]/g,'');
-        this.environment.Pepe.buyGood(item + amount, price);
-        
+        if (this.environment.Pepe.buyGood(item + amount, price) == true) {
+            this.#enhancePrice(good);
+            this.renderGoods();
+        }
+    }
+
+    #enhancePrice(good) {
+        for (let i = 0; i < this.#arrGoods.length; i++) {
+            const merch = this.#arrGoods[i];
+            if (merch.item == good.dataset.goodname) {
+                merch.price = parseInt((merch.price + merch.price * this.levelNo / 10) * 100) / 100;
+                break;
+            }
+        }
     }
 
 

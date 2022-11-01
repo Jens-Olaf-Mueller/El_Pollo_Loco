@@ -15,9 +15,9 @@ export default class Scorpion extends Enemy {
     }
 
     initialize() {
-        this.loadImage ('./img/Obstracles/Animals/Spiders/scorpion_bg.png');
-        this.arrAnimation = loadArray('./img/Obstracles/Animals/Spiders/scorpion',6);
-        this.arrAnimation.push('./img/Obstracles/Animals/Spiders/dead.png');
+        this.loadImage ('./img/Obstacles/Animals/Spiders/scorpion_bg.png');
+        this.arrAnimation = loadArray('./img/Obstacles/Animals/Spiders/scorpion',6);
+        this.arrAnimation.push('./img/Obstacles/Animals/Spiders/dead.png');
         this.loadImageCache (this.arrAnimation, this.name);
         this.setPosition(random(1, 30));
     }

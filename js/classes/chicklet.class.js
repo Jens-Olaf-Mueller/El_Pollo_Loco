@@ -22,7 +22,7 @@ export default class Chicklet extends Enemy {
         this.arrAnimation = loadArray ('./img/Chicken/chicklets/wlk', 3);      
         this.arrAnimation.push('./img/Chicken/chicklets/dead.png');
         this.loadImageCache (this.arrAnimation, this.name); 
-        this.speed += 0.4 + Math.random();
+        this.speed += 0.5 + Math.random();
         this.damage = this.level.levelNo * 0.5;        
     }
 }

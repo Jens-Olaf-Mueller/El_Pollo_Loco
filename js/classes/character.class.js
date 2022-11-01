@@ -6,18 +6,21 @@ import Mobile from './mobile.class.js';
 import { updateStatusbar, gameOver, Sounds, Intervals, flashElement } from '../game.js';
 import { loadSettings, saveSettings, gameSettings } from '../settings_mod.js';
 import $, { loadArray, random } from '../library.js';
-import {FPS , GROUND, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
+import {FPS , GROUND, CAM_OFFSET, CANVAS_HEIGHT, CANVAS_WIDTH } from '../const.js';
 
 export default class Character extends Mobile {
     name = 'Pepe';
     type = 'character';
-    environment;                    
+    environment;
+    eastEnd;
+    westEnd;                 
     X = 50;
     Y = 150;
     offsetY = 110;        
     height = 300;
     width = 150;
     groundY = GROUND;
+    lastJump = 0;
 
     energy = 100;
     score = 0;
@@ -32,7 +35,8 @@ export default class Character extends Mobile {
     seeds = 0;
     
     keyboard;
-    cameraOffset = 150;
+    cameraOffset = CAM_OFFSET;
+
 
     get isInFrontOfShop() {
         return this.right > this.environment.level.shop.left + 50 && 
@@ -59,12 +63,15 @@ export default class Character extends Mobile {
     constructor (environment) {
         super().loadImage('./img/Pepe/idle/wait/wait0.png');
         this.environment = environment;
+        this.eastEnd = environment.level.eastEnd;
+        this.westEnd = environment.level.westEnd;
         this.keyboard = environment.keyboard;
         this.Y = environment.groundY;
         this.initialize();
         this.startAnimations(this);
         this.applyGravity(this);
     };
+
 
     initialize () {
         this.arrAnimation.push(...loadArray('./img/Pepe/walk/wlk',6));
@@ -76,6 +83,7 @@ export default class Character extends Mobile {
         this.loadImageCache (this.arrAnimation, this.name);
         this.loadSettings();
     }
+
 
     loadSettings () {
         this.score = gameSettings.score || 0;
@@ -112,12 +120,8 @@ export default class Character extends Mobile {
                     Sounds.stop('walk');
                     if ($this.keyboard.RIGHT) $this.walk('right');
                     if ($this.keyboard.LEFT) $this.walk('left');
-                    if ($this.keyboard.UP && !$this.isAboveGround) $this.jump();
-        
-                    $this.environment.camera_X = -$this.X + $this.cameraOffset;
-                    // if ($this.X > $this.environment.westEnd - $this.cameraOffset) {
-                    //     $this.environment.camera_X = -$this.X + $this.cameraOffset;
-                    // }                     
+                    if ($this.keyboard.UP && !$this.isAboveGround) $this.jump();        
+                    $this.environment.camera_X = -$this.X + $this.cameraOffset;              
                 }
             }, 1000 / FPS, $this // = 16 ms
         )
@@ -155,12 +159,52 @@ export default class Character extends Mobile {
         Sounds.play('walk');
         step = (direction == 'right') ? step : -step;
         if (direction == 'right') {
-            if (this.X < this.environment.eastEnd - CANVAS_WIDTH + this.cameraOffset - 10) this.X += step;
+            this.#moveToRight(step);
         } else if (direction == 'left') {
-            if (this.X > this.environment.westEnd + this.cameraOffset + 10) this.X += step;
+            this.#moveToLeft(step);
         }
         this.isMirrored = (direction == 'left');
         this.setNewTimeStamp();        
+    }
+
+
+    /**
+     * helper function for this.walk()
+     */
+    #moveToRight(step) {
+        // restore camera offset if we are away from west end! 
+        if (Math.abs(this.westEnd - this.X) >= CAM_OFFSET && this.cameraOffset < CAM_OFFSET) {
+            this.cameraOffset +=step / 2;
+        } 
+        // move and shift camera offset if we get close to the east end
+        if (this.X <= this.eastEnd - CANVAS_WIDTH + this.cameraOffset - step) {
+            this.X += step;
+        } else if (this.right <= this.eastEnd) {
+            this.cameraOffset += step / 2;
+            this.X += step / 2;
+        } else {
+            Sounds.play('boing');
+        }
+    }
+
+
+    /**
+     * helper function for this.walk()
+     */
+    #moveToLeft(step) {
+        // restore camera offset if we are away from east end!
+        if (Math.abs(this.eastEnd - this.X) >= CAM_OFFSET && this.cameraOffset > CAM_OFFSET) {
+            this.cameraOffset +=step / 2;
+        }
+        // move and shift camera offset if we get close to the west end
+        if (this.X > this.westEnd + this.cameraOffset - step) {
+            this.X += step;
+        } else if (this.X > this.westEnd) {
+            this.cameraOffset += step / 2;
+            this.X += step / 2;                               
+        } else {
+            Sounds.play('boing');
+        }
     }
 
 
@@ -175,9 +219,11 @@ export default class Character extends Mobile {
         if (skip > 15) skip = 15;
         this.speedY = -skip;
         this.jumpPower -= this.environment.levelNo / 5;
-        if (this.jumpPower < 0) this.jumpPower = 0;        
+        if (this.jumpPower < 0) this.jumpPower = 0;   
         updateStatusbar(this);
-        this.setNewTimeStamp();        
+        this.setNewTimeStamp();
+        if (this.timeElapsed(this.lastJump) > 0.333) this.groundY = GROUND;
+        this.lastJump = this.now;  
     }
 
 
@@ -256,15 +302,18 @@ export default class Character extends Mobile {
             if (itemSold == true) {
                 Sounds.play('kaching');
                 this.coins -= price;
+                return true;
             } else {
                 // just make sure that we flash the right icon if we got a gun and have more than 6 bullets!
                 if (itemSold == 'imgBullet' && $('imgBullet').classList.contains('hidden')) itemSold = 'imgGun';
                 flashElement(itemSold);
                 Sounds.play('chord');
+                return false;
             }     
         } else {
             Sounds.play('money')
             flashElement('imgCoin');
+            return false;
         }
     }
 

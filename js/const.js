@@ -13,7 +13,7 @@ const BTN_PATH = './img/Status/Mobile/';
 
 
 // Frames per second                   
-const FPS = 60, GROUND = 150;
+const FPS = 60, GROUND = 150, CAM_OFFSET = 150;
 
 // Canvas-Size
 const CANVAS_HEIGHT = 480;
@@ -31,9 +31,9 @@ const ICON_ENERGY = $('imgEnergy'),
       ICON_SHARPNESS = $('imgSharpness');
 
 const canvasParent = $('divCanvas'),
-      homeScreen = new Container('divHome'),
+      homeScreen = new Container('divHome', 'flex'),
       introScreen = new Container('divIntro'),
-      mainScreen = new Container('divCanvas'),
+      mainScreen = new Container('divCanvas', 'flex'),
       navBar = new Container('divNavbar'),
       statusBar = new Container('divStatusbar'),
       sideBar = new Container('divSidebar'),
@@ -53,6 +53,7 @@ const SONG_TITLES = ['Santa Esmeralda','Chicken Song','The Lonely Shepherd'];
 const SOUNDS = {
     songs: ['Santa Esmeralda.mp3','Chicken Song.mp3','The Lonely Shepherd.mp3'],
     echo: "echo el_pollo_loco.mp3",
+    boing: "boing.mp3",
     jingle: "jingle.mp3",
     chord: "chord.mp3",
     ouch: "ouch.mp3",
@@ -116,7 +117,7 @@ export const DEFAULT_SETTINGS = {
 
 export { APP_NAME, PEPE, 
         SOUNDS, SONG_TITLES,
-        FPS, GROUND,
+        FPS, GROUND, CAM_OFFSET,
         CANVAS_HEIGHT, CANVAS_WIDTH,  
         ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS,          
         IMG_GAMEOVER, 

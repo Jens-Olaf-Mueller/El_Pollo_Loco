@@ -11,12 +11,12 @@ export default class Endboss extends Enemy {
     defaultSpeed = 0.15 + Math.random() * 0.25;
     bossNo = 0;
     lastAttack = 0;
-    hurtDelay = 3;
+    hurtDelay = 1.5;
 
     constructor (level, index = 0) { 
         super(level, 'Endboss', index)
         this.bossNo = index;        // to set different X-positions
-        this.isFriendly = false;    // always!
+        this.isFriendly = false;    // attacks always, even in debug mode!
         this.initialize();
     };
 
@@ -33,7 +33,7 @@ export default class Endboss extends Enemy {
         this.speed = this.defaultSpeed;
         this.damage = this.level.levelNo * 5;
         this.runAnimation(this);
-        this.move(this, 'left');
+        this.move(this);
     }
 
     runAnimation($this) {

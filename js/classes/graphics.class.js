@@ -15,6 +15,12 @@ export default class Graphics {
     imageCache = {};        // as image cache we use a jsonArray: {pictureKey: picturePath}
     isMirrored = false;     // = 'otherDirection'
 
+    get hasFrame() {
+        return this.name && (this.name == 'Pepe' || this.type == 'chicken' || this.type == 'endboss' || 
+        (this.type == 'stone' && this.onCollisionCourse));
+    } 
+    
+
     constructor(level) {
         this.level = level;
         if (level) {
@@ -30,12 +36,12 @@ export default class Graphics {
     }
 
 
-    loadImageCache(arr, name) {
+    loadImageCache(arr, key) {
         let z = 0;
         arr.forEach(path => {            
-            let img = new Image(), key = getFilename(path, false);
+            let img = new Image(), subkey = getFilename(path, false);
             img.src = path;
-            this.imageCache[name + '_' + key] = img;
+            this.imageCache[key + '_' + subkey] = img;
             z++;
         });
     }
@@ -47,7 +53,7 @@ export default class Graphics {
             if (this.type == 'chicken') this.displayHeart(ctx);
             if (this.type == 'endboss') this.displayEnergy(ctx);
             if (this.type == 'bonus') this.displayBonusText(ctx);
-            if (showframe) this.displayFrame (ctx);
+            if (showframe) this.displayFrame(ctx);
         } catch (err) {
             console.warn(`ERROR in Object ${this.name}: ` + err);
             console.warn('Cache: ' + this.imageCache, 'Current Image: ' + this.image)
@@ -89,8 +95,7 @@ export default class Graphics {
      * @param {canvas context} ctx the given context to draw on
      */
     displayFrame(ctx) {
-        let hasFrame = this.name && (this.name == 'Pepe' || this.type == 'chicken' || this.type == 'endboss');
-        if (hasFrame) {
+        if (this.hasFrame) {
             ctx.beginPath();
             ctx.lineWidth = '3';
             ctx.strokeStyle = 'navy';

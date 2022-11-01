@@ -2,7 +2,7 @@ import {CANVAS_HEIGHT, CANVAS_WIDTH} from '../const.js';
 import { random } from '../library.js';
 import Background from './background.class.js';
 
-export default class Obstracle extends Background {
+export default class Obstacle extends Background {
     X = Infinity;
     Y = Infinity;
     name = '';
@@ -13,10 +13,10 @@ export default class Obstracle extends Background {
     isBackground = false;
     onCollisionCourse = false;
     canJumpOn = false;
+    jumpTop = 0;
     damage = 0;
     height = 50;
     width = 50;
-
 
     constructor (imgPath, name, level) { 
         super().loadImage(imgPath);
@@ -64,14 +64,15 @@ export default class Obstracle extends Background {
         this.Y = 100;
         this.height = 340;
         this.width = 220;
-        this.damage = 0.1;
+        // this.damage = 0.1;
     }
 
     setStoneProperties () {
         if (this.name == 'stone_big0') this.onCollisionCourse = false; // never colliding!
-        this.Y = this.isBackground ? 280 : 330;
+        this.Y = this.isBackground ? 275 : 325; // 280 : 330 old settings!
         this.height = 150;
         this.width = 150;
+        this.jumpTop = this.name.includes('stone_big') ? 75 : 79;
         this.damage = 0.25;
         this.canJumpOn = this.onCollisionCourse;
     }
