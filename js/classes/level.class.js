@@ -174,16 +174,14 @@ export default class Level {
     initFood() {
         // let count = (this.levelNo < 11) ? 10 : 31 - this.levelNo;
         let count = this.getLevelBalance(5,21,15,1);
-        // console.log('food in level ' + this.levelNo, count)
         this.Food.push(...this.add(count, Food, 'food', 'Food'));
         this.Food.push(...this.add(17, Food, 'chili', 'Food/Chili'));
         this.Food.push(...this.add(11, Food, 'drink', 'Food/Drinks'));
         this.Food.push(...this.add(6, Food, 'medicine', 'Food/Medicine'));
-        // debugger
-        // for (let i = 0; i < this.LastEndbossPositions.length; i++) {
-        //     const name = 'food' + parseInt(25 + i);
-        //     this.Food.push(new Food(`./img/Food/${name}.png`,name, this, this.LastEndbossPositions[i]));      
-        // }
+        for (let i = 0; i < this.LastEndbossPositions.length; i++) {
+            const pos = this.LastEndbossPositions[i];
+            this.Food.push(new Food(`./img/Food/food120.png`, 'food120', this, pos.X));      
+        }
     }
 
 

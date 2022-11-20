@@ -217,7 +217,44 @@ let isConst = function(name, context) {
       context[name] = _a;
     } catch(e) { return true; }
     return false;
-  }.bind(this);
+}.bind(this);
+
+
+export function cBool(expression) {
+    switch(expression?.toLowerCase()?.trim()){
+        case "true": 
+        case "yes": 
+        case "1": 
+            return true;
+        case "false": 
+        case "no": 
+        case "0": 
+        case '':
+        case null: 
+        case undefined:
+            return false;
+        default: 
+            return JSON.parse(expression);
+    }
+}
+
+/**
+ * Returns a time-string for the given date.
+ * If the date is omitted, current date is used.
+ * @param {object} dtDate [optional] a valid date-object
+ * @returns time string in format dd.mm.yyyy | hh:nn:ss
+ */
+export function getTime$(dtDate) {
+    if (dtDate == undefined) dtDate = new Date();
+    // arrow function for each part of the date
+    const padLeft = (nr, len = 2, chr = `0`) => `${nr}`.padStart(len, chr);
+    return `${padLeft(dtDate.getDate())}.
+            ${padLeft(dtDate.getMonth()+1)}.            
+            ${dtDate.getFullYear()} | 
+            ${padLeft(dtDate.getHours())}:
+            ${padLeft(dtDate.getMinutes())}:
+            ${padLeft(dtDate.getSeconds())}`;
+}
 
 // export function todo (msgtext, title = 'Coming soon') {
 //     playSound('notify.mp3');

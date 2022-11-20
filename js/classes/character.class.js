@@ -200,6 +200,7 @@ export default class Character extends Mobile {
         if (this.X > this.westEnd + this.cameraOffset - step) {
             this.X += step;
         } else if (this.X > this.westEnd) {
+            debugger
             this.cameraOffset += step / 2;
             this.X += step / 2;                               
         } else {

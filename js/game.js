@@ -4,10 +4,11 @@
 import Game from './classes/game.class.js';
 import World from './classes/world.class.js';
 import Sound from './classes/sound.class.js';
+import Backend from './classes/backend.class.js';
 import IntervalListener from './classes/intervals.class.js';
 import { loadSettings, saveSettings, gameSettings } from './settings_mod.js';
-import $, { sleep, random } from './library.js';
-import { APP_NAME, SOUNDS,
+import $, { sleep, random, getTime$ } from './library.js';
+import { APP_NAME, SOUNDS, DEF_HIGHSCORES,
          ICON_ENERGY, ICON_JUMP, ICON_ACCURACY, ICON_SHARPNESS, IMG_GAMEOVER, IMG_START, BTN_PATH,
          homeScreen, introScreen, mainScreen, shopScreen, navBar, statusBar, sideBar, posBar, 
          btnDemo, btnStart, btnClose, btnMusic, btnSound, btnPause, btnFeed, btnShop, canvasParent
@@ -23,8 +24,8 @@ const canvas = $('canvas'),
       fontZabars = new FontFace('Zabars', 'url(./fonts/Zabars/zabars-webfont.woff2)');
 export const Intervals = new IntervalListener();
 export const Sounds = new Sound('./sound/');
-
-let world,
+export const BACKEND = new Backend();
+let world, gHighScores,
     arrEnergyIcons, 
     arrJumpIcons, 
     arrAccuracyIcons, 
@@ -39,6 +40,7 @@ function runApp() {
     setEventListeners();
     loadSettings(APP_NAME);
     loadFont(fontZabars);
+    loadHighScores();
     initSounds();
     // coming from help or settings?
     autoStart = sessionStorage.getItem(APP_NAME + '_AutoStart');
@@ -141,6 +143,7 @@ async function displayControls(state = true) {
     Intervals.remove('Pepe'); // MUST be executed first!
     clearInterval(world.mainID);
     Intervals.clear();
+    if (newHighScore()) BACKEND.setItem(APP_NAME + '_HighScores', gHighScores);
     if (world.levelNo > gameSettings.lastLevel) saveSettings(APP_NAME, world.Pepe);
     window.cancelAnimationFrame(world.reqAnimationFrameID);
     world.reqAnimationFrameID = undefined;
@@ -153,7 +156,7 @@ function setEventListeners() {
     canvas.addEventListener('click', closeDemo);
     btnClose.element.addEventListener('click', closeDemo); 
     document.addEventListener('keyup', function(event) {
-        if (event.key === "Escape") {
+        if (event.key === 'Escape') {
             if (demoMode) closeDemo();
             if (world.level.insideShop) world.level.shop.exit();
         } 
@@ -250,6 +253,77 @@ function loadFont(newFont) {
     });
 }
 
+async function loadHighScores() {
+    // let response = await BACKEND.loadJSONFromServer();
+    debugger
+    gHighScores = await BACKEND.getItem(APP_NAME + '_HighScores') || DEF_HIGHSCORES;
+    renderHighScores();
+}
+
+
+function renderHighScores() {
+    const divHighScore = $('.highscore');
+    divHighScore.innerHTML = '';
+    for (let i = 0; i < gHighScores.length; i++) {
+        const rank = gHighScores[i];
+        divHighScore.innerHTML += `
+            <div class="highscore-item">
+                <p>${i+1}. ${rank.name}</p><p>${rank.score.toLocaleString()}</p>
+            </div>`;
+    }
+}
+
+
+function newHighScore() {
+    let success = false;    
+    for (let i = gHighScores.length-1; i > -1 ; i--) {        
+        success = (world.Pepe.score > gHighScores[i].score);
+        if (success) {
+            //{score: 10000, level: 5, name: 'Pepe', time: 1668638556630}
+            gHighScores[i].score = world.Pepe.score;
+            gHighScores[i].level = world.levelNo;
+            gHighScores[i].time = getTime$();
+            gHighScores[i].name = promptPlayerName();
+            sortHighScores('score');
+            renderHighScores();
+            break;
+        } 
+    }
+    return success;
+}
+
+
+/**
+ * Sorts the JSON-array in descending order
+ * @param {string} key sort order key of the JSON-array 
+ */
+ function sortHighScores(key) {
+    // to sort ascending use:
+    // gHighScores.sort((prev, next)=> {return prev[key] - next[key]});
+    gHighScores.sort((prev, next)=> {return next[key] - prev[key]});
+    // or: gHighScores.sort(compareJSON(key));
+}
+
+
+/**
+ * helper function to sort a JSON-array
+ * @param {string} key JSON key for sort order
+ * @returns 1 = greater than | -1 = smaller than | 0 = equal
+ */
+function compareJSON(key) {    
+    return function(prev, next) {    
+        if (prev[key] > next[key]) return 1; 
+        if (prev[key] < next[key])  return -1;   
+        return 0;    
+    }    
+} 
+
+function promptPlayerName() {
+    let player = prompt('Please enter your name', 'Pepe');
+    debugger
+    if (player != null) return player;
+}
+
 export function updateStatusbar(pepe) {
     ICON_JUMP.src = arrJumpIcons[getImageIndex(pepe.jumpPower)]; 
     ICON_ENERGY.src = arrEnergyIcons[getImageIndex(pepe.energy)];
@@ -271,7 +345,6 @@ export function updateStatusbar(pepe) {
     $('divSeed').classList.toggle('hidden',(!pepe.seeds));
     $('#divSeed >label').innerText = pepe.seeds;
     btnFeed.toggleClass('hidden', (!pepe.seeds));
-
     btnShop.toggleClass('hidden', (!(pepe.isInFrontOfShop && pepe.environment.level.shop.isOpen)));
     
     if (pepe.gun) {

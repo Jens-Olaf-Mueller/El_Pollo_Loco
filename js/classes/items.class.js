@@ -39,7 +39,7 @@ export default class Item extends Background {
     }
 
     initialize() {
-        this.X = random (150, this.eastEnd - CANVAS_WIDTH * 0.8);
+        this.X = random (150, this.eastEnd - 75);
         this.X = this.fivty50 ? -this.X : this.X;
         switch (this.type) {
             case 'bottle': this.Y = 370;                

@@ -71,11 +71,13 @@ export default class Graphics {
         if (this.isDead) return;
         if (this.energy < 100) {
             let color = this.energy >= 66 ? 'green' : this.energy >= 33 ? 'gold' : 'tomato';
-            ctx.beginPath();            
-            ctx.lineWidth = '1';
-            ctx.strokeStyle = color;
-            ctx.rect(this.X + 50, this.Y + 40, 100, 10);
-            ctx.stroke();
+            this.drawRoundRect(ctx, this.X+50, this.Y+40, 100, 10, 5, color);
+
+            // ctx.beginPath();            
+            // ctx.lineWidth = '1';
+            // ctx.strokeStyle = color;
+            // ctx.rect(this.X + 50, this.Y + 40, 100, 10);
+            // ctx.stroke();
             ctx.fillStyle = color;
             ctx.fillRect(this.X + 50, this.Y + 41, this.energy, 8);
         }
@@ -127,5 +129,24 @@ export default class Graphics {
             ctx.fillText(`Bottom: ${parseInt(this.bottom)} Right: ${parseInt(this.right)}`,this.X, this.bottom + 20);
         }                
         if (this.isMirrored) this.environment.flipImage(this, false);
+    }
+
+
+    drawRoundRect(ctx, pX, pY, width, height, radius, color = 'green') {
+        const right = pX + width,
+              bottom = pY + height;
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = '1';
+        ctx.moveTo(pX+radius, pY);
+        ctx.lineTo(right-radius, pY);
+        ctx.quadraticCurveTo(right, pY, right, pY+radius);
+        ctx.lineTo(right, pY+height-radius);
+        ctx.quadraticCurveTo(right, bottom, right-radius, bottom);
+        ctx.lineTo(pX+radius, bottom);
+        ctx.quadraticCurveTo(pX, bottom, pX, bottom-radius);
+        ctx.lineTo(pX, pY+radius);
+        ctx.quadraticCurveTo(pX, pY, pX+radius, pY);
+        ctx.stroke();
     }
 }

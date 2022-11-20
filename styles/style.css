@@ -171,6 +171,80 @@ canvas {
     100% {transform: translate3d(-100%,0,0);}
 }
 
+.home-icons.highscore-parent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 248px;
+    margin-bottom: 0;
+    background-image: url('../img/Status/board.png');
+    background-position: center;
+    background-size: cover;
+    overflow: hidden;
+}
+
+.highscore-parent h3 {
+    top: 40%;
+}
+
+.highscore { 
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; */
+    width: 100%;
+    align-items: center;
+    color: #f9ca24;
+    font-size: 1.25rem;
+    transform: translateY(10%);
+}
+
+.highscore-item {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 0.75rem;
+}
+
+
+.highscore-parent:hover .highscore {    
+    /* animation properties */
+    -moz-transform: translateY(200%);
+    -webkit-transform: translateY(200%);
+    transform: translateY(200%);
+    
+    -moz-animation: scroll-vertical 5s linear infinite;
+    -webkit-animation: scroll-vertical 5s linear infinite;
+    animation: scroll-vertical 5s linear infinite;
+}
+  
+/* for Firefox */
+@-moz-keyframes scroll-vertical {
+    from { -moz-transform: translateY(200%); }
+    to { -moz-transform: translateY(-200%); }
+}
+  
+/* for Chrome */
+@-webkit-keyframes scroll-vertical {
+    from { -webkit-transform: translateY(200%); }
+    to { -webkit-transform: translateY(-200%); }
+}
+  
+@keyframes scroll-vertical {
+    from {
+        -moz-transform: translateY(200%);
+        -webkit-transform: translateY(200%);
+        transform: translateY(200%);
+    }
+    to {
+        -moz-transform: translateY(-200%);
+        -webkit-transform: translateY(-200%);
+        transform: translateY(-200%);
+    }
+}
+
+
+
 .progress-bar {
     position: absolute;
     margin: 0;

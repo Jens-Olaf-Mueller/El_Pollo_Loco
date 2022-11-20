@@ -43,7 +43,7 @@ export default class Coin extends Item {
     }
 
     placePosition() {
-        this.X = random (150, this.eastEnd - CANVAS_WIDTH * 0.8);
+        this.X = random (150, this.eastEnd - 75);
         this.X = this.fivty50 ? -this.X : this.X;
         this.Y = 270 - (this.coin.value + this.index * 5) * 2.25;
         if (this.Y <= 0) this.Y = 10;

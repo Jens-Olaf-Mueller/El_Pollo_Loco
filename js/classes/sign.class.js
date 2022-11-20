@@ -19,7 +19,7 @@ export default class Sign extends Background {
 
     initialize() {
         this.setZindex();
-        this.X = random(0, this.level.eastEnd - CANVAS_WIDTH * 0.125);
+        this.X = random(0, this.level.eastEnd - 75);
         this.X = this.fivty50 ? -this.X : this.X;
         if (this.X < this.level.westEnd) this.X = this.level.westEnd + 2 * this.width;
         let path = './img/Items/Signs/sign ';

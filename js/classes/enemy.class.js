@@ -48,7 +48,7 @@ export default class Enemy extends Mobile {
         this.height += size;
         this.Y = 430 - Math.random() * this.height;
         let west = this.fivty50 ? -1 : 1;
-        this.X = random(350, this.eastEnd - CANVAS_WIDTH * 0.8) * west;    
+        this.X = random(350, this.eastEnd - 75) * west;    
         this.onCollisionCourse = this.bottom >= 430 && this.bottom <= 460;
         this.moveDirection = this.X >= 0 ? 'left' : 'right';
         this.isBackground = size <= 12 && !(this.onCollisionCourse) ? true : false;

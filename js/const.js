@@ -24,6 +24,14 @@ const CANVAS_WIDTH = 720;
 // collision constants clockwise (or binary: 1, 2, 4, 8... ?)
 const COLLISION = {top: 12, right: 3, bottom: 6, left: 9}
 
+const DEF_HIGHSCORES = [
+    {score: 10000, level: 5, name: 'Pepe', time: 1668638556630},
+    {score: 5000, level: 4, name: 'Pepe', time: 1668638556630},
+    {score: 2500, level: 3, name: 'Pepe', time: 1668638556630},
+    {score: 1000, level: 2, name: 'Pepe', time: 1668638556630},
+    {score: 500, level: 1, name: 'Pepe', time: 1668638556630},
+]
+
 // icons for tatusbar
 const ICON_ENERGY = $('imgEnergy'),
       ICON_JUMP = $('imgJump'),
@@ -115,7 +123,7 @@ export const DEFAULT_SETTINGS = {
     seeds: 0
 }
 
-export { APP_NAME, PEPE, 
+export { APP_NAME, PEPE, DEF_HIGHSCORES,
         SOUNDS, SONG_TITLES,
         FPS, GROUND, CAM_OFFSET,
         CANVAS_HEIGHT, CANVAS_WIDTH,  

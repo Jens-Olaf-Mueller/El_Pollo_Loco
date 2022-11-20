@@ -60,6 +60,9 @@ export default class World extends Game {
         this.levelNo = this.settings.lastLevel;
         Intervals.clear(); // must be executed BEFORE new Character!!!                             
         this.initLevel(this.levelNo); // FIRST create the level...
+        this.bonus = new Bonus('./img/Status/Bonus/spin0.png');
+        this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
+        this.seed = new Seed('./img/Seed/seed1.png');
         this.Pepe = new Character(this); // ... THEN the character!
         this.draw();        
     }
@@ -77,9 +80,9 @@ export default class World extends Game {
         this.arrEndBosses = this.level.EndBosses;
         this.arrFood = this.level.Food;
         this.arrItems = this.level.Items;
-        this.bonus = new Bonus('./img/Status/Bonus/spin0.png');
-        this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
-        this.seed = new Seed('./img/Seed/seed1.png');
+        // this.bonus = new Bonus('./img/Status/Bonus/spin0.png');
+        // this.bottle = new Bottle('./img/Items/Bottles/rotation/spin0.png');
+        // this.seed = new Seed('./img/Seed/seed1.png');
         if (gameSettings.debugMode) {            
             console.log('World created... ', this);
             if (gameSettings.logIntervals) Intervals.list();
@@ -116,6 +119,8 @@ export default class World extends Game {
             await showIntroScreen(this.levelNo);
             this.initLevel(this.levelNo);
             this.Pepe.X = 50;
+            this.Pepe.eastEnd = this.eastEnd;
+            this.Pepe.westEnd = this.westEnd;
             this.Pepe.bottles = 0;
             if (this.Pepe.accuracy > 100) this.Pepe.accuracy -= this.levelNo * 10;
             if (this.Pepe.sharpness > 100) this.Pepe.sharpness -= this.levelNo * 10;  

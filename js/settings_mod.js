@@ -47,7 +47,7 @@ export function setSettings () {
 
 export function saveSettings (key, pepe) {    
     if (pepe) {
-        if(pepe.score > gameSettings.highScore) gameSettings.highScore = pepe.score;
+        if (pepe.score > gameSettings.highScore) gameSettings.highScore = pepe.score;
         gameSettings.lastLevel = pepe.environment.levelNo;
         gameSettings.score = pepe.score;
         gameSettings.energy = pepe.energy;

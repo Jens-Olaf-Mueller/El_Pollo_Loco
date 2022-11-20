@@ -35,7 +35,7 @@ export default class Obstacle extends Background {
         if (this.visible) {
             const bgSize = random(1, 30);
             this.height += bgSize;
-            this.X = random (350, this.eastEnd - CANVAS_WIDTH * 0.8); 
+            this.X = random (350, this.eastEnd - 75); 
             this.X = this.fivty50 ? -this.X : this.X;
             this.Y = 430 - Math.random() * this.height;
             this.onCollisionCourse = this.bottom >= 430 && this.bottom <= 460;
